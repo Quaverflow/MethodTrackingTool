@@ -125,6 +125,7 @@ public static class MethodLogger
     {
         var output = JsonSerializer.Serialize(TopLevelCalls, SerializerOptions);
         _loggerOutput(output);
+        WriteLogFile(output);
         return output;
     }
 
@@ -276,5 +277,19 @@ public static class MethodLogger
 
         return entry;
     }
+    public static string GetLogFilePath()
+    {
+        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
+        if (!Directory.Exists(folder))
+        {
+            Directory.CreateDirectory(folder);
+        }
+        return Path.Combine(folder, "loggeroutput.json");
+    }
 
+    public static void WriteLogFile(string content)
+    {
+        string path = GetLogFilePath();
+        File.WriteAllText(path, content);
+    }
 }
