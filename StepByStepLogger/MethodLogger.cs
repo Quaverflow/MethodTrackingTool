@@ -10,16 +10,24 @@ namespace StepByStepLogger
     // Represents a logged method call.
     public class LogEntry
     {
+        // Raw values (not serialized)
+        [System.Text.Json.Serialization.JsonIgnore]
+        public DateTime RawStartTime { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
+        public DateTime RawEndTime { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
+        public double RawElapsedMilliseconds => (RawEndTime - RawStartTime).TotalMilliseconds;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public double RawExclusiveElapsedMilliseconds => RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
+
+        // Formatted values for human consumption.
         public string MethodName { get; set; } = "";
         public List<string> Parameters { get; set; } = new();
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        // Total time spent in this method, including nested calls.
-        public double ElapsedMilliseconds => (EndTime - StartTime).TotalMilliseconds;
-        // Exclusive time: parent's elapsed time minus the time spent in immediate children.
-        public double ExclusiveElapsedMilliseconds => ElapsedMilliseconds - Children.Sum(child => child.ElapsedMilliseconds);
+        public string StartTime => RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
+        public string EndTime => RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
+        public string ElapsedTime => $"{RawElapsedMilliseconds:F3} ms";
+        public string ExclusiveElapsedTime => $"{RawExclusiveElapsedMilliseconds:F3} ms";
         public object? ReturnValue { get; set; }
-        // Children come last.
         public List<LogEntry> Children { get; set; } = new();
     }
 
@@ -91,7 +99,7 @@ namespace StepByStepLogger
             _harmonyInstance = null;
             PatchedMethods.Clear();
 
-            // Serialize the call tree to JSON.
+            // Serialize the complete call tree to indented JSON.
             var json = JsonSerializer.Serialize(TopLevelCalls, new JsonSerializerOptions { WriteIndented = true });
             _loggerOutput(json);
 
@@ -99,7 +107,7 @@ namespace StepByStepLogger
             CallStack.Clear();
         }
 
-        // Called before the original method.
+        // Harmony prefix hook: Called before the original method.
         private static void LogMethodEntry(MethodBase __originalMethod, object?[]? __args)
         {
             var argsText = __args != null ? __args.Select(arg => arg?.ToString() ?? "null").ToList() : new List<string>();
@@ -107,18 +115,18 @@ namespace StepByStepLogger
             {
                 MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
                 Parameters = argsText,
-                StartTime = DateTime.UtcNow
+                RawStartTime = DateTime.UtcNow
             };
             CallStack.Push(entry);
         }
 
-        // Called after a void method.
+        // Harmony postfix hook for void methods.
         private static void LogVoidMethodExit(MethodBase __originalMethod)
         {
             if (CallStack.Count > 0)
             {
                 var entry = CallStack.Pop();
-                entry.EndTime = DateTime.UtcNow;
+                entry.RawEndTime = DateTime.UtcNow;
                 entry.ReturnValue = "void";
                 if (CallStack.Count > 0)
                     CallStack.Peek().Children.Add(entry);
@@ -127,13 +135,13 @@ namespace StepByStepLogger
             }
         }
 
-        // Called after a method with a return value.
+        // Harmony postfix hook for methods with a return value.
         private static void LogMethodExit(MethodBase __originalMethod, object? __result)
         {
             if (CallStack.Count > 0)
             {
                 var entry = CallStack.Pop();
-                entry.EndTime = DateTime.UtcNow;
+                entry.RawEndTime = DateTime.UtcNow;
                 entry.ReturnValue = __result;
                 if (CallStack.Count > 0)
                     CallStack.Peek().Children.Add(entry);
