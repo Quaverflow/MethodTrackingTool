@@ -14,10 +14,17 @@ public static class MethodLogger
     public static MethodLoggerOptions Options { get; } = new();
 
     /// <summary>
-    /// Enables logging for all valid methods in the specified assembly.
-    /// If a Harmony instance already exists, it will be used to patch the new assembly.
+    /// Enables logging for the assembly of the specified types
     /// </summary>
-    public static void EnableLogging(Assembly targetAssembly, Action<string> outputAction)
+    public static void EnableLogging(Action<string> outputAction, params Type[] targetType)
+    {
+        EnableLogging(outputAction, targetType.Select(x => x.Assembly).ToArray());
+    }
+
+    /// <summary>
+    /// Enables logging for all valid methods in the specified assemblies.
+    /// </summary>
+    public static void EnableLogging(Action<string> outputAction, params Assembly[] targetAssemblies)
     {
         if (_harmonyInstance == null)
         {
@@ -25,17 +32,10 @@ public static class MethodLogger
             _loggerOutput = outputAction;
         }
 
-        PatchAssembly(targetAssembly);
-    }
-
-    /// <summary>
-    /// Enables logging for all valid methods in the specified assemblies.
-    /// </summary>
-    public static void EnableLogging(IEnumerable<Assembly> targetAssemblies, Action<string> outputAction)
-    {
         foreach (var asm in targetAssemblies)
         {
-            EnableLogging(asm, outputAction);
+            PatchAssembly(asm);
+
         }
     }
 

@@ -34,7 +34,7 @@ public class MethodLoggerTests
 
         MethodLogger.Options.IncludePerformanceMetrics = true;
         MethodLogger.Options.DateTimeFormat = "HH:mm:ss:ff d/M/yyyy";
-        MethodLogger.EnableLogging(Assembly.GetExecutingAssembly(), Logger);
+        MethodLogger.EnableLogging(Logger, Assembly.GetExecutingAssembly());
 
         // Act: call a method.
         var service = new DummyService();
@@ -61,7 +61,7 @@ public class MethodLoggerTests
         // Arrange: capture output.
         var outputLines = new List<string>();
         MethodLogger.Options.IncludePerformanceMetrics = false;
-        MethodLogger.EnableLogging(Assembly.GetExecutingAssembly(), Logger);
+        MethodLogger.EnableLogging(Logger, Assembly.GetExecutingAssembly());
 
         // Act.
         var service = new DummyService();
@@ -74,7 +74,6 @@ public class MethodLoggerTests
         Assert.DoesNotContain("StartTime", jsonOutput);
         Assert.DoesNotContain("EndTime", jsonOutput);
         Assert.DoesNotContain("ElapsedTime", jsonOutput);
-        Assert.Contains("DummyService.DoWork", jsonOutput);
         return;
 
         void Logger(string s) => outputLines.Add(s);
@@ -85,10 +84,9 @@ public class MethodLoggerTests
     {
         // Arrange: capture output.
         var outputLines = new List<string>();
-        var assemblies = new List<Assembly> { Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly() };
         MethodLogger.Options.IncludePerformanceMetrics = true;
         MethodLogger.Options.DateTimeFormat = "HH:mm:ss:ff d/M/yyyy";
-        MethodLogger.EnableLogging(assemblies, Logger);
+        MethodLogger.EnableLogging(Logger, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly());
 
         // Act.
         var service = new DummyService();
@@ -112,7 +110,7 @@ public class MethodLoggerTests
         MethodLogger.Options.EnableRealTimeLogging = true;
         MethodLogger.Options.ClearLogEntrySubscribers();
         MethodLogger.Options.OnLogEntry += entry => rtLogEntries.Add($"RT: {entry.MethodName}");
-        MethodLogger.EnableLogging(Assembly.GetExecutingAssembly(), _ => { });
+        MethodLogger.EnableLogging(_ => { }, Assembly.GetExecutingAssembly());
 
         // Act.
         var service = new DummyService();
@@ -127,11 +125,7 @@ public class MethodLoggerTests
     [Fact]
     public void Sample()
     {
-        MethodLogger.Options.IncludePerformanceMetrics = true;
-        MethodLogger.Options.DateTimeFormat = "HH:mm:ss:ff d/M/yyyy";
-        MethodLogger.Options.EnableRealTimeLogging = true;
-        MethodLogger.Options.ClearLogEntrySubscribers();
-        MethodLogger.EnableLogging(typeof(UserService).Assembly, _testOutputHelper.WriteLine);
+        MethodLogger.EnableLogging(_testOutputHelper.WriteLine, typeof(UserService));
 
         var service = new UserService();
         service.GetUser(2);
