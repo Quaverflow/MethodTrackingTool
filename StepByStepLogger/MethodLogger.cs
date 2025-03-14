@@ -154,7 +154,7 @@ public static class MethodLogger
         return result;
     }
 
-    private static void LogMethodEntry(MethodBase __originalMethod, object?[]? __args)
+    private static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
         var parameters = __originalMethod.GetParameters();
         var argsText = __args != null
@@ -175,18 +175,18 @@ public static class MethodLogger
         Options.RaiseLogEntry(entry);
     }
 
-    private static void LogVoidMethodExit(MethodBase __originalMethod)
+    private static void LogVoidMethodExit(MethodInfo __originalMethod)
     {
         if (CallStack.Count > 0)
         {
             var entry = CommonLogMethodExitSetup();
-            entry.ReturnType = "void";
+            entry.ReturnType = BuildReturnTypeString(__originalMethod);
             entry.ReturnValue = "N/A";
             AddToStack(entry);
         }
     }
 
-    private static void LogMethodExit(MethodBase __originalMethod, object? __result)
+    private static void LogMethodExit(MethodInfo __originalMethod, object? __result)
     {
         if (__result is Task task)
         {
@@ -195,8 +195,7 @@ public static class MethodLogger
                 var entry = CommonLogMethodExitSetup();
                 var taskResult = task.GetType().GenericTypeArguments.Any() ? GetTaskResult(t) : t;
 
-                var type = taskResult?.GetType();
-                entry.ReturnType = $"{type?.Namespace}.{type?.Name}";
+                entry.ReturnType = BuildReturnTypeString(__originalMethod);
                 entry.ReturnValue = SerializeReturnValue(taskResult);
                 AddToStack(entry);
             });
@@ -204,12 +203,16 @@ public static class MethodLogger
         else
         {
             var entry = CommonLogMethodExitSetup();
-            var type = __result?.GetType();
-            entry.ReturnType = $"{type?.Namespace}.{type?.Name}";
+            entry.ReturnType = BuildReturnTypeString(__originalMethod);
             entry.ReturnValue = SerializeReturnValue(__result);
             AddToStack(entry);
 
         }
+    }
+
+    private static string BuildReturnTypeString(MethodInfo __originalMethod)
+    {
+        return __originalMethod.ReturnType.Namespace + "." + __originalMethod.ReturnType.Name;
     }
 
     private static object SerializeReturnValue(object? result)
