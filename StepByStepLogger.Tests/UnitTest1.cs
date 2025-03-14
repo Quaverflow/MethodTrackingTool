@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using StepByStepLogger;
+﻿using StepByStepLogger;
 using StepByStepLogger.MockProject;
 using Xunit.Abstractions;
 
@@ -11,7 +10,7 @@ public class HarmonyTests : IDisposable
     {
         _outputHelper = outputHelper;
 
-        string mockAssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "StepByStepLogger.MockProject.dll");
+        var mockAssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "StepByStepLogger.MockProject.dll");
         if (!File.Exists(mockAssemblyPath))
         {
             throw new FileNotFoundException($"Mock assembly not found: {mockAssemblyPath}");
