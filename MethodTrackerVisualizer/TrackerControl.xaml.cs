@@ -20,6 +20,9 @@ namespace MethodTrackerVisualizer
     {
         private static readonly string FilePath = GetLogFilePath();
         private List<LogEntry> _fullLogData = new List<LogEntry>();
+        private List<LogEntry> _matchedEntries = new List<LogEntry>();
+        private int _currentMatchIndex = -1;
+
         public static string GetLogFilePath()
         {
             var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
@@ -70,30 +73,43 @@ namespace MethodTrackerVisualizer
                 MessageBox.Show("Error loading log data: " + ex.Message);
             }
         }
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        private void PreviousButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_matchedEntries.Any())
+            {
+                _currentMatchIndex = (_currentMatchIndex - 1 + _matchedEntries.Count) % _matchedEntries.Count;
+                NavigateToEntry(_matchedEntries[_currentMatchIndex]);
+            }
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_matchedEntries.Any())
+            {
+                _currentMatchIndex = (_currentMatchIndex + 1) % _matchedEntries.Count;
+                NavigateToEntry(_matchedEntries[_currentMatchIndex]);
+            }
+        }
+
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string searchText = SearchTextBox.Text.Trim();
             if (string.IsNullOrEmpty(searchText))
             {
-                // If search text is empty, just select the top of the tree.
-                if (_fullLogData.Any())
-                {
-                    var firstItem = _fullLogData.First();
-                    SelectTreeViewItem(firstItem);
-                }
+                _matchedEntries.Clear();
+                _currentMatchIndex = -1;
                 return;
             }
 
-            var foundEntry = FindLogEntry(_fullLogData, searchText);
-            if (foundEntry != null)
+            _matchedEntries = FindMatchingEntries(_fullLogData, searchText);
+            if (_matchedEntries.Any())
             {
-                SelectTreeViewItem(foundEntry);
-            }
-            else
-            {
-                MessageBox.Show("No matching method found.");
+                _currentMatchIndex = 0;
+                NavigateToEntry(_matchedEntries[_currentMatchIndex]);
             }
         }
+
 
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
@@ -101,22 +117,23 @@ namespace MethodTrackerVisualizer
             LogTreeView.ItemsSource = _fullLogData;
         }
 
-        // Recursively searches the log data for a log entry with a MethodName that contains the search text.
-        private LogEntry FindLogEntry(List<LogEntry> entries, string searchText)
+        private List<LogEntry> FindMatchingEntries(List<LogEntry> entries, string searchText)
         {
+            var result = new List<LogEntry>();
             foreach (var entry in entries)
             {
                 if (entry.MethodName.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
-                    return entry;
-                var found = FindLogEntry(entry.Children, searchText);
-                if (found != null)
-                    return found;
+                {
+                    result.Add(entry);
+                }
+                result.AddRange(FindMatchingEntries(entry.Children, searchText));
             }
-            return null;
+            return result;
         }
 
+
         private TreeViewItem _selected;
-        private void SelectTreeViewItem(object dataItem)
+        private void NavigateToEntry(object dataItem)
         {
             ExpandAllParents(dataItem, LogTreeView);
             Dispatcher.BeginInvoke(new Action(() =>

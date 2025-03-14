@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:stepByStepLogger="clr-namespace:StepByStepLogger"
-             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
-             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
+             Background="Black"
+             Foreground="White"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              Name="MyToolWindow">
@@ -19,9 +19,11 @@
             <Setter Property="BorderThickness" Value="0" />
             <EventSetter Event="Selected" Handler="TreeViewItem_Selected" />
         </Style>
-
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
         <HierarchicalDataTemplate DataType="{x:Type stepByStepLogger:LogEntry}" ItemsSource="{Binding Children}">
-            <Border BorderThickness="1" BorderBrush="Gray" Padding="5" Margin="2">
+            <Border BorderThickness="1" BorderBrush="Gray" Padding="5" Margin="2"  Background="White">
                 <StackPanel>
                     <TextBlock Text="{Binding MethodName}" FontWeight="Bold" />
                     <TextBlock>
@@ -52,19 +54,24 @@
             </Border>
         </HierarchicalDataTemplate>
     </UserControl.Resources>
-    <Grid>
+    <Grid Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <!-- Search bar row -->
         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-            <TextBox x:Name="SearchTextBox" Width="200" Margin="0,0,5,0" 
-                     VerticalAlignment="Center" />
-            <Button Content="Search" Click="SearchButton_Click" VerticalAlignment="Center" />
+            <TextBox Background="White"
+                     Foreground="Black"
+                     x:Name="SearchTextBox" 
+                     Width="200" Margin="0,0,5,0" 
+                     VerticalAlignment="Center" 
+                     TextChanged="SearchTextBox_TextChanged" />
+            <Button Content="Previous" Click="PreviousButton_Click" VerticalAlignment="Center" />
+            <Button Content="Next" Click="NextButton_Click" Margin="5,0,0,0" VerticalAlignment="Center" />
             <Button Content="Clear" Click="ClearButton_Click" Margin="5,0,0,0" VerticalAlignment="Center" />
         </StackPanel>
         <!-- Log tree view row -->
-        <TreeView x:Name="LogTreeView" Grid.Row="1" Margin="5" />
+        <TreeView Background="Black"  x:Name="LogTreeView" Grid.Row="1" Margin="5" />
     </Grid>
 </UserControl>
