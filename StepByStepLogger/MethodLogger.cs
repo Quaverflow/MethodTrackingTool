@@ -8,9 +8,10 @@ using System.Text.Json.Serialization;
 
 namespace StepByStepLogger
 {
-    // Represents a logged method call.
+    // Full log entry with performance metrics.
     public class LogEntry
     {
+        // Raw timing values (not serialized)
         [JsonIgnore]
         public DateTime RawStartTime { get; set; }
         [JsonIgnore]
@@ -20,22 +21,33 @@ namespace StepByStepLogger
         [JsonIgnore]
         public double RawExclusiveElapsedMilliseconds => RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
 
+        // Core properties.
         public string MethodName { get; set; } = "";
         public List<string> Parameters { get; set; } = new();
+        public object? ReturnValue { get; set; }
+        public string ReturnValueType =>
+            ReturnValue == null ? "null" :
+            ReturnValue is string s && s == "void" ? "void" :
+            ReturnValue.GetType().Name;
+
+        // Formatted timing values.
         public string StartTime => RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
         public string EndTime => RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
         public string ElapsedTime => $"{RawElapsedMilliseconds:F3} ms";
         public string ExclusiveElapsedTime => $"{RawExclusiveElapsedMilliseconds:F3} ms";
-        public string ReturnValueType =>
-            ReturnValue switch
-            {
-                null => "null",
-                "void" => "void",
-                _ => ReturnValue.GetType().Name
-            };
-        public object? ReturnValue { get; set; }
 
+        // Children appear at the bottom.
         public List<LogEntry> Children { get; set; } = new();
+    }
+
+    // Minimal output log entry that excludes performance metrics.
+    public class OutputLogEntry
+    {
+        public string MethodName { get; set; } = "";
+        public List<string> Parameters { get; set; } = new();
+        public object? ReturnValue { get; set; }
+        public string ReturnValueType { get; set; } = "";
+        public List<OutputLogEntry> Children { get; set; } = new();
     }
 
     public static class MethodLogger
@@ -45,6 +57,9 @@ namespace StepByStepLogger
         private static readonly List<LogEntry> TopLevelCalls = new();
         private static readonly Stack<LogEntry> CallStack = new();
         private static Action<string> _loggerOutput = _ => { };
+
+        // Controls whether performance metrics are included in the output.
+        public static bool IncludePerformanceMetrics { get; set; } = true;
 
         public static void EnableLogging(Assembly targetAssembly, Action<string> outputAction)
         {
@@ -102,19 +117,40 @@ namespace StepByStepLogger
             {
                 _harmonyInstance.Unpatch(method, HarmonyPatchType.All);
             }
-
             _harmonyInstance = null;
             PatchedMethods.Clear();
 
-            // Serialize the complete call tree to indented JSON.
-            var json = JsonSerializer.Serialize(TopLevelCalls, new JsonSerializerOptions { WriteIndented = true });
+            // If performance metrics are not desired, transform to minimal output.
+            string json;
+            if (IncludePerformanceMetrics)
+            {
+                json = JsonSerializer.Serialize(TopLevelCalls, new JsonSerializerOptions { WriteIndented = true });
+            }
+            else
+            {
+                var minimalOutput = TopLevelCalls.Select(entry => ToMinimal(entry)).ToList();
+                json = JsonSerializer.Serialize(minimalOutput, new JsonSerializerOptions { WriteIndented = true });
+            }
             _loggerOutput(json);
 
             TopLevelCalls.Clear();
             CallStack.Clear();
         }
 
-        // Harmony prefix hook: Called before the original method.
+        // Converts a full LogEntry to an OutputLogEntry (without timing properties).
+        private static OutputLogEntry ToMinimal(LogEntry entry)
+        {
+            return new OutputLogEntry
+            {
+                MethodName = entry.MethodName,
+                Parameters = entry.Parameters,
+                ReturnValue = entry.ReturnValue,
+                ReturnValueType = entry.ReturnValueType,
+                Children = entry.Children.Select(child => ToMinimal(child)).ToList()
+            };
+        }
+
+        // Harmony prefix hook: called before the original method.
         private static void LogMethodEntry(MethodBase __originalMethod, object?[]? __args)
         {
             var argsText = __args != null ? __args.Select(arg => arg?.ToString() ?? "null").ToList() : new List<string>();
@@ -172,7 +208,8 @@ namespace StepByStepLogger
 
         private static bool IsSystemType(Type type)
         {
-            return type.Namespace?.StartsWith("System") == true || type.Namespace?.StartsWith("Microsoft") == true;
+            return type.Namespace?.StartsWith("System") == true ||
+                   type.Namespace?.StartsWith("Microsoft") == true;
         }
 
         private static bool IsTestType(Type type)
