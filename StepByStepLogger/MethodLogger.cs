@@ -16,7 +16,7 @@ public static class MethodLogger
     private static readonly Stack<LogEntry> CallStack = new();
     private static Action<string> _loggerOutput = _ => { };
 
-    private static JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         ReferenceHandler = ReferenceHandler.Preserve,
         WriteIndented = true,
@@ -54,68 +54,52 @@ public static class MethodLogger
 
     private static void PatchAssembly(Assembly targetAssembly)
     {
-        foreach (var type in targetAssembly.GetTypes())
+        var methods = targetAssembly.GetTypes()
+            .Where(type => !MethodLoggerHelpers.IsSystemType(type) && !MethodLoggerHelpers.IsTestType(type))
+            .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            .Where(MethodLoggerHelpers.IsValidMethod);
+
+        foreach (var method in methods)
         {
-            if (IsSystemType(type) || IsTestType(type))
+            var postfixMethodName = method.ReturnType == typeof(void)
+                ? nameof(LogVoidMethodExit)
+                : nameof(LogMethodExit);
+
+            var prefix = new HarmonyMethod(typeof(MethodLogger).GetMethod(nameof(LogMethodEntry),
+                BindingFlags.Static | BindingFlags.NonPublic));
+            var postfix = new HarmonyMethod(typeof(MethodLogger).GetMethod(postfixMethodName,
+                BindingFlags.Static | BindingFlags.NonPublic));
+
+            try
             {
-                continue;
+                var patchResult = _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix);
+                if (patchResult != null)
+                {
+                    PatchedMethods.Add(method);
+                }
             }
-
-            foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public |
-                                                   BindingFlags.NonPublic | BindingFlags.Static))
+            catch
             {
-                if (!IsValidMethod(method))
-                {
-                    continue;
-                }
-
-                var postfixMethodName = method.ReturnType == typeof(void)
-                    ? nameof(LogVoidMethodExit)
-                    : nameof(LogMethodExit);
-
-                var prefix = new HarmonyMethod(typeof(MethodLogger).GetMethod(nameof(LogMethodEntry),
-                    BindingFlags.Static | BindingFlags.NonPublic));
-                var postfix = new HarmonyMethod(typeof(MethodLogger).GetMethod(postfixMethodName,
-                    BindingFlags.Static | BindingFlags.NonPublic));
-
-                try
-                {
-                    var patchResult = _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix);
-                    if (patchResult != null)
-                    {
-                        //_loggerOutput($"✅ Patched: {method.DeclaringType?.Name}.{method.Name}");
-                        PatchedMethods.Add(method);
-                    }
-                    else
-                    {
-                        //_loggerOutput($"⚠️ Failed to patch: {method.DeclaringType?.Name}.{method.Name}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    //_loggerOutput($"❌ Exception patching {method.DeclaringType?.Name}.{method.Name}: {ex.Message}");
-                }
+                // ignore unpatched methods
             }
         }
     }
 
-    public static void PrintJson()
+    public static string PrintJson()
     {
-        var output = Options.IncludePerformanceMetrics
-            ? JsonSerializer.Serialize(TopLevelCalls, SerializerOptions)
-            : JsonSerializer.Serialize(TopLevelCalls.Select(ToMinimal), SerializerOptions);
-
+        var output = JsonSerializer.Serialize(TopLevelCalls, SerializerOptions);
         _loggerOutput(output);
+        return output;
     }
 
     /// <summary>
     /// Unpatches all methods and outputs the final call log.
     /// </summary>
-    public static void DisableLogging()
+    public static string DisableLogging()
     {
         if (_harmonyInstance == null)
         {
-            return;
+            return string.Empty;
         }
 
         foreach (var method in PatchedMethods)
@@ -126,22 +110,12 @@ public static class MethodLogger
         _harmonyInstance = null;
         PatchedMethods.Clear();
 
-        PrintJson();
+        var result = PrintJson();
 
         TopLevelCalls.Clear();
         CallStack.Clear();
-    }
 
-    private static MinimalLogEntry ToMinimal(LogEntry entry)
-    {
-        return new MinimalLogEntry
-        {
-            MethodName = entry.MethodName,
-            Parameters = entry.Parameters,
-            ReturnValue = entry.ReturnValue,
-            ReturnValueType = entry.ReturnValueType,
-            Children = entry.Children.Select(ToMinimal).ToList()
-        };
+        return result;
     }
 
     private static void LogMethodEntry(MethodBase __originalMethod, object?[]? __args)
@@ -168,24 +142,8 @@ public static class MethodLogger
     {
         if (CallStack.Count > 0)
         {
-            var entry = CallStack.Pop();
-            entry.RawEndTime = DateTime.UtcNow;
-            if (Options.IncludePerformanceMetrics)
-            {
-                entry.EndTime = entry.RawEndTime.ToString(Options.DateTimeFormat);
-                entry.ElapsedTime = $"{entry.RawElapsedMilliseconds:F3} ms";
-                entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
-            }
-
+            var entry = CommonLogMethodExitSetup();
             entry.ReturnValue = "void";
-            if (CallStack.Count > 0)
-            {
-                CallStack.Peek().Children.Add(entry);
-            }
-            else
-            {
-                TopLevelCalls.Add(entry);
-            }
         }
     }
 
@@ -193,82 +151,45 @@ public static class MethodLogger
     {
         if (CallStack.Count > 0)
         {
-            var entry = CallStack.Pop();
-            entry.RawEndTime = DateTime.UtcNow;
-            if (Options.IncludePerformanceMetrics)
+            var entry = CommonLogMethodExitSetup();
+            if (__result == null)
             {
-                entry.EndTime = entry.RawEndTime.ToString(Options.DateTimeFormat);
-                entry.ElapsedTime = $"{entry.RawElapsedMilliseconds:F3} ms";
-                entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
+                entry.ReturnValueType = "null";
+                return;
             }
 
-            entry.ReturnValueType =
-            __result switch
+            entry.ReturnValueType = __result.GetType().Name;
+            try
             {
-                null => "null",
-                "void" => "void",
-                _ => __result.GetType().Name
-            }; ;
-
-            
-            if (__result is Type)
-            {
-                entry.ReturnValue = "System.Type is not supported by the serializer";
+                entry.ReturnValue = JsonSerializer.Serialize(__result, SerializerOptions);
             }
-            else if(__result != null)
+            catch (Exception e)
             {
-                try
-                {
-                    entry.ReturnValue = JsonSerializer.Serialize(__result, SerializerOptions);
-                }
-                catch (Exception e)
-                {
-                    _loggerOutput(__result.GetType()?.FullName ??"");
-                }
-            }
-
-            if (CallStack.Count > 0)
-            {
-                CallStack.Peek().Children.Add(entry);
-            }
-            else
-            {
-                TopLevelCalls.Add(entry);
+                _loggerOutput(__result.GetType().FullName ?? "");
             }
         }
     }
 
-    private static bool IsValidMethod(MethodInfo method)
+    private static LogEntry CommonLogMethodExitSetup()
     {
-        if (method.IsSpecialName || method.IsAbstract || method.DeclaringType == null)
+        var entry = CallStack.Pop();
+        entry.RawEndTime = DateTime.UtcNow;
+        if (Options.IncludePerformanceMetrics)
         {
-            return false;
+            entry.EndTime = entry.RawEndTime.ToString(Options.DateTimeFormat);
+            entry.ElapsedTime = $"{entry.RawElapsedMilliseconds:F3} ms";
+            entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
         }
 
-        if (method.DeclaringType.Namespace?.StartsWith("System") == true ||
-            method.DeclaringType.Namespace?.StartsWith("Microsoft") == true)
+        if (CallStack.Count > 0)
         {
-            return false;
+            CallStack.Peek().Children.Add(entry);
+        }
+        else
+        {
+            TopLevelCalls.Add(entry);
         }
 
-        if (method.Name.StartsWith("<"))
-        {
-            return false;
-        }
-
-        return !method.GetCustomAttributes().Any(attr => attr.GetType().Name.Contains("Fact") ||
-                                                         attr.GetType().Name.Contains("Test"));
-    }
-
-    private static bool IsSystemType(Type type)
-    {
-        return type.Namespace?.StartsWith("System") == true ||
-               type.Namespace?.StartsWith("Microsoft") == true;
-    }
-
-    private static bool IsTestType(Type type)
-    {
-        return type.GetCustomAttributes().Any(attr => attr.GetType().Name.Contains("Test") ||
-                                                      attr.GetType().Name.Contains("Fact"));
+        return entry;
     }
 }
