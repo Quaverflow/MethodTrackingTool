@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using Newtonsoft.Json;
+using StepByStepLogger;
 
 namespace MethodTrackerVisualizer
 {
@@ -28,20 +30,39 @@ namespace MethodTrackerVisualizer
         public TrackerControl()
         {
             InitializeComponent();
+            this.Loaded += LoggerToolWindowControl_Loaded;
         }
 
-        /// <summary>
-        /// Handles click on the button by displaying a message box.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event args.</param>
-        [SuppressMessage("Microsoft.Globalization", "CA1300:SpecifyMessageBoxOptions", Justification = "Sample code")]
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void LoggerToolWindowControl_Loaded(object sender, RoutedEventArgs e)
         {
-            string json = File.ReadAllText(FilePath);
-            MessageBox.Show(json,
-                "Tracker");
+            LoadLogData();
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            LoadLogData();
+        }
+
+        private void LoadLogData()
+        {
+            if (!File.Exists(FilePath))
+            {
+                MessageBox.Show("Log file not found at: " + FilePath);
+                return;
+            }
+            try
+            {
+                string json = File.ReadAllText(FilePath);
+                var logs = JsonConvert.DeserializeObject<List<LogEntry>>(json, new JsonSerializerSettings
+                {
+                    MissingMemberHandling = MissingMemberHandling.Ignore,
+                });
+                LogTreeView.ItemsSource = logs;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading log data: " + ex.Message);
+            }
         }
     }
 }
