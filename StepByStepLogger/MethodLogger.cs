@@ -82,6 +82,16 @@ public static class MethodLogger
         }
     }
 
+    public static void PrintJson()
+    {
+        var output = Options.IncludePerformanceMetrics
+            ? JsonSerializer.Serialize(TopLevelCalls, new JsonSerializerOptions { WriteIndented = true })
+            : JsonSerializer.Serialize(TopLevelCalls.Select(ToMinimal),
+                new JsonSerializerOptions { WriteIndented = true });
+
+        _loggerOutput(output);
+    }
+
     /// <summary>
     /// Unpatches all methods and outputs the final call log.
     /// </summary>
@@ -98,13 +108,7 @@ public static class MethodLogger
         _harmonyInstance = null;
         PatchedMethods.Clear();
 
-        // Decide whether to include performance metrics based on Options.
-        var output = Options.IncludePerformanceMetrics
-            ? JsonSerializer.Serialize(TopLevelCalls, new JsonSerializerOptions { WriteIndented = true })
-            : JsonSerializer.Serialize(TopLevelCalls.Select(ToMinimal),
-                new JsonSerializerOptions { WriteIndented = true });
-
-        _loggerOutput(output);
+        PrintJson();
 
         TopLevelCalls.Clear();
         CallStack.Clear();

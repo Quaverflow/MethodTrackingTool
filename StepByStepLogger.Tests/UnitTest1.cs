@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using StepByStepLogger.MockProject;
+using Xunit.Abstractions;
 
 namespace StepByStepLogger.Tests;
 
@@ -17,6 +19,13 @@ public class DummyService
 
 public class MethodLoggerTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public MethodLoggerTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Fact]
     public void LoggingOutput_IncludesNestedCallsAndPerformanceMetrics()
     {
@@ -113,5 +122,20 @@ public class MethodLoggerTests
         // Assert that real-time events were fired.
         Assert.NotEmpty(rtLogEntries);
         Assert.Contains(rtLogEntries, s => s.StartsWith("RT:"));
+    }
+
+    [Fact]
+    public void Sample()
+    {
+        MethodLogger.Options.IncludePerformanceMetrics = true;
+        MethodLogger.Options.DateTimeFormat = "HH:mm:ss:ff d/M/yyyy";
+        MethodLogger.Options.EnableRealTimeLogging = true;
+        MethodLogger.Options.ClearLogEntrySubscribers();
+        MethodLogger.EnableLogging(typeof(UserService).Assembly, _testOutputHelper.WriteLine);
+
+        var service = new UserService();
+        service.GetUser(2);
+
+        MethodLogger.PrintJson();
     }
 }
