@@ -4,30 +4,37 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace StepByStepLogger
 {
     // Represents a logged method call.
     public class LogEntry
     {
-        // Raw values (not serialized)
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public DateTime RawStartTime { get; set; }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public DateTime RawEndTime { get; set; }
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public double RawElapsedMilliseconds => (RawEndTime - RawStartTime).TotalMilliseconds;
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public double RawExclusiveElapsedMilliseconds => RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
 
-        // Formatted values for human consumption.
         public string MethodName { get; set; } = "";
         public List<string> Parameters { get; set; } = new();
         public string StartTime => RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
         public string EndTime => RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
         public string ElapsedTime => $"{RawElapsedMilliseconds:F3} ms";
         public string ExclusiveElapsedTime => $"{RawExclusiveElapsedMilliseconds:F3} ms";
+        public string ReturnValueType =>
+            ReturnValue switch
+            {
+                null => "null",
+                "void" => "void",
+                _ => ReturnValue.GetType().Name
+            };
         public object? ReturnValue { get; set; }
+
         public List<LogEntry> Children { get; set; } = new();
     }
 
