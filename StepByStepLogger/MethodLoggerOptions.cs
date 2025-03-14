@@ -25,11 +25,22 @@ public class MethodLoggerOptions
     /// <summary>
     /// Event fired when a new log entry is created (if EnableRealTimeLogging is true).
     /// </summary>
-    public event Action<LogEntry>? OnLogEntry;
+    public event Action<LogEntry> OnLogEntry
+    {
+        add => OnLogEntryBackingValue += value;
+        remove => OnLogEntryBackingValue -= value;
+    }
+
+    private event Action<LogEntry>? OnLogEntryBackingValue;
+
+    // Helper method to clear event subscribers.
+    public void ClearLogEntrySubscribers() => OnLogEntryBackingValue = null;
 
     internal void RaiseLogEntry(LogEntry entry)
     {
         if (EnableRealTimeLogging)
-            OnLogEntry?.Invoke(entry);
+        {
+            OnLogEntryBackingValue?.Invoke(entry);
+        }
     }
 }
