@@ -1,9 +1,13 @@
 ﻿using System.Reflection;
 using HarmonyLib;
 using System.Text.Json;
-// ReSharper disable InconsistentNaming
+using System.Text.Json.Serialization;
+using System.Text.Encodings.Web;
 
 namespace StepByStepLogger;
+
+// ReSharper disable InconsistentNaming
+
 public static class MethodLogger
 {
     private static Harmony? _harmonyInstance;
@@ -11,6 +15,15 @@ public static class MethodLogger
     private static readonly List<LogEntry> TopLevelCalls = new();
     private static readonly Stack<LogEntry> CallStack = new();
     private static Action<string> _loggerOutput = _ => { };
+
+    private static JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+    {
+        ReferenceHandler = ReferenceHandler.Preserve,
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        MaxDepth = 200,
+    };
+
     public static MethodLoggerOptions Options { get; } = new();
 
     /// <summary>
@@ -44,13 +57,17 @@ public static class MethodLogger
         foreach (var type in targetAssembly.GetTypes())
         {
             if (IsSystemType(type) || IsTestType(type))
+            {
                 continue;
+            }
 
             foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public |
                                                    BindingFlags.NonPublic | BindingFlags.Static))
             {
                 if (!IsValidMethod(method))
+                {
                     continue;
+                }
 
                 var postfixMethodName = method.ReturnType == typeof(void)
                     ? nameof(LogVoidMethodExit)
@@ -66,17 +83,17 @@ public static class MethodLogger
                     var patchResult = _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix);
                     if (patchResult != null)
                     {
-                        _loggerOutput($"✅ Patched: {method.DeclaringType?.Name}.{method.Name}");
+                        //_loggerOutput($"✅ Patched: {method.DeclaringType?.Name}.{method.Name}");
                         PatchedMethods.Add(method);
                     }
                     else
                     {
-                        _loggerOutput($"⚠️ Failed to patch: {method.DeclaringType?.Name}.{method.Name}");
+                        //_loggerOutput($"⚠️ Failed to patch: {method.DeclaringType?.Name}.{method.Name}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    _loggerOutput($"❌ Exception patching {method.DeclaringType?.Name}.{method.Name}: {ex.Message}");
+                    //_loggerOutput($"❌ Exception patching {method.DeclaringType?.Name}.{method.Name}: {ex.Message}");
                 }
             }
         }
@@ -85,9 +102,8 @@ public static class MethodLogger
     public static void PrintJson()
     {
         var output = Options.IncludePerformanceMetrics
-            ? JsonSerializer.Serialize(TopLevelCalls, new JsonSerializerOptions { WriteIndented = true })
-            : JsonSerializer.Serialize(TopLevelCalls.Select(ToMinimal),
-                new JsonSerializerOptions { WriteIndented = true });
+            ? JsonSerializer.Serialize(TopLevelCalls, SerializerOptions)
+            : JsonSerializer.Serialize(TopLevelCalls.Select(ToMinimal), SerializerOptions);
 
         _loggerOutput(output);
     }
@@ -98,7 +114,9 @@ public static class MethodLogger
     public static void DisableLogging()
     {
         if (_harmonyInstance == null)
+        {
             return;
+        }
 
         foreach (var method in PatchedMethods)
         {
@@ -122,7 +140,7 @@ public static class MethodLogger
             Parameters = entry.Parameters,
             ReturnValue = entry.ReturnValue,
             ReturnValueType = entry.ReturnValueType,
-            Children = entry.Children.Select(child => ToMinimal(child)).ToList()
+            Children = entry.Children.Select(ToMinimal).ToList()
         };
     }
 
@@ -161,9 +179,13 @@ public static class MethodLogger
 
             entry.ReturnValue = "void";
             if (CallStack.Count > 0)
+            {
                 CallStack.Peek().Children.Add(entry);
+            }
             else
+            {
                 TopLevelCalls.Add(entry);
+            }
         }
     }
 
@@ -180,23 +202,60 @@ public static class MethodLogger
                 entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
             }
 
-            entry.ReturnValue = __result;
+            entry.ReturnValueType =
+            __result switch
+            {
+                null => "null",
+                "void" => "void",
+                _ => __result.GetType().Name
+            }; ;
+
+            
+            if (__result is Type)
+            {
+                entry.ReturnValue = "System.Type is not supported by the serializer";
+            }
+            else if(__result != null)
+            {
+                try
+                {
+                    entry.ReturnValue = JsonSerializer.Serialize(__result, SerializerOptions);
+                }
+                catch (Exception e)
+                {
+                    _loggerOutput(__result.GetType()?.FullName ??"");
+                }
+            }
+
             if (CallStack.Count > 0)
+            {
                 CallStack.Peek().Children.Add(entry);
+            }
             else
+            {
                 TopLevelCalls.Add(entry);
+            }
         }
     }
 
     private static bool IsValidMethod(MethodInfo method)
     {
         if (method.IsSpecialName || method.IsAbstract || method.DeclaringType == null)
+        {
             return false;
+        }
+
         if (method.DeclaringType.Namespace?.StartsWith("System") == true ||
             method.DeclaringType.Namespace?.StartsWith("Microsoft") == true)
+        {
             return false;
+        }
+
         if (method.Name.StartsWith("<"))
+        {
             return false;
+        }
+
         return !method.GetCustomAttributes().Any(attr => attr.GetType().Name.Contains("Fact") ||
                                                          attr.GetType().Name.Contains("Test"));
     }
