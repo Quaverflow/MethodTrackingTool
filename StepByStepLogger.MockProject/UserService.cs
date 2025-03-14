@@ -2,12 +2,12 @@
 
 public class UserService
 {
-    public string GetUser(int id)
+    public User GetUser(int id)
     {
         Console.WriteLine("Inside GetUser");
         var user = BuildUser(id);
         SaveUser(user);
-        return user.Name;
+        return user;
     }
 
     private User BuildUser(int id)

@@ -7,18 +7,54 @@ using System.Text.Encodings.Web;
 namespace StepByStepLogger;
 
 // ReSharper disable InconsistentNaming
+public class LogEntryConverter : JsonConverter<LogEntry>
+{
+    public override LogEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        // Deserialization is not supported.
+        throw new NotImplementedException("Deserialization is not supported.");
+    }
+
+    public override void Write(Utf8JsonWriter writer, LogEntry value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+
+        writer.WriteString(nameof(LogEntry.MethodName), value.MethodName);
+
+        writer.WritePropertyName(nameof(LogEntry.Parameters));
+        JsonSerializer.Serialize(writer, value.Parameters, options);
+
+        writer.WritePropertyName(nameof(LogEntry.ReturnValue));
+        JsonSerializer.Serialize(writer, value.ReturnValue, options);
+
+        writer.WriteString(nameof(LogEntry.ReturnType), value.ReturnType);
+
+        if (MethodLogger.Options.IncludePerformanceMetrics)
+        {
+            writer.WriteString(nameof(LogEntry.StartTime), value.StartTime);
+            writer.WriteString(nameof(LogEntry.EndTime), value.EndTime);
+            writer.WriteString(nameof(LogEntry.ElapsedTime), value.ElapsedTime);
+            writer.WriteString(nameof(LogEntry.ExclusiveElapsedTime), value.ExclusiveElapsedTime);
+        }
+
+        writer.WritePropertyName(nameof(LogEntry.Children));
+        JsonSerializer.Serialize(writer, value.Children, options);
+
+        writer.WriteEndObject();
+    }
+}
 
 public static class MethodLogger
 {
     private static Harmony? _harmonyInstance;
-    private static readonly List<MethodInfo> PatchedMethods = new();
-    private static readonly List<LogEntry> TopLevelCalls = new();
+    private static readonly List<MethodInfo> PatchedMethods = [];
+    private static readonly List<LogEntry> TopLevelCalls = [];
     private static readonly Stack<LogEntry> CallStack = new();
     private static Action<string> _loggerOutput = _ => { };
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        ReferenceHandler = ReferenceHandler.Preserve,
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
         WriteIndented = true,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         MaxDepth = 200,
@@ -120,9 +156,10 @@ public static class MethodLogger
 
     private static void LogMethodEntry(MethodBase __originalMethod, object?[]? __args)
     {
+        var parameters = __originalMethod.GetParameters();
         var argsText = __args != null
-            ? __args.Select(arg => arg?.ToString() ?? "null").ToList()
-            : new List<string>();
+            ? __args.Select((arg, i) => $"{parameters[i].Name}: {arg?.ToString() ?? "null"}").ToList()
+            : [];
         var entry = new LogEntry
         {
             MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
@@ -143,30 +180,83 @@ public static class MethodLogger
         if (CallStack.Count > 0)
         {
             var entry = CommonLogMethodExitSetup();
-            entry.ReturnValue = "void";
+            entry.ReturnType = "void";
+            entry.ReturnValue = "N/A";
+            AddToStack(entry);
         }
     }
 
     private static void LogMethodExit(MethodBase __originalMethod, object? __result)
     {
-        if (CallStack.Count > 0)
+        if (__result is Task task)
+        {
+            task.ContinueWith(t =>
+            {
+                var entry = CommonLogMethodExitSetup();
+                var taskResult = task.GetType().GenericTypeArguments.Any() ? GetTaskResult(t) : t;
+
+                var type = taskResult?.GetType();
+                entry.ReturnType = $"{type?.Namespace}.{type?.Name}";
+                entry.ReturnValue = SerializeReturnValue(taskResult);
+                AddToStack(entry);
+            });
+        }
+        else
         {
             var entry = CommonLogMethodExitSetup();
-            if (__result == null)
-            {
-                entry.ReturnValueType = "null";
-                return;
-            }
+            var type = __result?.GetType();
+            entry.ReturnType = $"{type?.Namespace}.{type?.Name}";
+            entry.ReturnValue = SerializeReturnValue(__result);
+            AddToStack(entry);
 
-            entry.ReturnValueType = __result.GetType().Name;
-            try
-            {
-                entry.ReturnValue = JsonSerializer.Serialize(__result, SerializerOptions);
-            }
-            catch (Exception e)
-            {
-                _loggerOutput(__result.GetType().FullName ?? "");
-            }
+        }
+    }
+
+    private static object SerializeReturnValue(object? result)
+    {
+        if (result == null)
+        {
+            return "null";
+        }
+
+        if (result is Type)
+        {
+            return "System.Type is not supported by the serializer";
+        }
+
+        try
+        {
+            JsonSerializer.Serialize(result, SerializerOptions);
+            return result;
+        }
+        catch (Exception)
+        {
+            return $"Unserializable type: {result.GetType().FullName}";
+        }
+    }
+
+    private static void AddToStack(LogEntry entry)
+    {
+        if (CallStack.Count > 0)
+        {
+            CallStack.Peek().Children.Add(entry);
+        }
+        else
+        {
+            TopLevelCalls.Add(entry);
+        }
+    }
+
+    private static object? GetTaskResult(Task task)
+    {
+        try
+        {
+            var resultProperty = task.GetType().GetProperty("Result");
+            return resultProperty?.GetValue(task);
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -181,15 +271,7 @@ public static class MethodLogger
             entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
         }
 
-        if (CallStack.Count > 0)
-        {
-            CallStack.Peek().Children.Add(entry);
-        }
-        else
-        {
-            TopLevelCalls.Add(entry);
-        }
-
         return entry;
     }
+
 }

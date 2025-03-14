@@ -12,13 +12,14 @@ public class LogEntry
 
     public double RawExclusiveElapsedMilliseconds => RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
     public string MethodName { get; set; } = "";
-    public List<string> Parameters { get; set; } = new();
+    public List<string> Parameters { get; set; } = [];
+    public string? ReturnType { get; set; }
     public object? ReturnValue { get; set; }
-    public string? ReturnValueType { get; set; }
 
     public string? StartTime { get; set; }
     public string? EndTime { get; set; }
     public string? ElapsedTime { get; set; }
     public string? ExclusiveElapsedTime { get; set; }
-    public List<LogEntry> Children { get; set; } = new();
+
+    public List<LogEntry> Children { get; set; } = [];
 }
