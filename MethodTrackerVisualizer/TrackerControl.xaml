@@ -11,9 +11,15 @@
              d:DesignHeight="300" d:DesignWidth="300"
              Name="MyToolWindow">
     <UserControl.Resources>
-        <!-- Register the converter -->
+
         <stepByStepLogger:ListToStringConverter x:Key="ListToStringConverter"/>
-        <!-- HierarchicalDataTemplate for LogEntry -->
+        <Style TargetType="TreeViewItem">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderThickness" Value="0" />
+            <EventSetter Event="Selected" Handler="TreeViewItem_Selected" />
+        </Style>
+
         <HierarchicalDataTemplate DataType="{x:Type stepByStepLogger:LogEntry}" ItemsSource="{Binding Children}">
             <Border BorderThickness="1" BorderBrush="Gray" Padding="5" Margin="2">
                 <StackPanel>

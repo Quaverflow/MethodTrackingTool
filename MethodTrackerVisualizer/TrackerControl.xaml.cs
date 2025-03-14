@@ -115,21 +115,40 @@ namespace MethodTrackerVisualizer
             return null;
         }
 
-        // Finds the TreeViewItem for the given data item and selects it.
+        private TreeViewItem _selected;
         private void SelectTreeViewItem(object dataItem)
         {
-            // Expand all parent nodes for the found item.
             ExpandAllParents(dataItem, LogTreeView);
-            // Delay the selection to ensure that the container is generated.
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                var tvi = GetTreeViewItem(LogTreeView, dataItem);
-                if (tvi != null)
-                {
-                    tvi.IsSelected = true;
-                    tvi.BringIntoView();
-                }
+                InvertSelection(GetTreeViewItem(LogTreeView, dataItem));
             }), DispatcherPriority.Background);
+        }
+
+        private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
+        {
+            if (sender is TreeViewItem tvi && tvi.IsSelected)
+            {
+                InvertSelection(tvi);
+            }
+        }
+
+        public void InvertSelection(TreeViewItem newSelection)
+        {
+            if (_selected != null)
+            {
+                _selected.Background = new SolidColorBrush(Colors.White);
+                _selected.Foreground = new SolidColorBrush(Colors.Black);
+            }
+
+            if (newSelection != null)
+            {
+                newSelection.IsSelected = false;
+                newSelection.Background = new SolidColorBrush(Colors.LightSkyBlue);
+                newSelection.Foreground = new SolidColorBrush(Colors.Black);
+                newSelection.BringIntoView();
+                _selected = newSelection;
+            }
         }
 
         // Recursively expands all parent nodes of a data item.
