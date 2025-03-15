@@ -10,7 +10,7 @@ namespace StepByStepLogger
     public class LogEntry
     {
         public string MethodName { get; set; }
-        public List<string> Parameters { get; set; } = new List<string>();
+        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
         public string ReturnType { get; set; }
         public object ReturnValue { get; set; }
 

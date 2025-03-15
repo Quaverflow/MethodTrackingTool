@@ -159,8 +159,10 @@ public static class MethodLogger
     {
         var parameters = __originalMethod.GetParameters();
         var argsText = __args != null
-            ? __args.Select((arg, i) => $"{parameters[i].Name}: {arg?.ToString() ?? "null"}").ToList()
+            ? __args.Select((arg, i) => new{Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}", Value = arg  })
+                .ToDictionary(x => x.Key, x=> x.Value)
             : [];
+
         var entry = new LogEntry
         {
             MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
