@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using MethodTrackerVisualizer.Helpers;
 
-namespace MethodTrackerVisualizer.Components;
+namespace MethodTrackerVisualizer.Views;
 
 public partial class ExclusiveList : UserControl
 {

@@ -59,18 +59,8 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ChronoTree.cs" />
-    <Compile Include="ChronoTreeCommand.cs" />
-    <Compile Include="Components\ChronoTreeControl.xaml.cs">
-      <DependentUpon>ChronoTreeControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ExclusiveList.cs" />
-    <Compile Include="ExclusiveListCommand.cs" />
-    <Compile Include="Components\ExclusiveListControl.xaml.cs">
-      <DependentUpon>ExclusiveListControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="FileHelper.cs" />
-    <Compile Include="LogEntry.cs" />
+    <Compile Include="Helpers\FileHelper.cs" />
+    <Compile Include="Helpers\LogEntry.cs" />
     <Compile Include="MainView.cs" />
     <Compile Include="MainViewCommand.cs" />
     <Compile Include="Components\MainViewControl.xaml.cs">
@@ -78,10 +68,14 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MethodTrackerVisualizerPackage.cs" />
-    <Compile Include="SearchBar.cs" />
-    <Compile Include="SearchBarCommand.cs" />
-    <Compile Include="Components\SearchBarControl.xaml.cs">
-      <DependentUpon>SearchBarControl.xaml</DependentUpon>
+    <Compile Include="Views\ChronoTree.xaml.cs">
+      <DependentUpon>ChronoTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExclusiveList.xaml.cs">
+      <DependentUpon>ExclusiveList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchBar.xaml.cs">
+      <DependentUpon>SearchBar.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -112,29 +106,21 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\ChronoTreeCommand.png" />
-    <Content Include="Resources\Command1.png" />
-    <Content Include="Resources\ExclusiveListCommand.png" />
     <Content Include="Resources\MainViewCommand.png" />
-    <Content Include="Resources\SearchBarCommand.png" />
-    <Content Include="Resources\TrackerCommand.png" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Components\ChronoTreeControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Components\ExclusiveListControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Components\MainViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Components\SearchBarControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\SearchBar.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </Page>
+    <Page Include="Views\ExclusiveList.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </Page>
+    <Page Include="Views\ChronoTree.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup />

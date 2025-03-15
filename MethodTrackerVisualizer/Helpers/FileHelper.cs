@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
 
-namespace MethodTrackerVisualizer;
+namespace MethodTrackerVisualizer.Helpers;
 
 public static class FileHelper
 {

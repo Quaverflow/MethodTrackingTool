@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-namespace MethodTrackerVisualizer;
+namespace MethodTrackerVisualizer.Helpers;
 
 public class LogEntry
 {

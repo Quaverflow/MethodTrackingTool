@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:methodTrackerVisualizer="clr-namespace:MethodTrackerVisualizer"
              xmlns:components="clr-namespace:MethodTrackerVisualizer.Components"
+             xmlns:views="clr-namespace:MethodTrackerVisualizer.Views"
              Background="Black">
     <UserControl.Resources>
         <Style TargetType="TextBlock">
@@ -23,10 +24,10 @@
     <Grid Background="Black">
         <TabControl>
             <TabItem Header="Chronological">
-                <components:ChronoTree x:Name="ChronoTreeControl" DockPanel.Dock="Bottom"/>
+                <views:ChronoTree x:Name="ChronoTreeControl" DockPanel.Dock="Bottom"/>
             </TabItem>
             <TabItem Header="Exclusive">
-                <components:ExclusiveList x:Name="ExclusiveListControl"/>
+                <views:ExclusiveList x:Name="ExclusiveListControl"/>
             </TabItem>
         </TabControl>
     </Grid>

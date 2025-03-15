@@ -16,41 +16,6 @@
           <ButtonText>Invoke Command1</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidTrackerCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
-        <Icon guid="guidImages1" id="bmpPic1" />
-        <Strings>
-          <ButtonText>Tracker</ButtonText>
-        </Strings>
-      </Button>
-      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidTrackerCommand1" priority="0x0100" type="Button">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
-        <Icon guid="guidImages2" id="bmpPic1" />
-        <Strings>
-          <ButtonText>Tracker</ButtonText>
-        </Strings>
-      </Button>
-      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidSearchBarCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
-        <Icon guid="guidImages3" id="bmpPic1" />
-        <Strings>
-          <ButtonText>SearchBar</ButtonText>
-        </Strings>
-      </Button>
-      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidChronoTreeCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
-        <Icon guid="guidImages4" id="bmpPic1" />
-        <Strings>
-          <ButtonText>ChronoTree</ButtonText>
-        </Strings>
-      </Button>
-      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidExclusiveListCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
-        <Icon guid="guidImages5" id="bmpPic1" />
-        <Strings>
-          <ButtonText>ExclusiveList</ButtonText>
-        </Strings>
-      </Button>
       <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidMainViewCommand" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
         <Icon guid="guidImages6" id="bmpPic1" />
@@ -60,12 +25,6 @@
       </Button>
     </Buttons>
     <Bitmaps>
-       <Bitmap guid="guidImages" href="Resources\Command1.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
-      <Bitmap guid="guidImages1" href="Resources\TrackerCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
-      <Bitmap guid="guidImages2" href="Resources\TrackerCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
-      <Bitmap guid="guidImages3" href="Resources\SearchBarCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
-      <Bitmap guid="guidImages4" href="Resources\ChronoTreeCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
-      <Bitmap guid="guidImages5" href="Resources\ExclusiveListCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
       <Bitmap guid="guidImages6" href="Resources\MainViewCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
     </Bitmaps>
   </Commands>
@@ -75,11 +34,6 @@
     <GuidSymbol name="guidMethodTrackerVisualizerPackageCmdSet" value="{ad44e3bf-ba61-49fc-a521-a361fb4ee5d3}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="Command1Id" value="0x0100" />
-      <IDSymbol value="4129" name="cmdidTrackerCommand" />
-      <IDSymbol value="4130" name="cmdidTrackerCommand1" />
-      <IDSymbol value="4131" name="cmdidSearchBarCommand" />
-      <IDSymbol value="4132" name="cmdidChronoTreeCommand" />
-      <IDSymbol value="4133" name="cmdidExclusiveListCommand" />
       <IDSymbol value="4134" name="cmdidMainViewCommand" />
     </GuidSymbol>
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Controls;
 
-namespace MethodTrackerVisualizer.Components;
+namespace MethodTrackerVisualizer.Views;
 
 public partial class SearchBar : UserControl
 {
