@@ -30,11 +30,43 @@
           <ButtonText>Tracker</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidSearchBarCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+        <Icon guid="guidImages3" id="bmpPic1" />
+        <Strings>
+          <ButtonText>SearchBar</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidChronoTreeCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+        <Icon guid="guidImages4" id="bmpPic1" />
+        <Strings>
+          <ButtonText>ChronoTree</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidExclusiveListCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+        <Icon guid="guidImages5" id="bmpPic1" />
+        <Strings>
+          <ButtonText>ExclusiveList</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidMainViewCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+        <Icon guid="guidImages6" id="bmpPic1" />
+        <Strings>
+          <ButtonText>MainView</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
     <Bitmaps>
        <Bitmap guid="guidImages" href="Resources\Command1.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
       <Bitmap guid="guidImages1" href="Resources\TrackerCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
       <Bitmap guid="guidImages2" href="Resources\TrackerCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+      <Bitmap guid="guidImages3" href="Resources\SearchBarCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+      <Bitmap guid="guidImages4" href="Resources\ChronoTreeCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+      <Bitmap guid="guidImages5" href="Resources\ExclusiveListCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+      <Bitmap guid="guidImages6" href="Resources\MainViewCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
     </Bitmaps>
   </Commands>
 
@@ -45,6 +77,10 @@
       <IDSymbol name="Command1Id" value="0x0100" />
       <IDSymbol value="4129" name="cmdidTrackerCommand" />
       <IDSymbol value="4130" name="cmdidTrackerCommand1" />
+      <IDSymbol value="4131" name="cmdidSearchBarCommand" />
+      <IDSymbol value="4132" name="cmdidChronoTreeCommand" />
+      <IDSymbol value="4133" name="cmdidExclusiveListCommand" />
+      <IDSymbol value="4134" name="cmdidMainViewCommand" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{cef0c17c-90b4-427c-93fc-bd4674a1c0d7}">
@@ -66,6 +102,42 @@
     </GuidSymbol>
   
     <GuidSymbol value="{3706060e-d5fe-43a5-90d2-7aeb5f17114c}" name="guidImages2">
+      <IDSymbol name="bmpPic1" value="1" />
+      <IDSymbol name="bmpPic2" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
+  
+    <GuidSymbol value="{bc6373bc-a1e8-48c7-80eb-192bae25fe55}" name="guidImages3">
+      <IDSymbol name="bmpPic1" value="1" />
+      <IDSymbol name="bmpPic2" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
+  
+    <GuidSymbol value="{419cf8b4-8843-4e98-8ac4-4e2ebcbbd9aa}" name="guidImages4">
+      <IDSymbol name="bmpPic1" value="1" />
+      <IDSymbol name="bmpPic2" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
+  
+    <GuidSymbol value="{e4119f0d-9491-4041-9f66-02489140ae1f}" name="guidImages5">
+      <IDSymbol name="bmpPic1" value="1" />
+      <IDSymbol name="bmpPic2" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
+  
+    <GuidSymbol value="{b3be0e1b-ff18-42dd-9066-df92dbd440e0}" name="guidImages6">
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />
       <IDSymbol name="bmpPicSearch" value="3" />

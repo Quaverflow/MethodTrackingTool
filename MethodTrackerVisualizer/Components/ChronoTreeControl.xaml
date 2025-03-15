@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="MethodTrackerVisualizer.Components.ChronoTree"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:methodTrackerVisualizer="clr-namespace:MethodTrackerVisualizer"
+             xmlns:components="clr-namespace:MethodTrackerVisualizer.Components"
+             Background="Black">
+    <UserControl.Resources>
+        <methodTrackerVisualizer:ListToStringConverter x:Key="ListToStringConverter"/>
+        <HierarchicalDataTemplate DataType="{x:Type methodTrackerVisualizer:LogEntry}" ItemsSource="{Binding Children}">
+            <Border CornerRadius="5" BorderThickness="2" Margin="5" Padding="0"
+              Background="#FF1E1E1E" BorderBrush="#FF707070">
+                <StackPanel>
+                    <Border CornerRadius="5,5,0,0" Padding="8" Background="{StaticResource HeaderGradientBrush}">
+                        <TextBlock Text="{Binding MethodName}" FontWeight="Bold" FontSize="14"/>
+                    </Border>
+                    <Expander Header="Details" IsExpanded="False" Background="Transparent" Foreground="White" Margin="2, 2, 10, 2">
+                        <StackPanel Margin="8,0,0,0">
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Parameters: " FontWeight="Bold"/>
+                                <Run Text="{Binding Parameters, Converter={StaticResource ListToStringConverter}}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Return Type: " FontWeight="Bold"/>
+                                <Run Text="{Binding ReturnType}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Return Value: " FontWeight="Bold"/>
+                                <Run Text="{Binding ReturnValue}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Start: " FontWeight="Bold"/>
+                                <Run Text="{Binding StartTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="End: " FontWeight="Bold"/>
+                                <Run Text="{Binding EndTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Total Elapsed: " FontWeight="Bold"/>
+                                <Run Text="{Binding ElapsedTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Exclusive Elapsed: " FontWeight="Bold"/>
+                                <Run Text="{Binding ExclusiveElapsedTime}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Expander>
+                </StackPanel>
+            </Border>
+        </HierarchicalDataTemplate>
+    </UserControl.Resources>
+    <Grid Background="Black">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <components:SearchBar x:Name="SearchBar"/>
+        <TreeView Grid.Row="1" x:Name="ChronoTreeView" Background="Black" Foreground="White"/>
+    </Grid>
+</UserControl>

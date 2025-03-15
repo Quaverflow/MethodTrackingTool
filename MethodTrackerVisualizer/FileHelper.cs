@@ -4,13 +4,14 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
-using StepByStepLogger;
 
 namespace MethodTrackerVisualizer;
 
 public static class FileHelper
 {
-    public static string FilePath = GetLogFilePath();
+    public static List<LogEntry> Data = LoadLogData();
+    public static Func<List<LogEntry>> RefreshData = ()=> Data = LoadLogData();
+
     private static string GetLogFilePath()
     {
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
@@ -23,14 +24,15 @@ public static class FileHelper
 
     public static List<LogEntry> LoadLogData()
     {
-        if (!File.Exists(FilePath))
+        var filePath = GetLogFilePath();
+        if (!File.Exists(filePath))
         {
-            MessageBox.Show("Log file not found at: " + FilePath);
+            MessageBox.Show("Log file not found at: " + filePath);
             return [];
         }
         try
         {
-            var json =File.ReadAllText(FilePath);
+            var json =File.ReadAllText(filePath);
             var data = JsonConvert.DeserializeObject<List<LogEntry>>(json, new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
