@@ -44,18 +44,18 @@
 
             // Retrieve the user.
             var userService = new UserService();
-            User customer = userService.GetUser(request.UserId);
+            var customer = userService.GetUser(request.UserId);
 
             // Build the order.
-            Order order = BuildOrder(request, customer);
+            var order = BuildOrder(request, customer);
 
             // Reserve inventory asynchronously.
             var inventoryService = new InventoryService();
-            bool inventoryReserved = await inventoryService.ReserveInventoryAsync(order);
+            var inventoryReserved = await inventoryService.ReserveInventoryAsync(order);
 
             // Process the payment asynchronously.
             var paymentService = new PaymentService();
-            PaymentResult paymentResult = await paymentService.ChargeUserAsync(customer, order);
+            var paymentResult = await paymentService.ChargeUserAsync(customer, order);
 
             // Save the order.
             SaveOrder(order);
@@ -107,8 +107,8 @@
             Console.WriteLine("PaymentService: Charging user.");
             await Task.Delay(300); // Simulate network delay
             // Simulate different outcomes.
-            bool success = order.TotalAmount < 1000;
-            string transactionId = success ? Guid.NewGuid().ToString() : "";
+            var success = order.TotalAmount < 1000;
+            var transactionId = success ? Guid.NewGuid().ToString() : "";
             Console.WriteLine("PaymentService: Charge completed.");
             return new PaymentResult { Success = success, TransactionId = transactionId };
         }
@@ -122,7 +122,7 @@
             Console.WriteLine("InventoryService: Reserving inventory.");
             await Task.Delay(200); // Simulate processing delay
             // For example, if the order contains more than 3 items, fail the reservation.
-            bool success = order.ProductIds.Count <= 3;
+            var success = order.ProductIds.Count <= 3;
             Console.WriteLine("InventoryService: Reservation " + (success ? "successful." : "failed."));
             return success;
         }
@@ -151,8 +151,8 @@
         {
             Console.WriteLine("UserService: Getting user.");
             // Simulate building a user object.
-            string name = GenerateUserName(id);
-            int age = CalculateUserAge(id);
+            var name = GenerateUserName(id);
+            var age = CalculateUserAge(id);
             return new User { Id = id, Name = name, Age = age };
         }
 

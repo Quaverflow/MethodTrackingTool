@@ -7,15 +7,12 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Microsoft.VisualStudio.PlatformUI;
 using Newtonsoft.Json;
 using StepByStepLogger;
 
 namespace MethodTrackerVisualizer
 {
-    /// <summary>
-    /// Interaction logic for TrackerControl.
-    /// </summary>
+
     public partial class TrackerControl : UserControl
     {
         private static readonly string FilePath = GetLogFilePath();
@@ -33,9 +30,6 @@ namespace MethodTrackerVisualizer
             return Path.Combine(folder, "loggeroutput.json");
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TrackerControl"/> class.
-        /// </summary>
         public TrackerControl()
         {
             InitializeComponent();
@@ -43,11 +37,6 @@ namespace MethodTrackerVisualizer
         }
 
         private void LoggerToolWindowControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            LoadLogData();
-        }
-
-        private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             LoadLogData();
         }
@@ -61,7 +50,7 @@ namespace MethodTrackerVisualizer
             }
             try
             {
-                string json = File.ReadAllText(FilePath);
+                var json = File.ReadAllText(FilePath);
                 _fullLogData = JsonConvert.DeserializeObject<List<LogEntry>>(json, new JsonSerializerSettings
                 {
                     MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -94,7 +83,7 @@ namespace MethodTrackerVisualizer
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string searchText = SearchTextBox.Text.Trim();
+            var searchText = SearchTextBox.Text.Trim();
             if (string.IsNullOrEmpty(searchText))
             {
                 _matchedEntries.Clear();
@@ -142,26 +131,19 @@ namespace MethodTrackerVisualizer
             }), DispatcherPriority.Background);
         }
 
-        private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
-        {
-            if (sender is TreeViewItem tvi && tvi.IsSelected)
-            {
-                InvertSelection(tvi);
-            }
-        }
-
         public void InvertSelection(TreeViewItem newSelection)
         {
             if (_selected != null)
             {
-                _selected.Background = new SolidColorBrush(Colors.White);
-                _selected.Foreground = new SolidColorBrush(Colors.Black);
+                _selected.Background = newSelection?.Background;
+                _selected.Foreground = newSelection?.Foreground;
+                newSelection.IsSelected = false;
             }
 
             if (newSelection != null)
             {
-                newSelection.IsSelected = false;
-                newSelection.Background = new SolidColorBrush(Colors.LightSkyBlue);
+                newSelection.IsSelected = true;
+                newSelection.Background = new SolidColorBrush(Colors.DodgerBlue);
                 newSelection.Foreground = new SolidColorBrush(Colors.Black);
                 newSelection.BringIntoView();
                 _selected = newSelection;
@@ -213,7 +195,7 @@ namespace MethodTrackerVisualizer
         // Retrieves the parent ItemsControl (if any) of a TreeViewItem.
         private ItemsControl GetParent(TreeViewItem item)
         {
-            DependencyObject parent = VisualTreeHelper.GetParent(item);
+            var parent = VisualTreeHelper.GetParent(item);
             while (parent != null && !(parent is TreeViewItem) && !(parent is TreeView))
             {
                 parent = VisualTreeHelper.GetParent(parent);

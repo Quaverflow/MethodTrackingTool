@@ -75,7 +75,7 @@ namespace MethodTrackerVisualizer
             // the UI thread.
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-            OleMenuCommandService commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
+            var commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
             Instance = new TrackerCommand(package, commandService);
         }
 
@@ -88,7 +88,7 @@ namespace MethodTrackerVisualizer
         {
             this.package.JoinableTaskFactory.RunAsync(async delegate
             {
-                ToolWindowPane window = await this.package.ShowToolWindowAsync(typeof(Tracker), 0, true, this.package.DisposalToken);
+                var window = await this.package.ShowToolWindowAsync(typeof(Tracker), 0, true, this.package.DisposalToken);
                 if ((null == window) || (null == window.Frame))
                 {
                     throw new NotSupportedException("Cannot create tool window");

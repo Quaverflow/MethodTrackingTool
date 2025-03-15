@@ -300,7 +300,7 @@ public static class MethodLogger
 
     public static void WriteLogFile(string content)
     {
-        string path = GetLogFilePath();
+        var path = GetLogFilePath();
         File.WriteAllText(path, content);
     }
 }
