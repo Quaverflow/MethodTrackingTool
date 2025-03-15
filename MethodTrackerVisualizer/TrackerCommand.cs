@@ -22,7 +22,7 @@ namespace MethodTrackerVisualizer
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("ad44e3bf-ba61-49fc-a521-a361fb4ee5d3");
+        public static readonly Guid CommandSet = new("ad44e3bf-ba61-49fc-a521-a361fb4ee5d3");
 
         /// <summary>
         /// VS Package that provides this command, not null.

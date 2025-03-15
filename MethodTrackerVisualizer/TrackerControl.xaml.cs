@@ -1,34 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Newtonsoft.Json;
 using StepByStepLogger;
 
 namespace MethodTrackerVisualizer
 {
-
     public partial class TrackerControl : UserControl
     {
-        private static readonly string FilePath = GetLogFilePath();
-        private List<LogEntry> _fullLogData = new List<LogEntry>{new LogEntry()};
-        private List<LogEntry> _matchedEntries = new List<LogEntry>();
+        private List<LogEntry> _fullLogData = [new LogEntry()];
+        private List<LogEntry> _matchedEntries = [];
         private int _currentMatchIndex = -1;
 
-        public static string GetLogFilePath()
-        {
-            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
-            if (!Directory.Exists(folder))
-            {
-                Directory.CreateDirectory(folder);
-            }
-            return Path.Combine(folder, "loggeroutput.json");
-        }
 
         public TrackerControl()
         {
@@ -38,30 +25,10 @@ namespace MethodTrackerVisualizer
 
         private void LoggerToolWindowControl_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadLogData();
+            _fullLogData = FileHelper.LoadLogData();
+            LogTreeView.ItemsSource = _fullLogData;
         }
 
-        private void LoadLogData()
-        {
-            if (!File.Exists(FilePath))
-            {
-                MessageBox.Show("Log file not found at: " + FilePath);
-                return;
-            }
-            try
-            {
-                var json = File.ReadAllText(FilePath);
-                _fullLogData = JsonConvert.DeserializeObject<List<LogEntry>>(json, new JsonSerializerSettings
-                {
-                    MissingMemberHandling = MissingMemberHandling.Ignore,
-                });
-                LogTreeView.ItemsSource = _fullLogData;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error loading log data: " + ex.Message);
-            }
-        }
         private void PreviousButton_Click(object sender, RoutedEventArgs e)
         {
             if (_matchedEntries.Any())

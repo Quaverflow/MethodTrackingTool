@@ -12,7 +12,7 @@
     public class OrderRequest
     {
         public int UserId { get; set; }
-        public List<int> ProductIds { get; set; } = new List<int>();
+        public List<int> ProductIds { get; set; } = [];
         public decimal TotalAmount { get; set; }
     }
 
@@ -20,8 +20,8 @@
     public class Order
     {
         public int OrderId { get; set; }
-        public User Customer { get; set; } = new User();
-        public List<int> ProductIds { get; set; } = new List<int>();
+        public User Customer { get; set; } = new();
+        public List<int> ProductIds { get; set; } = [];
         public decimal TotalAmount { get; set; }
         public DateTime OrderDate { get; set; }
     }

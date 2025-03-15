@@ -10,7 +10,7 @@ namespace StepByStepLogger
     public class LogEntry
     {
         public string MethodName { get; set; }
-        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Parameters { get; set; } = new();
         public string ReturnType { get; set; }
         public object ReturnValue { get; set; }
 
@@ -19,7 +19,7 @@ namespace StepByStepLogger
         public string ElapsedTime { get; set; }
         public string ExclusiveElapsedTime { get; set; }
 
-        public List<LogEntry> Children { get; set; } = new List<LogEntry>();
+        public List<LogEntry> Children { get; set; } = [];
     }
     public class ListToStringConverter : IValueConverter
     {
