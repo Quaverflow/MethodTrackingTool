@@ -131,20 +131,21 @@ namespace MethodTrackerVisualizer
             }), DispatcherPriority.Background);
         }
 
+        private static Brush _baseBackground;
         public void InvertSelection(TreeViewItem newSelection)
         {
+            _baseBackground ??= newSelection?.Background;
+
             if (_selected != null)
             {
-                _selected.Background = newSelection?.Background;
-                _selected.Foreground = newSelection?.Foreground;
-                newSelection.IsSelected = false;
+                _selected.Background = _baseBackground;
+                _selected.IsSelected = false;
             }
 
             if (newSelection != null)
             {
                 newSelection.IsSelected = true;
                 newSelection.Background = new SolidColorBrush(Colors.DodgerBlue);
-                newSelection.Foreground = new SolidColorBrush(Colors.Black);
                 newSelection.BringIntoView();
                 _selected = newSelection;
             }
