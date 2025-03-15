@@ -3,71 +3,65 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:stepByStepLogger="clr-namespace:StepByStepLogger"
              Background="Black"
              Foreground="White"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
-             Name="MyToolWindow">
+             d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <!-- Converter for list to string -->
         <stepByStepLogger:ListToStringConverter x:Key="ListToStringConverter"/>
 
-        <!-- Global TextBlock style -->
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
         </Style>
 
-        <!-- Header gradient brush for node headers -->
         <LinearGradientBrush x:Key="HeaderGradientBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#FF800080" Offset="0"/>
             <GradientStop Color="#FF000000" Offset="1"/>
         </LinearGradientBrush>
 
-        <!-- HierarchicalDataTemplate for LogEntry -->
         <HierarchicalDataTemplate DataType="{x:Type stepByStepLogger:LogEntry}" ItemsSource="{Binding Children}">
             <Border CornerRadius="5" BorderThickness="2" Margin="5" Padding="0" Background="#FF1E1E1E" BorderBrush="#FF707070">
                 <StackPanel>
-                    <!-- Header: displays only the method name with gradient background -->
                     <Border CornerRadius="5,5,0,0" Padding="8" Background="{StaticResource HeaderGradientBrush}">
                         <TextBlock Text="{Binding MethodName}" FontWeight="Bold" FontSize="14"/>
                     </Border>
-                    <!-- Details: hidden inside an Expander -->
-                    <Expander Header="Details" IsExpanded="False" Background="Transparent" Foreground="White">
+                    <Expander Header="Details" IsExpanded="False" Background="Transparent" Foreground="White" Margin="2, 2, 10, 2">
                         <StackPanel Margin="8,0,0,0">
-                            <TextBlock>
-                <Run Text="Parameters: " FontWeight="Bold"/>
-                <Run Text="{Binding Parameters, Converter={StaticResource ListToStringConverter}}"/>
+                            <TextBlock Margin="0, 2, 0, 0">
+                                <Run Text="Parameters: " FontWeight="Bold"/>
+                                <Run Text="{Binding Parameters, Converter={StaticResource ListToStringConverter}}"/>
                             </TextBlock>
-                            <TextBlock>
-                <Run Text="Return Type: " FontWeight="Bold"/>
-                <Run Text="{Binding ReturnType}"/>
+                            <TextBlock Margin="0, 2, 0, 0">
+                                <Run Text="Return Type: " FontWeight="Bold"/>
+                                <Run Text="{Binding ReturnType}"/>
                             </TextBlock>
-                            <TextBlock>
-                <Run Text="Return Value: " FontWeight="Bold"/>
-                <Run Text="{Binding ReturnValue}"/>
+                            <TextBlock Margin="0, 2, 0, 0">
+                                <Run Text="Return Value: " FontWeight="Bold"/>
+                                <Run Text="{Binding ReturnValue}"/>
                             </TextBlock>
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                <TextBlock Text="Start: " FontWeight="Bold"/>
-                                <TextBlock Text="{Binding StartTime}" Margin="2,0,5,0"/>
-                                <TextBlock Text="End: " FontWeight="Bold"/>
-                                <TextBlock Text="{Binding EndTime}" Margin="2,0,5,0"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Elapsed: " FontWeight="Bold"/>
-                                <TextBlock Text="{Binding ElapsedTime}" Margin="2,0,5,0"/>
-                                <TextBlock Text="Exclusive: " FontWeight="Bold"/>
-                                <TextBlock Text="{Binding ExclusiveElapsedTime}" Margin="2,0,5,0"/>
-                            </StackPanel>
+                            <TextBlock Margin="0, 2, 0, 0">
+                                <Run Text="Start: " FontWeight="Bold"/>
+                                <Run Text="{Binding StartTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0, 2, 0, 0">
+                                <Run Text="End: " FontWeight="Bold"/>
+                                <Run Text="{Binding EndTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0, 2, 0, 0">
+                                <Run Text="Total Elapsed: " FontWeight="Bold"/>
+                                <Run Text="{Binding ElapsedTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0, 2, 0, 0">
+                                <Run Text="Exclusive Elapsed: " FontWeight="Bold"/>
+                                <Run Text="{Binding ExclusiveElapsedTime}"/>
+                            </TextBlock>
                         </StackPanel>
                     </Expander>
                 </StackPanel>
             </Border>
         </HierarchicalDataTemplate>
-
-        <!-- Style for TreeViewItems (removes default focus visuals) -->
         <Style TargetType="TreeViewItem">
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Background" Value="Transparent"/>
