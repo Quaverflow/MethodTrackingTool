@@ -217,9 +217,31 @@ public static class MethodLogger
         }
     }
 
-    private static string BuildReturnTypeString(MethodInfo __originalMethod)
+    private static string BuildReturnTypeString(MethodInfo method)
     {
-        return __originalMethod.ReturnType.Namespace + "." + __originalMethod.ReturnType.Name;
+        var returnType = method.ReturnType;
+        return BuildTypeName(returnType);
+    }
+
+    private static string BuildTypeName(Type type)
+    {
+        if (!type.IsGenericType)
+        {
+            return type.FullName ?? type.Name;
+        }
+
+        var baseName = type.Name;
+        var backTickIndex = baseName.IndexOf('`');
+        if (backTickIndex > 0)
+        {
+            baseName = baseName[..backTickIndex];
+        }
+
+        var genericArgs = type.GetGenericArguments();
+        var genericArgsString = string.Join(", ", genericArgs.Select(BuildTypeName));
+
+        var ns = type.Namespace != null ? type.Namespace + "." : "";
+        return $"{ns}{baseName}<{genericArgsString}>";
     }
 
     private static object ConvertToSerializableValue(object? result)
