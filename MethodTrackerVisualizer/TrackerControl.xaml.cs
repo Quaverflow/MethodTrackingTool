@@ -12,23 +12,46 @@ namespace MethodTrackerVisualizer
 {
     public partial class TrackerControl : UserControl
     {
-        private List<LogEntry> _fullLogData = [new LogEntry()];
+        private List<LogEntry> _fullLogData = new List<LogEntry>();
         private List<LogEntry> _matchedEntries = [];
         private int _currentMatchIndex = -1;
-
-
         public TrackerControl()
         {
             InitializeComponent();
-            this.Loaded += LoggerToolWindowControl_Loaded;
+            Loaded += TrackerControl_Loaded;
         }
 
-        private void LoggerToolWindowControl_Loaded(object sender, RoutedEventArgs e)
+        private void TrackerControl_Loaded(object sender, RoutedEventArgs e)
         {
             _fullLogData = FileHelper.LoadLogData();
-            LogTreeView.ItemsSource = _fullLogData;
+            PopulateTreeViews();
         }
 
+        private void PopulateTreeViews()
+        {
+            // Tab 1: Chronological Order – use the full tree as is.
+            ChronoTreeView.ItemsSource = _fullLogData;
+
+            // Tab 2: Exclusive Order – flatten and sort by ExclusiveElapsedTime descending.
+            var flatList = FlattenLogEntries(_fullLogData);
+            var exclusiveSorted = flatList.OrderByDescending(e =>
+            {
+                // Assume ExclusiveElapsedTime is like "123.45 ms"
+                string text = e.ExclusiveElapsedTime.Replace(" ms", "").Trim();
+                return double.TryParse(text, out double value) ? value : 0.0;
+            }).ToList();
+            ExclusiveListView.ItemsSource = exclusiveSorted;
+        }
+        private List<LogEntry> FlattenLogEntries(List<LogEntry> entries)
+        {
+            var flat = new List<LogEntry>();
+            foreach (var entry in entries)
+            {
+                flat.Add(entry);
+                flat.AddRange(FlattenLogEntries(entry.Children));
+            }
+            return flat;
+        }
         private void PreviousButton_Click(object sender, RoutedEventArgs e)
         {
             if (_matchedEntries.Any())
@@ -70,7 +93,7 @@ namespace MethodTrackerVisualizer
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             SearchTextBox.Text = "";
-            LogTreeView.ItemsSource = _fullLogData;
+            ChronoTreeView.ItemsSource = _fullLogData;
         }
 
         private List<LogEntry> FindMatchingEntries(List<LogEntry> entries, string searchText)
@@ -91,10 +114,10 @@ namespace MethodTrackerVisualizer
         private TreeViewItem _selected;
         private void NavigateToEntry(object dataItem)
         {
-            ExpandAllParents(dataItem, LogTreeView);
+            ExpandAllParents(dataItem, ChronoTreeView);
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                InvertSelection(GetTreeViewItem(LogTreeView, dataItem));
+                InvertSelection(GetTreeViewItem(ChronoTreeView, dataItem));
             }), DispatcherPriority.Background);
         }
 

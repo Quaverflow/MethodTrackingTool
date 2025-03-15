@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
 using StepByStepLogger;
@@ -29,7 +30,7 @@ public static class FileHelper
         }
         try
         {
-            var json = File.ReadAllText(FilePath);
+            var json =File.ReadAllText(FilePath);
             var data = JsonConvert.DeserializeObject<List<LogEntry>>(json, new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
