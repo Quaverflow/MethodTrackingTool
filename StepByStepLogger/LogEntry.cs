@@ -12,7 +12,7 @@ public class LogEntry
 
     public double RawExclusiveElapsedMilliseconds => RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
     public string MethodName { get; set; } = "";
-    public Dictionary<string, object?> Parameters { get; set; } = [];
+    public Dictionary<string, object> Parameters { get; set; } = [];
     public string? ReturnType { get; set; }
     public object? ReturnValue { get; set; }
 

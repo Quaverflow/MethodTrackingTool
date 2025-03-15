@@ -158,15 +158,19 @@ public static class MethodLogger
     private static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
         var parameters = __originalMethod.GetParameters();
-        var argsText = __args != null
-            ? __args.Select((arg, i) => new{Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}", Value = arg  })
-                .ToDictionary(x => x.Key, x=> x.Value)
-            : [];
+        var argsDictionary =
+            __args?.Select((arg, i) => new
+                {
+                    Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
+                    Value = ConvertToSerializableValue(arg)
+                })
+                .ToDictionary(x => x.Key, x => x.Value);
+          
 
         var entry = new LogEntry
         {
             MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
-            Parameters = argsText,
+            Parameters = argsDictionary ?? [],
             RawStartTime = DateTime.UtcNow
         };
         if (Options.IncludePerformanceMetrics)
@@ -199,7 +203,7 @@ public static class MethodLogger
                 var taskResult = task.GetType().GenericTypeArguments.Any() ? GetTaskResult(t) : t;
 
                 entry.ReturnType = BuildReturnTypeString(__originalMethod);
-                entry.ReturnValue = SerializeReturnValue(taskResult);
+                entry.ReturnValue = ConvertToSerializableValue(taskResult);
                 AddToStack(entry);
             });
         }
@@ -207,7 +211,7 @@ public static class MethodLogger
         {
             var entry = CommonLogMethodExitSetup();
             entry.ReturnType = BuildReturnTypeString(__originalMethod);
-            entry.ReturnValue = SerializeReturnValue(__result);
+            entry.ReturnValue = ConvertToSerializableValue(__result);
             AddToStack(entry);
 
         }
@@ -218,9 +222,9 @@ public static class MethodLogger
         return __originalMethod.ReturnType.Namespace + "." + __originalMethod.ReturnType.Name;
     }
 
-    private static object SerializeReturnValue(object? result)
+    private static object ConvertToSerializableValue(object? result)
     {
-        if (result == null)
+        if (result is null)
         {
             return "null";
         }
@@ -228,6 +232,11 @@ public static class MethodLogger
         if (result is Type)
         {
             return "System.Type is not supported by the serializer";
+        }
+        
+        if (result is Delegate)
+        {
+            return "System.Delegate is not supported by the serializer";
         }
 
         try
