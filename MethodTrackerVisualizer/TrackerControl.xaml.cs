@@ -19,7 +19,7 @@ namespace MethodTrackerVisualizer
     public partial class TrackerControl : UserControl
     {
         private static readonly string FilePath = GetLogFilePath();
-        private List<LogEntry> _fullLogData = new List<LogEntry>();
+        private List<LogEntry> _fullLogData = new List<LogEntry>{new LogEntry()};
         private List<LogEntry> _matchedEntries = new List<LogEntry>();
         private int _currentMatchIndex = -1;
 
