@@ -202,7 +202,9 @@ namespace MethodTrackerVisualizer
                     parentContainer.IsExpanded = true; // Ensure children are generated.
                     var childTvi = GetTreeViewItem(parentContainer, dataItem);
                     if (childTvi != null)
+                    {
                         return childTvi;
+                    }
                 }
             }
             return null;
