@@ -123,12 +123,17 @@ public class MethodLoggerTests
     }
 
     [Fact]
-    public void Sample()
+    public async Task Sample()
     {
-        MethodLogger.EnableLogging(_testOutputHelper.WriteLine, typeof(UserService));
+        MethodLogger.EnableLogging(_testOutputHelper.WriteLine, typeof(OrderService));
 
-        var service = new UserService();
-        service.GetUser(2);
+        var service = new OrderService();
+        await service.ProcessOrderAsync(new OrderRequest
+        {
+            UserId = 13,
+            ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
+            TotalAmount = 20
+        });
 
         MethodLogger.PrintJson();
     }
