@@ -18,10 +18,10 @@
     </UserControl.Resources>
     <Grid Background="Black">
         <TabControl>
-            <TabItem Header="Chronological">
+            <TabItem Header="Hierarchical">
                 <views:ChronoTree x:Name="ChronoTreeControl" DockPanel.Dock="Bottom"/>
             </TabItem>
-            <TabItem Header="Exclusive">
+            <TabItem Header="By Elapsed Time">
                 <views:ExclusiveList x:Name="ExclusiveListControl"/>
             </TabItem>
         </TabControl>
