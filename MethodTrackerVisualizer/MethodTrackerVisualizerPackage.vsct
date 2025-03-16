@@ -16,16 +16,16 @@
           <ButtonText>Invoke Command1</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidMainViewCommand" priority="0x0100" type="Button">
+      <Button guid="guidMethodTrackerVisualizerPackageCmdSet" id="cmdidMethodDumpReaderCommand" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
         <Icon guid="guidImages6" id="bmpPic1" />
         <Strings>
-          <ButtonText>MainView</ButtonText>
+          <ButtonText>Method Dump Reader</ButtonText>
         </Strings>
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="guidImages6" href="Resources\MainViewCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+      <Bitmap guid="guidImages6" href="Resources\MethodDumpReaderCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
     </Bitmaps>
   </Commands>
 
@@ -34,7 +34,7 @@
     <GuidSymbol name="guidMethodTrackerVisualizerPackageCmdSet" value="{ad44e3bf-ba61-49fc-a521-a361fb4ee5d3}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="Command1Id" value="0x0100" />
-      <IDSymbol value="4134" name="cmdidMainViewCommand" />
+      <IDSymbol value="4134" name="cmdidMethodDumpReaderCommand" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{cef0c17c-90b4-427c-93fc-bd4674a1c0d7}">

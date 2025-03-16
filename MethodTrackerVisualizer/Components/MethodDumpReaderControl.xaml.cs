@@ -5,17 +5,17 @@ using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Components;
 
-public partial class MainView : UserControl
+public partial class MethodDumpReader : UserControl
 {
     private List<LogEntry> _fullLogData = [];
 
-    public MainView()
+    public MethodDumpReader()
     {
         InitializeComponent();
-        Loaded += MainView_Loaded;
+        Loaded += MethodDumpReader_Loaded;
     }
 
-    private void MainView_Loaded(object sender, RoutedEventArgs e)
+    private void MethodDumpReader_Loaded(object sender, RoutedEventArgs e)
     {
         _fullLogData = FileHelper.LoadLogData();
     }

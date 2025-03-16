@@ -7,7 +7,7 @@ namespace MethodTrackerVisualizer;
 /// <summary>
 /// Command handler
 /// </summary>
-internal sealed class MainViewCommand
+internal sealed class MethodDumpReaderCommand
 {
     /// <summary>
     /// Command ID.
@@ -25,12 +25,12 @@ internal sealed class MainViewCommand
     private readonly AsyncPackage package;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MainViewCommand"/> class.
+    /// Initializes a new instance of the <see cref="MethodDumpReaderCommand"/> class.
     /// Adds our command handlers for menu (commands must exist in the command table file)
     /// </summary>
     /// <param name="package">Owner package, not null.</param>
     /// <param name="commandService">Command service to add command to, not null.</param>
-    private MainViewCommand(AsyncPackage package, OleMenuCommandService commandService)
+    private MethodDumpReaderCommand(AsyncPackage package, OleMenuCommandService commandService)
     {
         this.package = package ?? throw new ArgumentNullException(nameof(package));
         commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
@@ -43,7 +43,7 @@ internal sealed class MainViewCommand
     /// <summary>
     /// Gets the instance of the command.
     /// </summary>
-    public static MainViewCommand Instance
+    public static MethodDumpReaderCommand Instance
     {
         get;
         private set;
@@ -60,12 +60,12 @@ internal sealed class MainViewCommand
     /// <param name="package">Owner package, not null.</param>
     public static async Task InitializeAsync(AsyncPackage package)
     {
-        // Switch to the main thread - the call to AddCommand in MainViewCommand's constructor requires
+        // Switch to the main thread - the call to AddCommand in MethodDumpReaderCommand's constructor requires
         // the UI thread.
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
         var commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
-        Instance = new MainViewCommand(package, commandService);
+        Instance = new MethodDumpReaderCommand(package, commandService);
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ internal sealed class MainViewCommand
     {
         this.package.JoinableTaskFactory.RunAsync(async delegate
         {
-            var window = await this.package.ShowToolWindowAsync(typeof(MainView), 0, true, this.package.DisposalToken);
+            var window = await this.package.ShowToolWindowAsync(typeof(MethodDumpReader), 0, true, this.package.DisposalToken);
             if ((null == window) || (null == window.Frame))
             {
                 throw new NotSupportedException("Cannot create tool window");

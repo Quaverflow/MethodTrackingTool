@@ -61,10 +61,10 @@
   <ItemGroup>
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\LogEntry.cs" />
-    <Compile Include="MainView.cs" />
-    <Compile Include="MainViewCommand.cs" />
-    <Compile Include="Components\MainViewControl.xaml.cs">
-      <DependentUpon>MainViewControl.xaml</DependentUpon>
+    <Compile Include="MethodDumpReader.cs" />
+    <Compile Include="MethodDumpReaderCommand.cs" />
+    <Compile Include="Components\MethodDumpReaderControl.xaml.cs">
+      <DependentUpon>MethodDumpReaderControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MethodTrackerVisualizerPackage.cs" />
@@ -106,10 +106,10 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\MainViewCommand.png" />
+    <Content Include="Resources\MethodDumpReaderCommand.png" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Components\MainViewControl.xaml">
+    <Page Include="Components\MethodDumpReaderControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
