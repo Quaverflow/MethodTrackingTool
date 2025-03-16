@@ -71,6 +71,15 @@ public static class UiExtensions
             expander.IsExpanded = true;
         }
     }
+    
+    public static void CollapseExpanderForEntry(this TreeViewItem tvi)
+    {
+        var expander = FindVisualChild<Expander>(tvi);
+        if (expander != null)
+        {
+            expander.IsExpanded = false;
+        }
+    }
 
     public static T FindVisualChild<T>(this DependencyObject parent) where T : DependencyObject
     {

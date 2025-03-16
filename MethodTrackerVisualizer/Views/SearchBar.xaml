@@ -10,6 +10,5 @@
                  Background="White" Foreground="Black" BorderBrush="Gray"/>
         <Button x:Name="PreviousButton" Content="Previous" Margin="2" VerticalAlignment="Center"/>
         <Button x:Name="NextButton" Content="Next" Margin="2" VerticalAlignment="Center"/>
-        <Button x:Name="ClearButton" Content="Clear" Margin="2" VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>
