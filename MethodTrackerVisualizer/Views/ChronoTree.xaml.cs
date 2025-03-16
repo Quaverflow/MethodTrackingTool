@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
@@ -15,6 +16,15 @@ public partial class ChronoTree : UserControl
     private List<LogEntry> _matchedTextEntries = [];
     private int _currentMatchMethodIndex = -1;
     private int _currentMatchTextEntriesIndex = -1;
+    public string CurrentSearchText
+    {
+        get => (string)GetValue(CurrentSearchTextProperty);
+        set => SetValue(CurrentSearchTextProperty, value);
+    }
+
+    public static readonly DependencyProperty CurrentSearchTextProperty =
+        DependencyProperty.Register(nameof(CurrentSearchText), typeof(string), typeof(ChronoTree), new PropertyMetadata(string.Empty));
+
     public ChronoTree()
     {
         InitializeComponent();
@@ -27,15 +37,15 @@ public partial class ChronoTree : UserControl
 
     private void SearchForText(object _, string searchText)
     {
-        searchText = searchText.Trim();
-        if (string.IsNullOrEmpty(searchText))
+        CurrentSearchText = searchText.Trim();
+        if (string.IsNullOrEmpty(CurrentSearchText))
         {
             _matchedTextEntries.Clear();
             _currentMatchTextEntriesIndex = -1;
             return;
         }
 
-        _matchedTextEntries = FindMatchingText(FileHelper.Data, searchText);
+        _matchedTextEntries = FindMatchingText(FileHelper.Data, CurrentSearchText);
         if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;

@@ -9,7 +9,7 @@
             <GradientStop Color="#FF800080" Offset="0"/>
             <GradientStop Color="#FF000000" Offset="1"/>
         </LinearGradientBrush>
-        <helpers:ListToStringConverter x:Key="ListToStringConverter"/>
+        <helpers:LogEntryToFormattedStringConverter x:Key="LogEntryToFormattedStringConverter" />
         <HierarchicalDataTemplate DataType="{x:Type helpers:LogEntry}" ItemsSource="{Binding Children}">
             <Border CornerRadius="5" BorderThickness="2" Margin="5" Padding="0"
               Background="#FF1E1E1E" BorderBrush="#FF707070">
@@ -18,52 +18,15 @@
                         <TextBlock Text="{Binding MethodName}" FontWeight="Bold" FontSize="14"/>
                     </Border>
                     <Expander Header="Details" IsExpanded="False" Background="Transparent" Foreground="White" Margin="2, 2, 10, 2">
-                        <StackPanel Margin="8,0,0,0">
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Parameters: " FontWeight="Bold"/>
-                                <Run Text="{Binding Parameters, Converter={StaticResource ListToStringConverter}}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Return Type: " FontWeight="Bold"/>
-                                <Run Text="{Binding ReturnType}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Return Value: " FontWeight="Bold"/>
-                                <Run Text="{Binding ReturnValue}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Start: " FontWeight="Bold"/>
-                                <Run Text="{Binding StartTime}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Memory Before: " FontWeight="Bold"/>
-                                <Run Text="{Binding MemoryBefore}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="End: " FontWeight="Bold"/>
-                                <Run Text="{Binding EndTime}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Memory After: " FontWeight="Bold"/>
-                                <Run Text="{Binding MemoryAfter}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Total Elapsed: " FontWeight="Bold"/>
-                                <Run Text="{Binding ElapsedTime}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Exclusive Elapsed: " FontWeight="Bold"/>
-                                <Run Text="{Binding ExclusiveElapsedTime}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Memory Increase: " FontWeight="Bold"/>
-                                <Run Text="{Binding MemoryIncrease}"/>
-                            </TextBlock>
-                            <TextBlock Margin="0,2,0,0">
-                                <Run Text="Exceptions: " FontWeight="Bold"/>
-                                <Run Text="{Binding Exceptions, Converter={StaticResource ListToStringConverter}}"/>
-                            </TextBlock>
-                        </StackPanel>
+                        <StackPanel>
+                            <Border CornerRadius="5,5,0,0" Padding="8" Background="{StaticResource HeaderGradientBrush}">
+                                <TextBlock Text="{Binding MethodName}" FontWeight="Bold" FontSize="14"/>
+                            </Border>
+                            <TextBlock FontFamily="Consolas" Foreground="White" TextWrapping="Wrap" Margin="8,0,0,0"
+                                       helpers:HighlightedTextBehavior.FormattedText="{Binding ., Converter={StaticResource LogEntryToFormattedStringConverter}}" 
+                                       helpers:HighlightedTextBehavior.SearchText="{Binding CurrentSearchText, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+
+</StackPanel>
                     </Expander>
                 </StackPanel>
             </Border>
