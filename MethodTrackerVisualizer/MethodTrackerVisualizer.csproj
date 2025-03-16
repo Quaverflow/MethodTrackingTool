@@ -60,6 +60,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Helpers\FileHelper.cs" />
+    <Compile Include="Helpers\ListToStringConverter.cs" />
     <Compile Include="Helpers\LogEntry.cs" />
     <Compile Include="MethodTrackerReader.cs" />
     <Compile Include="MethodTrackerReaderCommand.cs" />

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -116,10 +115,9 @@ public class SerializerHelpers
 
         public override void Write(Utf8JsonWriter writer, Exception value, JsonSerializerOptions options)
         {
-            writer.WriteString(nameof(value.Message), value.Message);
-            writer.WriteString(nameof(value.StackTrace), value.StackTrace);
-            writer.WritePropertyName(nameof(value.InnerException));
-            JsonSerializer.Serialize(writer, value.InnerException, options);       
+            var stackTrace = value.StackTrace?.Split(["\r\n", "\n"], StringSplitOptions.None);
+            var result = new { value.Message, StackTrace = stackTrace, value.InnerException };
+            JsonSerializer.Serialize(writer, result, options);       
         }
     }
 }

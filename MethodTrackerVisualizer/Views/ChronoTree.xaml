@@ -36,8 +36,16 @@
                                 <Run Text="{Binding StartTime}"/>
                             </TextBlock>
                             <TextBlock Margin="0,2,0,0">
+                                <Run Text="Memory Before: " FontWeight="Bold"/>
+                                <Run Text="{Binding MemoryBefore}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
                                 <Run Text="End: " FontWeight="Bold"/>
                                 <Run Text="{Binding EndTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Memory After: " FontWeight="Bold"/>
+                                <Run Text="{Binding MemoryAfter}"/>
                             </TextBlock>
                             <TextBlock Margin="0,2,0,0">
                                 <Run Text="Total Elapsed: " FontWeight="Bold"/>
@@ -46,6 +54,14 @@
                             <TextBlock Margin="0,2,0,0">
                                 <Run Text="Exclusive Elapsed: " FontWeight="Bold"/>
                                 <Run Text="{Binding ExclusiveElapsedTime}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Memory Increase: " FontWeight="Bold"/>
+                                <Run Text="{Binding MemoryIncrease}"/>
+                            </TextBlock>
+                            <TextBlock Margin="0,2,0,0">
+                                <Run Text="Exceptions: " FontWeight="Bold"/>
+                                <Run Text="{Binding Exceptions, Converter={StaticResource ListToStringConverter}}"/>
                             </TextBlock>
                         </StackPanel>
                     </Expander>

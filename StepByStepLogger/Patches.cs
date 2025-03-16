@@ -29,8 +29,9 @@ public static class Patches
             Parameters = argsDictionary ?? [],
             RawStartTime = DateTime.UtcNow
         };
-
-        CallStack.Push(entry);
+            entry.StartTime = entry.RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
+        
+            CallStack.Push(entry);
     }
 
     public static void LogVoidMethodExit(MethodInfo __originalMethod)
