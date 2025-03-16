@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace StepByStepLogger;
+namespace MethodTrackerTool;
 
 public static class MethodLoggerHelpers
 {

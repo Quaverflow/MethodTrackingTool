@@ -1,4 +1,4 @@
-﻿namespace StepByStepLogger;
+﻿namespace MethodTrackerTool;
 
 public class MethodLoggerOptions
 {

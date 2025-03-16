@@ -14,18 +14,18 @@ namespace MethodTrackerVisualizer;
 /// </para>
 /// </remarks>
 [Guid("4c711c01-7ce8-4057-9a49-d8478cf3f96d")]
-public class MethodDumpReader : ToolWindowPane
+public class MethodTrackerReader : ToolWindowPane
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MethodDumpReader"/> class.
+    /// Initializes a new instance of the <see cref="MethodTrackerReader"/> class.
     /// </summary>
-    public MethodDumpReader() : base(null)
+    public MethodTrackerReader() : base(null)
     {
-        this.Caption = "MethodDumpReader";
+        this.Caption = "MethodTrackerReader";
 
         // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
         // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
         // the object returned by the Content property.
-        this.Content = new Components.MethodDumpReader();
+        this.Content = new Components.MethodTrackerReader();
     }
 }

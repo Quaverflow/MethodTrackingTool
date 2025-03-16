@@ -1,4 +1,4 @@
-﻿namespace StepByStepLogger.MockProject;
+﻿namespace MethodTracker.MockProject;
 
 // Represents a user placing an order.
 public class User

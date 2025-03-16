@@ -1,8 +1,9 @@
 ﻿using System.Reflection;
-using StepByStepLogger.MockProject;
+using MethodTracker.MockProject;
+using MethodTrackerTool;
 using Xunit.Abstractions;
 
-namespace StepByStepLogger.Tests;
+namespace MethodTracker.Tests;
 
 public class DummyService
 {
