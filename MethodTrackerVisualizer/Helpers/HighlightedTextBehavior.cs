@@ -73,8 +73,7 @@ namespace MethodTrackerVisualizer.Helpers
                 string highlightedText = match.Value;
                 span.Inlines.Add(new Run(highlightedText)
                 {
-                    Background = Brushes.LightGreen,
-                    Foreground = Brushes.White
+                    Background = Brushes.DarkBlue,
                 });
                 lastIndex = match.Index + match.Length;
             }
