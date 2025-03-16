@@ -1,9 +1,11 @@
 ﻿using System.Reflection;
 
-namespace MethodTrackerTool;
+namespace MethodTrackerTool.Helpers;
 
 public static class MethodLoggerHelpers
 {
+
+
     public static bool IsValidMethod(MethodInfo method)
     {
         if (method.IsSpecialName || method.IsAbstract || method.DeclaringType == null ||
@@ -23,9 +25,9 @@ public static class MethodLoggerHelpers
                                                  attr.GetType().Name.Contains("Theory") ||
                                                  attr.GetType().Name.Contains("Test"));
 
-        private static bool IsLambdaOrStateMachine(MethodInfo method) =>
-            method.DeclaringType.Name.Contains('<') ||
-            method.Name == "MoveNext" && method.IsDefined(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), false);
+    private static bool IsLambdaOrStateMachine(MethodInfo method) =>
+        method.DeclaringType.Name.Contains('<') ||
+        method.Name == "MoveNext" && method.IsDefined(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), false);
 
     public static bool IsSystemType(Type type)
     {

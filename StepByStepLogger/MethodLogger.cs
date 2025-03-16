@@ -1,66 +1,19 @@
 ﻿using System.Reflection;
-using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using HarmonyLib;
+using MethodTrackerTool.Helpers;
 
 namespace MethodTrackerTool;
 
 // ReSharper disable InconsistentNaming
-public class LogEntryConverter : JsonConverter<LogEntry>
-{
-    public override LogEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        // Deserialization is not supported.
-        throw new NotImplementedException("Deserialization is not supported.");
-    }
 
-    public override void Write(Utf8JsonWriter writer, LogEntry value, JsonSerializerOptions options)
-    {
-        writer.WriteStartObject();
-
-        writer.WriteString(nameof(LogEntry.MethodName), value.MethodName);
-
-        writer.WritePropertyName(nameof(LogEntry.Parameters));
-        JsonSerializer.Serialize(writer, value.Parameters, options);
-
-        writer.WritePropertyName(nameof(LogEntry.ReturnValue));
-        JsonSerializer.Serialize(writer, value.ReturnValue, options);
-
-        writer.WriteString(nameof(LogEntry.ReturnType), value.ReturnType);
-
-        if (MethodLogger.Options.IncludePerformanceMetrics)
-        {
-            writer.WriteString(nameof(LogEntry.StartTime), value.StartTime);
-            writer.WriteString(nameof(LogEntry.EndTime), value.EndTime);
-            writer.WriteString(nameof(LogEntry.ElapsedTime), value.ElapsedTime);
-            writer.WriteString(nameof(LogEntry.ExclusiveElapsedTime), value.ExclusiveElapsedTime);
-        }
-
-        writer.WritePropertyName(nameof(LogEntry.Children));
-        JsonSerializer.Serialize(writer, value.Children, options);
-
-        writer.WriteEndObject();
-    }
-}
 
 public static class MethodLogger
 {
     private static Harmony? _harmonyInstance;
-    private static readonly List<MethodInfo> PatchedMethods = [];
-    private static readonly List<LogEntry> TopLevelCalls = [];
-    private static readonly Stack<LogEntry> CallStack = new();
+
     private static Action<string> _loggerOutput = _ => { };
-
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        ReferenceHandler = ReferenceHandler.IgnoreCycles,
-        WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        MaxDepth = 200,
-    };
-
-    public static MethodLoggerOptions Options { get; } = new();
+    private static readonly BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
     /// <summary>
     /// Enables logging for the assembly of the specified types
@@ -92,27 +45,21 @@ public static class MethodLogger
     {
         var methods = targetAssembly.GetTypes()
             .Where(type => !MethodLoggerHelpers.IsSystemType(type) && !MethodLoggerHelpers.IsTestType(type))
-            .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+            .SelectMany(type => type.GetMethods(_bindingFlags))
             .Where(MethodLoggerHelpers.IsValidMethod);
 
         foreach (var method in methods)
         {
             var postfixMethodName = method.ReturnType == typeof(void)
-                ? nameof(LogVoidMethodExit)
-                : nameof(LogMethodExit);
+                ? nameof(Patches.LogVoidMethodExit)
+                : nameof(Patches.LogMethodExit);
 
-            var prefix = new HarmonyMethod(typeof(MethodLogger).GetMethod(nameof(LogMethodEntry),
-                BindingFlags.Static | BindingFlags.NonPublic));
-            var postfix = new HarmonyMethod(typeof(MethodLogger).GetMethod(postfixMethodName,
-                BindingFlags.Static | BindingFlags.NonPublic));
+            var prefix = new HarmonyMethod(typeof(Patches).GetMethod(nameof(Patches.LogMethodEntry), _bindingFlags));
+            var postfix = new HarmonyMethod(typeof(Patches).GetMethod(postfixMethodName, _bindingFlags));
 
             try
             {
-                var patchResult = _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix);
-                if (patchResult != null)
-                {
-                    PatchedMethods.Add(method);
-                }
+                _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix);
             }
             catch
             {
@@ -123,49 +70,45 @@ public static class MethodLogger
 
     public static string PrintJson()
     {
-        var output = JsonSerializer.Serialize(TopLevelCalls, SerializerOptions);
+        var output = JsonSerializer.Serialize(Patches.TopLevelCalls, SerializerHelpers.SerializerOptions);
         _loggerOutput(output);
         WriteLogFile(output);
         return output;
     }
 
-    /// <summary>
-    /// Unpatches all methods and outputs the final call log.
-    /// </summary>
-    public static string DisableLogging()
+    public static string GetLogFilePath()
     {
-        if (_harmonyInstance == null)
+        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
+        if (!Directory.Exists(folder))
         {
-            return string.Empty;
+            Directory.CreateDirectory(folder);
         }
-
-        foreach (var method in PatchedMethods)
-        {
-            _harmonyInstance.Unpatch(method, HarmonyPatchType.All);
-        }
-
-        _harmonyInstance = null;
-        PatchedMethods.Clear();
-
-        var result = PrintJson();
-
-        TopLevelCalls.Clear();
-        CallStack.Clear();
-
-        return result;
+        return Path.Combine(folder, "loggeroutput.json");
     }
 
-    private static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
+    public static void WriteLogFile(string content)
+    {
+        var path = GetLogFilePath();
+        File.WriteAllText(path, content);
+    }
+}
+
+public static class Patches
+{
+    internal static readonly List<LogEntry> TopLevelCalls = [];
+    internal static readonly Stack<LogEntry> CallStack = new();
+
+    internal static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
         var parameters = __originalMethod.GetParameters();
         var argsDictionary =
             __args?.Select((arg, i) => new
-                {
-                    Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
-                    Value = ConvertToSerializableValue(arg)
-                })
+            {
+                Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
+                Value = ConvertToSerializableValue(arg)
+            })
                 .ToDictionary(x => x.Key, x => x.Value);
-          
+
 
         var entry = new LogEntry
         {
@@ -173,16 +116,11 @@ public static class MethodLogger
             Parameters = argsDictionary ?? [],
             RawStartTime = DateTime.UtcNow
         };
-        if (Options.IncludePerformanceMetrics)
-        {
-            entry.StartTime = entry.RawStartTime.ToString(Options.DateTimeFormat);
-        }
 
         CallStack.Push(entry);
-        Options.RaiseLogEntry(entry);
     }
 
-    private static void LogVoidMethodExit(MethodInfo __originalMethod)
+    public static void LogVoidMethodExit(MethodInfo __originalMethod)
     {
         if (CallStack.Count > 0)
         {
@@ -193,7 +131,7 @@ public static class MethodLogger
         }
     }
 
-    private static void LogMethodExit(MethodInfo __originalMethod, object? __result)
+    internal static void LogMethodExit(MethodInfo __originalMethod, object? __result)
     {
         if (__result is Task task)
         {
@@ -215,12 +153,6 @@ public static class MethodLogger
             AddToStack(entry);
 
         }
-    }
-
-    private static string BuildReturnTypeString(MethodInfo method)
-    {
-        var returnType = method.ReturnType;
-        return BuildTypeName(returnType);
     }
 
     private static string BuildTypeName(Type type)
@@ -255,7 +187,7 @@ public static class MethodLogger
         {
             return "System.Type is not supported by the serializer";
         }
-        
+
         if (result is Delegate)
         {
             return "System.Delegate is not supported by the serializer";
@@ -263,7 +195,7 @@ public static class MethodLogger
 
         try
         {
-            JsonSerializer.Serialize(result, SerializerOptions);
+            JsonSerializer.Serialize(result, SerializerHelpers.SerializerOptions);
             return result;
         }
         catch (Exception)
@@ -301,28 +233,17 @@ public static class MethodLogger
     {
         var entry = CallStack.Pop();
         entry.RawEndTime = DateTime.UtcNow;
-        if (Options.IncludePerformanceMetrics)
-        {
-            entry.EndTime = entry.RawEndTime.ToString(Options.DateTimeFormat);
-            entry.ElapsedTime = $"{entry.RawElapsedMilliseconds:F3} ms";
-            entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
-        }
 
+        entry.EndTime = entry.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
+        entry.ElapsedTime = $"{entry.RawElapsedMilliseconds:F3} ms";
+        entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
         return entry;
     }
-    public static string GetLogFilePath()
+
+    private static string BuildReturnTypeString(MethodInfo method)
     {
-        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
-        if (!Directory.Exists(folder))
-        {
-            Directory.CreateDirectory(folder);
-        }
-        return Path.Combine(folder, "loggeroutput.json");
+        var returnType = method.ReturnType;
+        return BuildTypeName(returnType);
     }
 
-    public static void WriteLogFile(string content)
-    {
-        var path = GetLogFilePath();
-        File.WriteAllText(path, content);
-    }
 }
