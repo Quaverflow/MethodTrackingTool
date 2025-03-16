@@ -16,6 +16,7 @@ public partial class ChronoTree : UserControl
     public ChronoTree()
     {
         InitializeComponent();
+        ChronoTreeView.ItemsSource = FileHelper.Data;
         SearchBar.PreviousClicked += PreviousButton_Click;
         SearchBar.NextClicked += NextButton_Click;
         SearchBar.SearchTextChanged += SearchTextBox_TextChanged;

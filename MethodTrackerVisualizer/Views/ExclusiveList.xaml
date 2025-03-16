@@ -4,6 +4,11 @@
              xmlns:helpers="clr-namespace:MethodTrackerVisualizer.Helpers"
              Background="Black">
     <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+
         <DataTemplate x:Key="ExclusiveItemTemplate" DataType="{x:Type helpers:LogEntry}">
             <Border Margin="5" Padding="8" Background="#FF1E1E1E" CornerRadius="5" BorderThickness="2" BorderBrush="#FF707070">
                 <StackPanel Orientation="Horizontal">

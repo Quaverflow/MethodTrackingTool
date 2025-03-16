@@ -5,6 +5,10 @@
              xmlns:helpers="clr-namespace:MethodTrackerVisualizer.Helpers"
              Background="Black">
     <UserControl.Resources>
+        <LinearGradientBrush x:Key="HeaderGradientBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF800080" Offset="0"/>
+            <GradientStop Color="#FF000000" Offset="1"/>
+        </LinearGradientBrush>
         <helpers:ListToStringConverter x:Key="ListToStringConverter"/>
         <HierarchicalDataTemplate DataType="{x:Type helpers:LogEntry}" ItemsSource="{Binding Children}">
             <Border CornerRadius="5" BorderThickness="2" Margin="5" Padding="0"
