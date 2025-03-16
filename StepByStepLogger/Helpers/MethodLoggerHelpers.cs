@@ -40,4 +40,62 @@ public static class MethodLoggerHelpers
         return type.GetCustomAttributes().Any(attr => attr.GetType().Name.Contains("Test") ||
                                                       attr.GetType().Name.Contains("Fact"));
     }
+
+    public static string BuildTypeName(Type type)
+    {
+        if (!type.IsGenericType)
+        {
+            return type.FullName ?? type.Name;
+        }
+
+        var baseName = type.Name;
+        var backTickIndex = baseName.IndexOf('`');
+        if (backTickIndex > 0)
+        {
+            baseName = baseName[..backTickIndex];
+        }
+
+        var genericArgs = type.GetGenericArguments();
+        var genericArgsString = string.Join(", ", genericArgs.Select(BuildTypeName));
+
+        var ns = type.Namespace != null ? type.Namespace + "." : "";
+        return $"{ns}{baseName}<{genericArgsString}>";
+    }
+
+    public static object ConvertToSerializableValue(object? result)
+    {
+        if (result is null)
+        {
+            return "null";
+        }
+
+        try
+        {
+            return result;
+        }
+        catch (Exception)
+        {
+            return $"Unserializable type: {result.GetType().FullName}";
+        }
+    }
+
+    public static object? GetTaskResult(Task task)
+    {
+        try
+        {
+            var resultProperty = task.GetType().GetProperty("Result");
+            return resultProperty?.GetValue(task);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public static string BuildReturnTypeString(MethodInfo method)
+    {
+        var returnType = method.ReturnType;
+        return BuildTypeName(returnType);
+    }
+
 }
