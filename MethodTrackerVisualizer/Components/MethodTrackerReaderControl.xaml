@@ -24,6 +24,9 @@
             </TabItem>
             <TabItem Header="By Elapsed Time">
                 <views:ByExclusiveElapsedTimeView x:Name="ExclusiveListControl"/>
+            </TabItem>  
+            <TabItem Header="Exceptions">
+                <views:ExceptionsView x:Name="Exceptions"/>
             </TabItem>
         </TabControl>
     </Grid>

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using MethodTrackerTool.Helpers;
+using MethodTrackerTool.Models;
 
 // ReSharper disable InconsistentNaming
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Data;
 
-namespace MethodTrackerVisualizer.Helpers;
+namespace MethodTrackerVisualizer.Helpers.Converters;
 
 public class LogEntryToFormattedStringConverter : IValueConverter
 {

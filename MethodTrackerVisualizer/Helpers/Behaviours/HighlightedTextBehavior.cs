@@ -1,12 +1,10 @@
-﻿using System;
-using System.Globalization;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace MethodTrackerVisualizer.Helpers
+namespace MethodTrackerVisualizer.Helpers.Behaviours
 {
     public static class HighlightedTextBehavior
     {

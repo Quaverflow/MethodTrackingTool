@@ -59,11 +59,12 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Helpers\Behaviours\HighlightedTextBehavior.cs" />
+    <Compile Include="Helpers\Converters\LogEntryToExceptionStringConverter.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
-    <Compile Include="Helpers\HighlightedTextBehavior.cs" />
     <Compile Include="Helpers\LogEntry.cs" />
     <Compile Include="Helpers\LogEntryHelpers.cs" />
-    <Compile Include="Helpers\LogEntryToFormattedStringConverter.cs" />
+    <Compile Include="Helpers\Converters\LogEntryToFormattedStringConverter.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="MethodTrackerReader.cs" />
     <Compile Include="MethodTrackerReaderCommand.cs" />
@@ -72,6 +73,9 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MethodTrackerVisualizerPackage.cs" />
+    <Compile Include="Views\ExceptionsView.xaml.cs">
+      <DependentUpon>ExceptionsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HierarchicalView.xaml.cs">
       <DependentUpon>HierarchicalView.xaml</DependentUpon>
     </Compile>
@@ -117,6 +121,10 @@
     <Page Include="Components\MethodTrackerReaderControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ExceptionsView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SearchBar.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>

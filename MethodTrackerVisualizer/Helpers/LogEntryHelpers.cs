@@ -43,4 +43,14 @@ public static class LogEntryHelpers
         }
         return result;
     }
+
+    public static List<LogEntry> ExcludeMatching(this IEnumerable<LogEntry> data, Func<LogEntry, bool> predicate)
+        => data.Where(entry => !predicate(entry))
+            .Select(entry =>
+            {
+                var newEntry = entry.Clone();
+
+                newEntry.Children = newEntry.Children.ExcludeMatching(predicate);
+                return newEntry;
+            }).ToList();
 }

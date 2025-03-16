@@ -1,4 +1,4 @@
-﻿namespace MethodTrackerTool.Helpers;
+﻿namespace MethodTrackerTool.Models;
 
 public class LogEntry
 {
