@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
-using System.Text.Json;
 using MethodTrackerTool.Helpers;
+
+// ReSharper disable InconsistentNaming
 
 namespace MethodTrackerTool;
 
@@ -14,15 +15,16 @@ public static class Patches
         var parameters = __originalMethod.GetParameters();
         var argsDictionary =
             __args?.Select((arg, i) => new
-                {
-                    Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
-                    Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
-                })
+            {
+                Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
+                Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
+            })
                 .ToDictionary(x => x.Key, x => x.Value);
 
 
         var entry = new LogEntry
         {
+            MemoryBefore = GC.GetTotalMemory(false),
             MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
             Parameters = argsDictionary ?? [],
             RawStartTime = DateTime.UtcNow
@@ -32,15 +34,7 @@ public static class Patches
     }
 
     public static void LogVoidMethodExit(MethodInfo __originalMethod)
-    {
-        if (CallStack.Count > 0)
-        {
-            var entry = CommonLogMethodExitSetup();
-            entry.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(__originalMethod);
-            entry.ReturnValue = "N/A";
-            AddToStack(entry);
-        }
-    }
+        => Finalize(__originalMethod, "void");
 
     internal static void LogMethodExit(MethodInfo __originalMethod, object? __result)
     {
@@ -48,26 +42,30 @@ public static class Patches
         {
             task.ContinueWith(t =>
             {
-                var entry = CommonLogMethodExitSetup();
-                var taskResult = task.GetType().GenericTypeArguments.Any() ? MethodLoggerHelpers.GetTaskResult(t) : t;
-
-                entry.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(__originalMethod);
-                entry.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(taskResult);
-                AddToStack(entry);
+                // Cache the exception in a local variable
+                if (t.Exception?.InnerExceptions is {Count: > 0} exceptions)
+                {
+                    Finalize(__originalMethod, "n/a", [.. exceptions]);
+                }
+                else
+                {
+                    var taskResult = t.GetType().GenericTypeArguments.Any()
+                        ? MethodLoggerHelpers.GetTaskResult(t)
+                        : t;
+                    Finalize(__originalMethod, taskResult);
+                }
             });
         }
         else
         {
-            var entry = CommonLogMethodExitSetup();
-            entry.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(__originalMethod);
-            entry.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(__result);
-            AddToStack(entry);
-
+            Finalize(__originalMethod, __result);
         }
     }
 
     private static void AddToStack(LogEntry entry)
     {
+        ArgumentNullException.ThrowIfNull(entry);
+
         if (CallStack.Count > 0)
         {
             CallStack.Peek().Children.Add(entry);
@@ -78,15 +76,22 @@ public static class Patches
         }
     }
 
-    private static LogEntry CommonLogMethodExitSetup()
+    private static void Finalize(MethodInfo originalMethod, object? result, params Exception?[]? exceptions)
     {
+        if (CallStack.Count == 0)
+        {
+            return;
+        }
+
         var entry = CallStack.Pop();
         entry.RawEndTime = DateTime.UtcNow;
-
+        entry.MemoryAfter = GC.GetTotalMemory(false);
         entry.EndTime = entry.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
         entry.ElapsedTime = $"{entry.RawElapsedMilliseconds:F3} ms";
         entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
-        return entry;
+        entry.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(originalMethod);
+        entry.Exceptions = exceptions?.OfType<Exception>().ToArray();
+        entry.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(result);
+        AddToStack(entry);
     }
-
 }

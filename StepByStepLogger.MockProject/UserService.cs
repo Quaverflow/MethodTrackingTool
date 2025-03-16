@@ -69,6 +69,8 @@ public class OrderService
         notificationService.SendOrderConfirmation(order);
 
         Console.WriteLine("OrderService: ProcessOrderAsync completed.");
+
+        throw new Exception("Test exception");
         return order;
     }
 
@@ -147,6 +149,11 @@ public class NotificationService
     private void DoNotificationWork()
     {
         Console.WriteLine("NotificationService: Doing additional notification work.");
+    }
+
+    public void Throw()
+    {
+        throw new Exception("test exc");
     }
 }
 

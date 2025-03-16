@@ -21,5 +21,11 @@ public class LogEntry
     public string? ElapsedTime { get; set; }
     public string? ExclusiveElapsedTime { get; set; }
 
+    public long MemoryBefore { get; set; }
+    public long MemoryAfter { get; set; }
+    public long MemoryIncrease => MemoryAfter - MemoryBefore;
+
+    public Exception[]? Exceptions { get; set; }
+
     public List<LogEntry> Children { get; set; } = [];
 }

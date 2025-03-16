@@ -44,7 +44,7 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
         var result = service.DoWork();
         Assert.Equal("done", result);
         var jsonOutput = string.Join(Environment.NewLine, outputLines);
-           
+
         // Assert that output contains the expected method names.
         Assert.Contains("DummyService.DoWork", jsonOutput);
         void Logger(string s) => outputLines.Add(s);
@@ -56,12 +56,22 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
         MethodLogger.EnableLogging(testOutputHelper.WriteLine, typeof(OrderService));
 
         var service = new OrderService();
-        await service.ProcessOrderAsync(new OrderRequest
+
+        try
         {
-            UserId = 13,
-            ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
-            TotalAmount = 20
-        });
+            //await service.ProcessOrderAsync(new OrderRequest
+            //{
+            //    UserId = 13,
+            //    ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
+            //    TotalAmount = 20
+            //});
+
+            new NotificationService().Throw();
+        }
+        catch
+        {
+            //ignore
+        }
 
         MethodLogger.PrintJson();
     }

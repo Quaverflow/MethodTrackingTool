@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,7 +14,14 @@ public class SerializerHelpers
         WriteIndented = true,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         MaxDepth = 200,
-        Converters = { new LogEntryConverter(), new CultureInfoConverter() , new TypeConverter(), new DelegateConverter() }
+        Converters =
+        {
+            new LogEntryConverter(), 
+            new CultureInfoConverter(),
+            new TypeConverter(),
+            new DelegateConverter(),
+            new ExceptionConverter()
+        }
     };
     private class LogEntryConverter : JsonConverter<LogEntry>
     {
@@ -36,11 +44,20 @@ public class SerializerHelpers
             JsonSerializer.Serialize(writer, value.ReturnValue, options);
 
             writer.WriteString(nameof(LogEntry.ReturnType), value.ReturnType);
+            writer.WritePropertyName(nameof(LogEntry.Exceptions));
+            JsonSerializer.Serialize(writer, value.Exceptions, options);
 
             writer.WriteString(nameof(LogEntry.StartTime), value.StartTime);
             writer.WriteString(nameof(LogEntry.EndTime), value.EndTime);
             writer.WriteString(nameof(LogEntry.ElapsedTime), value.ElapsedTime);
             writer.WriteString(nameof(LogEntry.ExclusiveElapsedTime), value.ExclusiveElapsedTime);
+          
+            writer.WritePropertyName(nameof(LogEntry.MemoryBefore));
+            JsonSerializer.Serialize(writer, value.MemoryBefore, options);
+            writer.WritePropertyName(nameof(LogEntry.MemoryAfter));
+            JsonSerializer.Serialize(writer, value.MemoryAfter, options);
+            writer.WritePropertyName(nameof(LogEntry.MemoryIncrease));
+            JsonSerializer.Serialize(writer, value.MemoryIncrease, options);
 
             writer.WritePropertyName(nameof(LogEntry.Children));
             JsonSerializer.Serialize(writer, value.Children, options);
@@ -87,6 +104,22 @@ public class SerializerHelpers
         public override void Write(Utf8JsonWriter writer, Delegate value, JsonSerializerOptions options)
         {
             writer.WriteStringValue("System.Delegate object is not serializable.");
+        }
+    }    
+    public class ExceptionConverter : JsonConverter<Exception>
+    {
+        public override Exception Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // Deserialization is not supported.
+            throw new NotImplementedException("Deserialization is not supported.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, Exception value, JsonSerializerOptions options)
+        {
+            writer.WriteString(nameof(value.Message), value.Message);
+            writer.WriteString(nameof(value.StackTrace), value.StackTrace);
+            writer.WritePropertyName(nameof(value.InnerException));
+            JsonSerializer.Serialize(writer, value.InnerException, options);       
         }
     }
 }
