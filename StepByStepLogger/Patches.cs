@@ -35,9 +35,14 @@ public static class Patches
 
     public static void LogVoidMethodExit(MethodInfo __originalMethod)
         => Finalize(__originalMethod, "void");
-    
+
     public static void Finalizer(MethodInfo __originalMethod, Exception __exception)
-        => Finalize(__originalMethod, "n/a", __exception);
+    {
+        if (__exception != null)
+        {
+            Finalize(__originalMethod, "n/a", __exception);
+        }
+    }
 
     internal static void LogMethodExit(MethodInfo __originalMethod, object? __result)
     {
@@ -46,7 +51,7 @@ public static class Patches
             task.ContinueWith(t =>
             {
                 // Cache the exception in a local variable
-                if (t.Exception?.InnerExceptions is {Count: > 0} exceptions)
+                if (t.Exception?.InnerExceptions is { Count: > 0 } exceptions)
                 {
                     Finalize(__originalMethod, "n/a", [.. exceptions]);
                 }

@@ -59,14 +59,14 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            //await service.ProcessOrderAsync(new OrderRequest
-            //{
-            //    UserId = 13,
-            //    ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
-            //    TotalAmount = 20
-            //});
+            await service.ProcessOrderAsync(new OrderRequest
+            {
+                UserId = 13,
+                ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
+                TotalAmount = 20
+            });
 
-            new NotificationService().Throw();
+            //new NotificationService().Throw();
         }
         catch
         {
