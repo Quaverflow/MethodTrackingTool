@@ -11,9 +11,7 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class ChronoTree : UserControl
 {
-    private List<LogEntry> _matchedMethods = [];
     private List<LogEntry> _matchedTextEntries = [];
-    private int _currentMatchMethodIndex = -1;
     private int _currentMatchTextEntriesIndex = -1;
 
 
@@ -30,9 +28,6 @@ public partial class ChronoTree : UserControl
     {
         InitializeComponent();
         ChronoTreeView.ItemsSource = FileHelper.Data;
-        MethodSearchBar.PreviousClicked += PreviousMethod;
-        MethodSearchBar.NextClicked += NextMethod;
-        MethodSearchBar.SearchTextChanged += SearchForMethod;
         ValueSearchBar.SearchTextChanged += SearchForText;
         ValueSearchBar.PreviousClicked += PreviousText;
         ValueSearchBar.NextClicked += NextText;
@@ -74,42 +69,6 @@ public partial class ChronoTree : UserControl
         }
     }
 
-    private void PreviousMethod(object sender, EventArgs _)
-    {
-        if (_matchedMethods.Any())
-        {
-            _currentMatchMethodIndex = (_currentMatchMethodIndex - 1 + _matchedMethods.Count) % _matchedMethods.Count;
-            NavigateToEntry(_matchedMethods[_currentMatchMethodIndex]);
-        }
-    }
-
-    private void NextMethod(object sender, EventArgs _)
-    {
-        if (_matchedMethods.Any())
-        {
-            _currentMatchMethodIndex = (_currentMatchMethodIndex + 1) % _matchedMethods.Count;
-            NavigateToEntry(_matchedMethods[_currentMatchMethodIndex]);
-        }
-    }
-
-    private void SearchForMethod(object sender, string searchText)
-    {
-        searchText = searchText.Trim();
-        if (string.IsNullOrEmpty(searchText))
-        {
-            _matchedMethods.Clear();
-            _currentMatchMethodIndex = -1;
-            return;
-        }
-
-        _matchedMethods = FileHelper.Data.FindMatchingMethod( searchText);
-        if (_matchedMethods.Any())
-        {
-            _currentMatchMethodIndex = 0;
-            NavigateToEntry(_matchedMethods[_currentMatchMethodIndex]);
-        }
-    }
-
     private void NavigateToEntry(object dataItem)
     {
 
@@ -118,6 +77,7 @@ public partial class ChronoTree : UserControl
         {
             var tvi = ChronoTreeView.GetTreeViewItem(dataItem);
             tvi.ExpandExpanderForEntry();
+            tvi.BringIntoView();
         }), DispatcherPriority.Background);
     }
 

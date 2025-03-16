@@ -13,6 +13,7 @@ public class LogEntryToFormattedStringConverter : IValueConverter
         if (value is LogEntry entry)
         {
             var sb = new StringBuilder();
+            sb.AppendLine($"Method Name: {entry.MethodName}");
             sb.AppendLine($"Parameters: {(entry.Parameters != null ? string.Join(", ", entry.Parameters.Select(kvp => $"{kvp.Key}: {kvp.Value}")) : "none")}");
             sb.AppendLine($"Return Type: {entry.ReturnType}");
             sb.AppendLine($"Return Value: {entry.ReturnValue}");
