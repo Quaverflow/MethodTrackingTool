@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class ChronoTree : UserControl
+public partial class HierarchicalView : UserControl
 {
     private List<LogEntry> _matchedTextEntries = [];
     private int _currentMatchTextEntriesIndex = -1;
@@ -22,9 +21,9 @@ public partial class ChronoTree : UserControl
     }
 
     public static readonly DependencyProperty CurrentSearchTextProperty =
-        DependencyProperty.Register(nameof(CurrentSearchText), typeof(string), typeof(ChronoTree), new PropertyMetadata(string.Empty));
+        DependencyProperty.Register(nameof(CurrentSearchText), typeof(string), typeof(HierarchicalView), new PropertyMetadata(string.Empty));
 
-    public ChronoTree()
+    public HierarchicalView()
     {
         InitializeComponent();
         ChronoTreeView.ItemsSource = FileHelper.Data;

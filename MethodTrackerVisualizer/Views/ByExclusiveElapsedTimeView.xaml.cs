@@ -6,9 +6,9 @@ using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class ExclusiveList : UserControl
+public partial class ByExclusiveElapsedTimeView : UserControl
 {
-    public ExclusiveList()
+    public ByExclusiveElapsedTimeView()
     {
         InitializeComponent();
         Loaded += Load;
