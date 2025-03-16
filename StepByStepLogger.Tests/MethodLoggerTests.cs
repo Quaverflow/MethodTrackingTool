@@ -5,15 +5,8 @@ using Xunit.Abstractions;
 
 namespace MethodTracker.Tests;
 
-public class MethodLoggerTests
+public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public MethodLoggerTests(ITestOutputHelper testOutputHelper)
-    {
-        _testOutputHelper = testOutputHelper;
-    }
-
     [Fact]
     public void LoggingOutput_IncludesNestedCallsAndPerformanceMetrics()
     {
@@ -60,7 +53,7 @@ public class MethodLoggerTests
     [Fact]
     public async Task Sample()
     {
-        MethodLogger.EnableLogging(_testOutputHelper.WriteLine, typeof(OrderService));
+        MethodLogger.EnableLogging(testOutputHelper.WriteLine, typeof(OrderService));
 
         var service = new OrderService();
         await service.ProcessOrderAsync(new OrderRequest

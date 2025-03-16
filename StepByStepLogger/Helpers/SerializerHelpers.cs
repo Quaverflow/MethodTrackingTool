@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Globalization;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,7 +13,7 @@ public class SerializerHelpers
         WriteIndented = true,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         MaxDepth = 200,
-        Converters = { new LogEntryConverter() }
+        Converters = { new LogEntryConverter(), new CultureInfoConverter() , new TypeConverter(), new DelegateConverter() }
     };
     private class LogEntryConverter : JsonConverter<LogEntry>
     {
@@ -45,6 +46,47 @@ public class SerializerHelpers
             JsonSerializer.Serialize(writer, value.Children, options);
 
             writer.WriteEndObject();
+        }
+    }
+    public class CultureInfoConverter : JsonConverter<CultureInfo>
+    {
+        public override CultureInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // Deserialization is not supported.
+            throw new NotImplementedException("Deserialization is not supported.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, CultureInfo value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue("System.CultureInfo is removed.");
+        }
+    }    
+    
+    public class TypeConverter : JsonConverter<Type>
+    {
+        public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // Deserialization is not supported.
+            throw new NotImplementedException("Deserialization is not supported.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue("System.Type object is not serializable.");
+        }
+    }  
+    
+    public class DelegateConverter : JsonConverter<Delegate>
+    {
+        public override Delegate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // Deserialization is not supported.
+            throw new NotImplementedException("Deserialization is not supported.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, Delegate value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue("System.Delegate object is not serializable.");
         }
     }
 }

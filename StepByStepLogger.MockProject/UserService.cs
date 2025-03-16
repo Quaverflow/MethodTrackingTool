@@ -1,4 +1,6 @@
-﻿namespace MethodTracker.MockProject;
+﻿using System.Globalization;
+
+namespace MethodTracker.MockProject;
 
 // Represents a user placing an order.
 public class User
@@ -24,6 +26,8 @@ public class Order
     public List<int> ProductIds { get; set; } = [];
     public decimal TotalAmount { get; set; }
     public DateTime OrderDate { get; set; }
+    public Type Type { get; set; }
+    public CultureInfo CultureInfo { get; set; }
 }
 
 // Represents the result of a payment attempt.
@@ -82,7 +86,9 @@ public class OrderService
             Customer = customer,
             ProductIds = request.ProductIds,
             TotalAmount = request.TotalAmount,
-            OrderDate = DateTime.Now
+            OrderDate = DateTime.Now,
+            Type = GetType(),
+            CultureInfo = CultureInfo.CurrentCulture
         };
     }
 
