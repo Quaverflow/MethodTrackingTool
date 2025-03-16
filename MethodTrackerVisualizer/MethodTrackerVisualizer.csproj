@@ -62,7 +62,9 @@
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\HighlightedTextBehavior.cs" />
     <Compile Include="Helpers\LogEntry.cs" />
+    <Compile Include="Helpers\LogEntryHelpers.cs" />
     <Compile Include="Helpers\LogEntryToFormattedStringConverter.cs" />
+    <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="MethodTrackerReader.cs" />
     <Compile Include="MethodTrackerReaderCommand.cs" />
     <Compile Include="Components\MethodTrackerReaderControl.xaml.cs">
@@ -79,6 +81,7 @@
     <Compile Include="Views\SearchBar.xaml.cs">
       <DependentUpon>SearchBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\UiExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="source.extension.vsixmanifest">
