@@ -11,54 +11,91 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class ChronoTree : UserControl
 {
-    private List<LogEntry> _matchedEntries = [];
-    private int _currentMatchIndex = -1;
+    private List<LogEntry> _matchedMethods = [];
+    private List<LogEntry> _matchedTextEntries = [];
+    private int _currentMatchMethodIndex = -1;
+    private int _currentMatchTextEntriesIndex = -1;
     public ChronoTree()
     {
         InitializeComponent();
         ChronoTreeView.ItemsSource = FileHelper.Data;
-        SearchBar.PreviousClicked += PreviousButton_Click;
-        SearchBar.NextClicked += NextButton_Click;
-        SearchBar.SearchTextChanged += SearchTextBox_TextChanged;
+        MethodSearchBar.PreviousClicked += PreviousMethod;
+        MethodSearchBar.NextClicked += NextMethod;
+        MethodSearchBar.SearchTextChanged += SearchForMethod;
+        ValueSearchBar.SearchTextChanged += SearchForText;
     }
 
-    private void PreviousButton_Click(object sender, EventArgs _)
-    {
-        if (_matchedEntries.Any())
-        {
-            _currentMatchIndex = (_currentMatchIndex - 1 + _matchedEntries.Count) % _matchedEntries.Count;
-            NavigateToEntry(_matchedEntries[_currentMatchIndex]);
-        }
-    }
-
-    private void NextButton_Click(object sender, EventArgs _)
-    {
-        if (_matchedEntries.Any())
-        {
-            _currentMatchIndex = (_currentMatchIndex + 1) % _matchedEntries.Count;
-            NavigateToEntry(_matchedEntries[_currentMatchIndex]);
-        }
-    }
-
-    private void SearchTextBox_TextChanged(object sender, string searchText)
+    private void SearchForText(object _, string searchText)
     {
         searchText = searchText.Trim();
         if (string.IsNullOrEmpty(searchText))
         {
-            _matchedEntries.Clear();
-            _currentMatchIndex = -1;
+            _matchedTextEntries.Clear();
+            _currentMatchTextEntriesIndex = -1;
             return;
         }
 
-        _matchedEntries = FindMatchingEntries(FileHelper.Data, searchText);
-        if (_matchedEntries.Any())
+        _matchedTextEntries = FindMatchingText(FileHelper.Data, searchText);
+        if (_matchedTextEntries.Any())
         {
-            _currentMatchIndex = 0;
-            NavigateToEntry(_matchedEntries[_currentMatchIndex]);
+            _currentMatchTextEntriesIndex = 0;
+            NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
+        }
+    }
+    private void PreviousText(object sender, EventArgs _)
+    {
+        if (_matchedTextEntries.Any())
+        {
+            _currentMatchTextEntriesIndex = (_currentMatchTextEntriesIndex - 1 + _matchedTextEntries.Count) % _matchedTextEntries.Count;
+            NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
         }
     }
 
-    private List<LogEntry> FindMatchingEntries(List<LogEntry> entries, string searchText)
+    private void NextText(object sender, EventArgs _)
+    {
+        if (_matchedTextEntries.Any())
+        {
+            _currentMatchTextEntriesIndex = (_currentMatchTextEntriesIndex + 1) % _matchedTextEntries.Count;
+            NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
+        }
+    }
+    private void PreviousMethod(object sender, EventArgs _)
+    {
+        if (_matchedMethods.Any())
+        {
+            _currentMatchMethodIndex = (_currentMatchMethodIndex - 1 + _matchedMethods.Count) % _matchedMethods.Count;
+            NavigateToEntry(_matchedMethods[_currentMatchMethodIndex]);
+        }
+    }
+
+    private void NextMethod(object sender, EventArgs _)
+    {
+        if (_matchedMethods.Any())
+        {
+            _currentMatchMethodIndex = (_currentMatchMethodIndex + 1) % _matchedMethods.Count;
+            NavigateToEntry(_matchedMethods[_currentMatchMethodIndex]);
+        }
+    }
+
+    private void SearchForMethod(object sender, string searchText)
+    {
+        searchText = searchText.Trim();
+        if (string.IsNullOrEmpty(searchText))
+        {
+            _matchedMethods.Clear();
+            _currentMatchMethodIndex = -1;
+            return;
+        }
+
+        _matchedMethods = FindMatchingMethod(FileHelper.Data, searchText);
+        if (_matchedMethods.Any())
+        {
+            _currentMatchMethodIndex = 0;
+            NavigateToEntry(_matchedMethods[_currentMatchMethodIndex]);
+        }
+    }
+
+    private List<LogEntry> FindMatchingMethod(List<LogEntry> entries, string searchText)
     {
         var result = new List<LogEntry>();
         foreach (var entry in entries)
@@ -67,10 +104,34 @@ public partial class ChronoTree : UserControl
             {
                 result.Add(entry);
             }
-            result.AddRange(FindMatchingEntries(entry.Children, searchText));
+            result.AddRange(FindMatchingMethod(entry.Children, searchText));
         }
         return result;
     }
+
+    private List<LogEntry> FindMatchingText(List<LogEntry> entries, string searchText)
+    {
+        var result = new List<LogEntry>();
+        foreach (var entry in entries)
+        {
+            var found = entry.Parameters?.Any(paramValue => IsMatchingValue(paramValue.Value, searchText)) is true ||
+                        IsMatchingValue(entry.ReturnValue, searchText);
+
+            if (found)
+            {
+                result.Add(entry);
+            }
+            
+            if (entry.Children != null && entry.Children.Any())
+            {
+                var childMatches = FindMatchingText(entry.Children, searchText);
+                result.AddRange(childMatches);
+            }
+        }
+        return result;
+    }
+
+    private bool IsMatchingValue<T>(T value, string searchText) => value?.ToString().IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0;
 
     private TreeViewItem _selected;
     private void NavigateToEntry(object dataItem)

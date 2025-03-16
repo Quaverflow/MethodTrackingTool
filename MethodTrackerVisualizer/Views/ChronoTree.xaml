@@ -72,9 +72,11 @@
     <Grid Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <views:SearchBar x:Name="SearchBar"/>
-        <TreeView Grid.Row="1" x:Name="ChronoTreeView" Background="Black" Foreground="White"/>
+        <views:SearchBar Grid.Row="0"  x:Name="MethodSearchBar"/>
+        <views:SearchBar Grid.Row="1"  x:Name="ValueSearchBar"/>
+        <TreeView Grid.Row="2" x:Name="ChronoTreeView" Background="Black" Foreground="White"/>
     </Grid>
 </UserControl>
