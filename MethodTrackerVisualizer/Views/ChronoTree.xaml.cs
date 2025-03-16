@@ -15,8 +15,7 @@ public partial class ChronoTree : UserControl
     private List<LogEntry> _matchedTextEntries = [];
     private int _currentMatchMethodIndex = -1;
     private int _currentMatchTextEntriesIndex = -1;
-    private static Brush _baseBackground;
-    private TreeViewItem _selected;
+
 
     public string CurrentSearchText
     {
@@ -119,26 +118,7 @@ public partial class ChronoTree : UserControl
         {
             var tvi = ChronoTreeView.GetTreeViewItem(dataItem);
             tvi.ExpandExpanderForEntry();
-            InvertSelection(tvi);
         }), DispatcherPriority.Background);
     }
 
-    public void InvertSelection(TreeViewItem newSelection)
-    {
-        _baseBackground ??= newSelection?.Background;
-
-        if (_selected != null)
-        {
-            _selected.Background = _baseBackground;
-            _selected.IsSelected = false;
-        }
-
-        if (newSelection != null)
-        {
-            newSelection.IsSelected = true;
-            newSelection.Background = new SolidColorBrush(Colors.DodgerBlue);
-            newSelection.BringIntoView();
-            _selected = newSelection;
-        }
-    }
 }

@@ -19,9 +19,6 @@
                     </Border>
                     <Expander Header="Details" IsExpanded="False" Background="Transparent" Foreground="White" Margin="2, 2, 10, 2">
                         <StackPanel>
-                            <Border CornerRadius="5,5,0,0" Padding="8" Background="{StaticResource HeaderGradientBrush}">
-                                <TextBlock Text="{Binding MethodName}" FontWeight="Bold" FontSize="14"/>
-                            </Border>
                             <TextBlock FontFamily="Consolas" Foreground="White" TextWrapping="Wrap" Margin="8,0,0,0"
                                        helpers:HighlightedTextBehavior.FormattedText="{Binding ., Converter={StaticResource LogEntryToFormattedStringConverter}}" 
                                        helpers:HighlightedTextBehavior.SearchText="{Binding CurrentSearchText, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
