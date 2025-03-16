@@ -35,6 +35,9 @@ public static class Patches
 
     public static void LogVoidMethodExit(MethodInfo __originalMethod)
         => Finalize(__originalMethod, "void");
+    
+    public static void Finalizer(MethodInfo __originalMethod, Exception __exception)
+        => Finalize(__originalMethod, "n/a", __exception);
 
     internal static void LogMethodExit(MethodInfo __originalMethod, object? __result)
     {

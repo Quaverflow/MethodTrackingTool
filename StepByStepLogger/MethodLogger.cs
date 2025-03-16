@@ -54,9 +54,10 @@ public static class MethodLogger
 
             var prefix = new HarmonyMethod(typeof(Patches).GetMethod(nameof(Patches.LogMethodEntry), _bindingFlags));
             var postfix = new HarmonyMethod(typeof(Patches).GetMethod(postfixMethodName, _bindingFlags));
+            var finalizer = new HarmonyMethod(typeof(Patches).GetMethod(nameof(Patches.Finalizer), _bindingFlags));
             try
             {
-                _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix);
+                _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix, finalizer: finalizer);
             }
             catch
             {
