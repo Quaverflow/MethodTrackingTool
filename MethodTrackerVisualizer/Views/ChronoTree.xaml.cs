@@ -33,6 +33,8 @@ public partial class ChronoTree : UserControl
         MethodSearchBar.NextClicked += NextMethod;
         MethodSearchBar.SearchTextChanged += SearchForMethod;
         ValueSearchBar.SearchTextChanged += SearchForText;
+        ValueSearchBar.PreviousClicked += PreviousText;
+        ValueSearchBar.NextClicked += NextText;
     }
 
     private void SearchForText(object _, string searchText)
@@ -146,10 +148,41 @@ public partial class ChronoTree : UserControl
     private TreeViewItem _selected;
     private void NavigateToEntry(object dataItem)
     {
+
         ExpandAllParents(dataItem, ChronoTreeView);
-        Dispatcher.BeginInvoke(new Action(() => InvertSelection(GetTreeViewItem(ChronoTreeView, dataItem))), DispatcherPriority.Background);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var tvi = GetTreeViewItem(ChronoTreeView, dataItem);
+            ExpandExpanderForEntry(tvi);
+            InvertSelection(tvi);
+        }), DispatcherPriority.Background);
     }
 
+    private void ExpandExpanderForEntry(TreeViewItem tvi)
+    {
+        Expander? expander = FindVisualChild<Expander>(tvi);
+        if (expander != null)
+        {
+            expander.IsExpanded = true;
+        }
+    }
+    public static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+    {
+        if (parent == null)
+            return null;
+
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T tChild)
+                return tChild;
+
+            var result = FindVisualChild<T>(child);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
     private static Brush _baseBackground;
     public void InvertSelection(TreeViewItem newSelection)
     {
