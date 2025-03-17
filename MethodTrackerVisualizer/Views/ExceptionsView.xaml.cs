@@ -29,9 +29,9 @@ public partial class ExceptionsView : UserControl
         InitializeComponent();
         _data = FileHelper.Data.ExcludeMatching(x => !x.Exceptions.Any());
         ExceptionsTreeView.ItemsSource = _data;
-        ValueSearchBar.SearchTextChanged += SearchForText;
-        ValueSearchBar.PreviousClicked += PreviousText;
-        ValueSearchBar.NextClicked += NextText;
+        ExceptionSearchBar.SearchTextChanged += SearchForText;
+        ExceptionSearchBar.PreviousClicked += PreviousText;
+        ExceptionSearchBar.NextClicked += NextText;
     }
 
     private void SearchForText(object _, string searchText)

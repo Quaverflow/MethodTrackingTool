@@ -62,10 +62,10 @@
                 </Style>
             </TabControl.Resources>
             <TabItem Header="Hierarchical">
-                <views:HierarchicalView x:Name="ChronoTreeControl" DockPanel.Dock="Bottom"/>
+                <views:HierarchicalView x:Name="HierarchicalView" DockPanel.Dock="Bottom"/>
             </TabItem>
             <TabItem Header="By Elapsed Time">
-                <views:ByExclusiveElapsedTimeView x:Name="ExclusiveListControl"/>
+                <views:ByExclusiveElapsedTimeView x:Name="ByExclusiveElapsedTimeView"/>
             </TabItem>  
             <TabItem Header="Exceptions">
                 <views:ExceptionsView x:Name="Exceptions"/>

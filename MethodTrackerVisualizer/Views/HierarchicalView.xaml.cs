@@ -26,10 +26,15 @@ public partial class HierarchicalView : UserControl
     public HierarchicalView()
     {
         InitializeComponent();
-        ChronoTreeView.ItemsSource = FileHelper.Data;
-        ValueSearchBar.SearchTextChanged += SearchForText;
-        ValueSearchBar.PreviousClicked += PreviousText;
-        ValueSearchBar.NextClicked += NextText;
+        Loaded += Load;
+    }
+
+    public void Load(object sender, RoutedEventArgs e)
+    {
+        HierarchicalTreeView.ItemsSource = FileHelper.Data;
+        HierarchicalSearchBar.SearchTextChanged += SearchForText;
+        HierarchicalSearchBar.PreviousClicked += PreviousText;
+        HierarchicalSearchBar.NextClicked += NextText;
     }
 
     private void SearchForText(object _, string searchText)
@@ -49,7 +54,7 @@ public partial class HierarchicalView : UserControl
             NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
         }
     }
- 
+
     private void PreviousText(object sender, EventArgs _)
     {
         if (_matchedTextEntries.Any())
@@ -71,10 +76,10 @@ public partial class HierarchicalView : UserControl
     private void NavigateToEntry(object dataItem)
     {
 
-        ChronoTreeView.ExpandAllParents(dataItem);
+        HierarchicalTreeView.ExpandAllParents(dataItem);
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            var tvi = ChronoTreeView.GetTreeViewItem(dataItem);
+            var tvi = HierarchicalTreeView.GetTreeViewItem(dataItem);
             tvi.ExpandExpanderForEntry();
             tvi.BringIntoView();
         }), DispatcherPriority.Background);

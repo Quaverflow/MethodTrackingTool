@@ -36,7 +36,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <views:SearchBar Grid.Row="0"  x:Name="ValueSearchBar"/>
+        <views:SearchBar Grid.Row="0"  x:Name="ExceptionSearchBar"/>
         <TreeView Grid.Row="1" x:Name="ExceptionsTreeView" Background="Black" Foreground="White"/>
     </Grid>
 </UserControl>
