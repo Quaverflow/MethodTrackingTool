@@ -11,11 +11,9 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
     {
         MethodLogger.EnableLogging(testOutputHelper.WriteLine, typeof(OrderService));
 
-        var service = new OrderService();
-
         try
         {
-            await service.ProcessOrderAsync(new OrderRequest
+            await new OrderService().ProcessOrderAsync(new OrderRequest
             {
                 UserId = 13,
                 ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
