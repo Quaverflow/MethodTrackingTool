@@ -23,8 +23,8 @@ public class Order
     public List<int> ProductIds { get; set; } = [];
     public decimal TotalAmount { get; set; }
     public DateTime OrderDate { get; set; }
-    public Type Type { get; set; }
-    public CultureInfo CultureInfo { get; set; }
+    public Type? Type { get; set; }
+    public CultureInfo? CultureInfo { get; set; }
 }
 
 public class PaymentResult
@@ -43,9 +43,9 @@ public class OrderService
         var customer = userService.GetUser(request.UserId);
         var order = BuildOrder(request, customer);
         var inventoryService = new InventoryService();
-        var inventoryReserved = await inventoryService.ReserveInventoryAsync(order);
+        await inventoryService.ReserveInventoryAsync(order);
         var paymentService = new PaymentService();
-        var paymentResult = await paymentService.ChargeUserAsync(customer, order);
+        await paymentService.ChargeUserAsync(customer, order);
         SaveOrder(order);
         var notificationService = new NotificationService();
         notificationService.SendOrderConfirmation(order);
@@ -53,12 +53,11 @@ public class OrderService
         Console.WriteLine("OrderService: ProcessOrderAsync completed.");
 
         throw new Exception("Test exception");
-        return order;
     }
 
-    private void ValidateOrder(OrderRequest request)
+    private static void ValidateOrder(OrderRequest request)
     {
-        Console.WriteLine("OrderService: Validating order request.");
+        Console.WriteLine($"OrderService: Validating order request. {request}");
     }
 
     private Order BuildOrder(OrderRequest request, User customer)
@@ -95,7 +94,7 @@ public class PaymentService
         Console.WriteLine("PaymentService: Charging user.");
         await Task.Delay(300);
         var success = order.TotalAmount < 1000;
-        var transactionId = success ? Guid.NewGuid().ToString() : "";
+        var transactionId = success ? Guid.NewGuid().ToString() : user.ToString() ?? "";
         Console.WriteLine("PaymentService: Charge completed.");
         return new PaymentResult { Success = success, TransactionId = transactionId };
     }

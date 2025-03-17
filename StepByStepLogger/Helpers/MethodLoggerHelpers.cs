@@ -6,19 +6,12 @@ public static class MethodLoggerHelpers
 {
 
 
-    public static bool IsValidMethod(MethodInfo method)
-    {
-        if (method.IsSpecialName || method.IsAbstract || method.DeclaringType == null ||
-            method.DeclaringType.Namespace?.StartsWith("System") == true ||
-            method.DeclaringType.Namespace?.StartsWith("Microsoft") == true ||
-            IsLambdaOrStateMachine(method) ||
-            IsTestMethod(method))
-        {
-            return false;
-        }
-
-        return true;
-    }
+    public static bool IsValidMethod(MethodInfo method) =>
+        !method.IsSpecialName && !method.IsAbstract && method.DeclaringType != null &&
+        method.DeclaringType.Namespace?.StartsWith("System") != true &&
+        method.DeclaringType.Namespace?.StartsWith("Microsoft") != true &&
+        !IsLambdaOrStateMachine(method) &&
+        !IsTestMethod(method);
 
     private static bool IsTestMethod(MethodInfo method) =>
         method.GetCustomAttributes().Any(attr => attr.GetType().Name.Contains("Fact") ||
@@ -26,7 +19,7 @@ public static class MethodLoggerHelpers
                                                  attr.GetType().Name.Contains("Test"));
 
     private static bool IsLambdaOrStateMachine(MethodInfo method) =>
-        method.DeclaringType.Name.Contains('<') ||
+        method.DeclaringType?.Name.Contains('<') is true ||
         method.Name == "MoveNext" && method.IsDefined(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), false);
 
     public static bool IsSystemType(Type type)

@@ -41,7 +41,6 @@ public static class MethodLogger
         foreach (var asm in targetAssemblies)
         {
             PatchAssembly(asm);
-
         }
     }
 

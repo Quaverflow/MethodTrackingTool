@@ -24,6 +24,7 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
         }
         catch
         {
+            // ignore
         }
 
         MethodLogger.PrintJson();

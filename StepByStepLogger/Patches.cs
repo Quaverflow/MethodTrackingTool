@@ -40,6 +40,7 @@ public static class Patches
 
     public static void Finalizer(MethodInfo __originalMethod, Exception __exception)
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (__exception != null)
         {
             Finalize(__originalMethod, "n/a", __exception);

@@ -1,12 +1,14 @@
 ﻿using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
 using Task = System.Threading.Tasks.Task;
 
 namespace MethodTrackerVisualizer;
 /// <summary>
 /// Command handler
 /// </summary>
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 internal sealed class MethodTrackerReaderCommand
 {
     /// <summary>
