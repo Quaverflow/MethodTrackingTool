@@ -1,8 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using Match = System.Text.RegularExpressions.Match;
 
 namespace MethodTrackerVisualizer.Helpers.Behaviours
 {
@@ -32,13 +35,12 @@ namespace MethodTrackerVisualizer.Helpers.Behaviours
         public static void SetSearchText(DependencyObject obj, string value) =>
             obj.SetValue(SearchTextProperty, value);
 
-        // Whenever either property changes, update the TextBlock.Inlines.
         private static void OnPropertiesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TextBlock tb)
             {
-                string formattedText = GetFormattedText(tb);
-                string searchText = GetSearchText(tb);
+                var formattedText = GetFormattedText(tb);
+                var searchText = GetSearchText(tb);
 
                 var span = ConvertToHighlightedSpan(formattedText, searchText);
                 tb.Inlines.Clear();
@@ -51,8 +53,7 @@ namespace MethodTrackerVisualizer.Helpers.Behaviours
         /// </summary>
         private static Span ConvertToHighlightedSpan(string text, string searchText)
         {
-            Span span = new Span();
-            int lastIndex = 0;
+            var span = new Span();
 
             if (string.IsNullOrEmpty(searchText))
             {
@@ -60,25 +61,39 @@ namespace MethodTrackerVisualizer.Helpers.Behaviours
                 return span;
             }
 
-            var regex = new Regex(Regex.Escape(searchText), RegexOptions.IgnoreCase);
+            var keyWords = searchText
+                .Split(['&'], StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Distinct(StringComparer.InvariantCultureIgnoreCase)
+                .ToArray();
+
+            var pattern = string.Join("|", keyWords.Select(Regex.Escape));
+            var regex = new Regex(pattern, RegexOptions.IgnoreCase);
+
+            var lastIndex = 0;
             foreach (Match match in regex.Matches(text))
             {
                 if (match.Index > lastIndex)
                 {
-                    string normalText = text.Substring(lastIndex, match.Index - lastIndex);
+                    var normalText = text.Substring(lastIndex, match.Index - lastIndex);
                     span.Inlines.Add(new Run(normalText) { Foreground = Brushes.White });
                 }
-                string highlightedText = match.Value;
+
+                var highlightedText = match.Value;
                 span.Inlines.Add(new Run(highlightedText)
                 {
                     Background = Brushes.DarkBlue,
+                    Foreground = Brushes.White
                 });
+
                 lastIndex = match.Index + match.Length;
             }
+
             if (lastIndex < text.Length)
             {
                 span.Inlines.Add(new Run(text.Substring(lastIndex)) { Foreground = Brushes.White });
             }
+
             return span;
         }
     }
