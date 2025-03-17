@@ -13,76 +13,138 @@ namespace MethodTrackerTool;
 internal static class Patches
 {
     public static readonly List<LogEntry> TopLevelCalls = [];
-    public static readonly Stack<LogEntry> CallStack = new();
+    private static readonly Stack<LogEntry> CallStack = [];
+    public static readonly List<Exception> UnexpectedIssues = [];
 
     public static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
-        var parameters = __originalMethod.GetParameters();
-        var argsDictionary =
-            __args?.Select((arg, i) => new
-            {
-                Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
-                Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
-            })
-                .ToDictionary(x => x.Key, x => x.Value);
-
-
-        var entry = new LogEntry
+        try
         {
-            MemoryBefore = GC.GetTotalMemory(false),
-            MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
-            Parameters = argsDictionary ?? [],
-            RawStartTime = DateTime.UtcNow
-        };
+            var parameters = __originalMethod.GetParameters();
+            var argsDictionary =
+                __args?.Select((arg, i) => new
+                {
+                    Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
+                    Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
+                })
+                    .ToDictionary(x => x.Key, x => x.Value);
+
+            var entry = new LogEntry
+            {
+                MemoryBefore = GC.GetTotalMemory(false),
+                MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
+                Parameters = argsDictionary ?? [],
+                RawStartTime = DateTime.UtcNow
+            };
             entry.StartTime = entry.RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
-        
+
             CallStack.Push(entry);
+        }
+        catch (Exception e)
+        {
+            ReportIssue(e, MethodSection.Entry);
+        }
     }
 
     public static void LogVoidMethodExit(MethodInfo __originalMethod)
-        => Finalize(__originalMethod, "void");
+    {
+        try
+        {
+            Finalize(__originalMethod, "void");
+        }
+        catch (Exception e)
+        {
+            ReportIssue(e, MethodSection.Exit);
+        }
+    }
 
     public static void Finalizer(MethodInfo __originalMethod, Exception __exception)
     {
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (__exception != null)
+        try
         {
-            Finalize(__originalMethod, "n/a", __exception);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (__exception != null)
+            {
+                Finalize(__originalMethod, "n/a", __exception);
+            }
+        }
+        catch (Exception e)
+        {
+            UnexpectedIssues.Add(e);
         }
     }
 
     public static void LogMethodExit(MethodInfo __originalMethod, object? __result)
     {
-        if (__result is Task task)
+        try
         {
-            task.ContinueWith(t =>
+            if (__result is Task task)
             {
-                if (t.Exception?.InnerExceptions is { Count: > 0 } exceptions)
+                task.ContinueWith(t =>
                 {
-                    Finalize(__originalMethod, "n/a", [.. exceptions]);
-                }
-                else
-                {
-                    var taskResult = t.GetType().GenericTypeArguments.Any()
-                        ? MethodLoggerHelpers.GetTaskResult(t)
-                        : t;
-                    Finalize(__originalMethod, taskResult);
-                }
-            });
+                    if (t.Exception?.InnerExceptions is { Count: > 0 } exceptions)
+                    {
+                        Finalize(__originalMethod, "n/a", [.. exceptions]);
+                    }
+                    else
+                    {
+                        var taskResult = t.GetType().GenericTypeArguments.Any()
+                            ? MethodLoggerHelpers.GetTaskResult(t)
+                            : t;
+                        Finalize(__originalMethod, taskResult);
+                    }
+                });
+            }
+            else
+            {
+                Finalize(__originalMethod, __result);
+            }
         }
-        else
+        catch (Exception e)
         {
-            Finalize(__originalMethod, __result);
+            ReportIssue(e, MethodSection.Exit);
         }
     }
 
-    public static void AddToStack(LogEntry entry)
+    /// <summary>
+    /// The idea is that we report the issue and:
+    /// If we are in the method entry we push an empty entry in the stack, which will be popped off when the method exits.
+    /// If we're in the exit or exception we then pop the method off the list.
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="methodSection"></param>
+    private static void ReportIssue(Exception e, MethodSection methodSection)
+    {
+        UnexpectedIssues.Add(e);
+        if (CallStack.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            if (methodSection == MethodSection.Exit)
+            {
+                CallStack.Pop();
+            }
+            else
+            {
+                CallStack.Push(new LogEntry());
+            }
+        }
+        catch (Exception exception)
+        {
+            UnexpectedIssues.Add(exception);
+        }
+    }
+
+    private static void AddToStack(LogEntry entry)
     {
         if (entry == null)
         {
             throw new ArgumentNullException(nameof(entry));
         }
-        
+
         if (CallStack.Count > 0)
         {
             CallStack.Peek().Children.Add(entry);
@@ -110,5 +172,11 @@ internal static class Patches
         entry.Exceptions = exceptions?.OfType<Exception>().ToArray();
         entry.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(result);
         AddToStack(entry);
+    }
+
+    private enum MethodSection
+    {
+        Entry,
+        Exit
     }
 }

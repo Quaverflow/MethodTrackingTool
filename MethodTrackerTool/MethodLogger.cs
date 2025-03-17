@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text.Json;
 using HarmonyLib;
 using MethodTrackerTool.Helpers;
@@ -74,11 +76,26 @@ public static class MethodLogger
         }
     }
 
-    public static string PrintJson()
+    public static string Log()
     {
         var output = JsonSerializer.Serialize(Patches.TopLevelCalls, SerializerHelpers.SerializerOptions);
         _loggerOutput(output);
+
+        if (Patches.UnexpectedIssues.Any())
+        {
+            throw new UnexpectedMethodTrackerException();
+        }
+        return output;
+    }
+    public static string PrintJson()
+    {
+        var output = JsonSerializer.Serialize(Patches.TopLevelCalls, SerializerHelpers.SerializerOptions);
         WriteLogFile(output);
+
+        if (Patches.UnexpectedIssues.Any())
+        {
+            throw new UnexpectedMethodTrackerException();
+        }
         return output;
     }
 
@@ -96,5 +113,16 @@ public static class MethodLogger
     {
         var path = GetLogFilePath();
         File.WriteAllText(path, content);
+    }
+}
+
+public class UnexpectedMethodTrackerException() : Exception(Format())
+{
+    private static string Format()
+    {
+        var message = "An unexpected issue has occured. Please raise an issue here: https://github.com/Quaverflow/MethodTrackingTool/issues with the message content of this exception";
+        var errors = JsonSerializer.Serialize(Patches.UnexpectedIssues, SerializerHelpers.SerializerOptions);
+
+        return $"{message}{Environment.NewLine}{errors}";
     }
 }

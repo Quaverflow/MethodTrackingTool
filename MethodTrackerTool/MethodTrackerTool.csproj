@@ -12,6 +12,7 @@
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageLicenseExpression> MIT</PackageLicenseExpression>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Content Include="Icon.png" />
