@@ -109,20 +109,9 @@ public static class MethodLogger
         return Path.Combine(folder, "loggeroutput.json");
     }
 
-    public static void WriteLogFile(string content)
+    private static void WriteLogFile(string content)
     {
         var path = GetLogFilePath();
         File.WriteAllText(path, content);
-    }
-}
-
-public class UnexpectedMethodTrackerException() : Exception(Format())
-{
-    private static string Format()
-    {
-        var message = "An unexpected issue has occured. Please raise an issue here: https://github.com/Quaverflow/MethodTrackingTool/issues with the message content of this exception";
-        var errors = JsonSerializer.Serialize(Patches.UnexpectedIssues, SerializerHelpers.SerializerOptions);
-
-        return $"{message}{Environment.NewLine}{errors}";
     }
 }
