@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace MethodTrackerVisualizer.Helpers;
 
@@ -16,8 +17,7 @@ public static class LogEntryHelpers
                         entry.ReturnValue.IsMatchingValue(searchText) ||
                         entry.MethodName.IsMatchingValue(searchText) ||
                         entry.ReturnType.IsMatchingValue(searchText)
-                        //|| ExceptionsMatch(searchText, entry.Exceptions)
-                        ;
+                        || ExceptionsMatch(searchText, entry.Exceptions);
 
 
             if (found)
@@ -39,10 +39,10 @@ public static class LogEntryHelpers
         return entry.Parameters.Any(paramValue => paramValue.Value.IsMatchingValue(searchText) || paramValue.Key.IsMatchingValue(searchText));
     }
 
-    //private static bool ExceptionsMatch(string searchText, params object[] exceptions) =>
-    //    exceptions.Any(x => x.Message.IsMatchingValue(searchText) ||
-    //                        x.StackTrace.IsMatchingValue(searchText) ||
-    //                        ExceptionsMatch(searchText, x.InnerException));
+    private static bool ExceptionsMatch(string searchText, object[] exceptions) =>
+        JsonConvert.SerializeObject(exceptions).Contains(searchText);
+
+
 
     public static List<LogEntry> ExcludeMatching(this IEnumerable<LogEntry> data, Func<LogEntry, bool> predicate)
         => data.Where(entry => !predicate(entry))
