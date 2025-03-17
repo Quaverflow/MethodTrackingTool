@@ -11,13 +11,19 @@ public static class MethodLogger
     private static Harmony? _harmonyInstance;
 
     private static Action<string> _loggerOutput = _ => { };
-    private static readonly BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+    private const BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+    private static bool _enabled;
 
     /// <summary>
     /// Enables logging for the assembly of the specified types
     /// </summary>
     public static void EnableLogging(Action<string> outputAction, params Type[] targetType)
     {
+        if (_enabled)
+        {
+            throw new InvalidOperationException("The patch is applied globally on the first run of this method. Trying to do so again might yield unexpected behaviours.");
+        }
+        _enabled = true;
         EnableLogging(outputAction, targetType.Select(x => x.Assembly).ToArray());
     }
 
