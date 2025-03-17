@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
 
@@ -74,8 +78,11 @@ internal static class Patches
 
     public static void AddToStack(LogEntry entry)
     {
-        ArgumentNullException.ThrowIfNull(entry);
-
+        if (entry == null)
+        {
+            throw new ArgumentNullException(nameof(entry));
+        }
+        
         if (CallStack.Count > 0)
         {
             CallStack.Peek().Children.Add(entry);

@@ -1,4 +1,8 @@
-﻿namespace MethodTrackerTool.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace MethodTrackerTool.Models;
 
 public class LogEntry
 {

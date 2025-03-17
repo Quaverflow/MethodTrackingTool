@@ -1,16 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Lib.Harmony" Version="2.3.5" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
-  </ItemGroup>
-
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>MethodTrackerTool</PackageId>
+		<Version>1.0.0-beta</Version>
+		<Authors>Mirko Sangrigoli</Authors>
+		<Description>A beta version of MethodTracker, a tool for tracking method calls, input parameters, return values and exceptions.</Description>
+		<PackageReleaseNotes>Beta release. Some APIs might change.</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/Quaverflow/MethodTrackingTool</RepositoryUrl>
+	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="Lib.Harmony" Version="2.3.5" />
+	  <PackageReference Include="IndexRange" Version="1.0.3" />
+	  <PackageReference Include="System.Text.Encodings.Web" Version="9.0.3" />
+	  <PackageReference Include="System.Text.Json" Version="9.0.3" />
+	</ItemGroup>
 </Project>
