@@ -10,7 +10,15 @@ public class LogEntry
     public double RawElapsedMilliseconds => (RawEndTime - RawStartTime).TotalMilliseconds;
     [System.Text.Json.Serialization.JsonIgnore]
 
-    public double RawExclusiveElapsedMilliseconds => RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
+    public double RawExclusiveElapsedMilliseconds => GetRawExclusiveElapsedMilliseconds();
+
+    private double GetRawExclusiveElapsedMilliseconds()
+    {
+        var result = RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
+
+        return result < 0 ? 0 : result;
+    }
+
     public string MethodName { get; set; } = "";
     public Dictionary<string, object> Parameters { get; set; } = [];
     public string? ReturnType { get; set; }

@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="Black">
     <StackPanel Orientation="Horizontal" Margin="5">
-        <!-- Note: WPF TextBox does not have a built-in PlaceholderText -->
         <TextBlock Text="Search" FontWeight="Bold" Foreground="White" FontSize="14" Margin="0,0,10,0"/>
         <TextBox x:Name="SearchTextBox" 
                  Width="200" Margin="0,0,5,0" 
                  VerticalAlignment="Center" 
+                 ToolTip="This will search through Parameters (type and value), Return (type and value), Method Name and Exceptions. To make a complex search matching multiple words, separate each word with &amp; (i.e. User&amp;Account)"
                  Background="White" Foreground="Black" BorderBrush="Gray"/>
         <Button x:Name="PreviousButton" Content="Previous" Margin="2" VerticalAlignment="Center"/>
         <Button x:Name="NextButton" Content="Next" Margin="2" VerticalAlignment="Center"/>
