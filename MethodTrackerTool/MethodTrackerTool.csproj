@@ -4,16 +4,32 @@
 		<LangVersion>latest</LangVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>MethodTrackerTool</PackageId>
-		<Version>1.0.0-beta</Version>
+		<Version>1.0.4-beta</Version>
 		<Authors>Mirko Sangrigoli</Authors>
 		<Description>A beta version of MethodTracker, a tool for tracking method calls, input parameters, return values and exceptions.</Description>
 		<PackageReleaseNotes>Beta release. Some APIs might change.</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/Quaverflow/MethodTrackingTool</RepositoryUrl>
+		<PackageIcon>Icon.png</PackageIcon>
+		<PackageLicenseExpression> MIT</PackageLicenseExpression>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Content Include="Icon.png" />
+	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="Lib.Harmony" Version="2.3.5" />
 	  <PackageReference Include="IndexRange" Version="1.0.3" />
 	  <PackageReference Include="System.Text.Encodings.Web" Version="9.0.3" />
 	  <PackageReference Include="System.Text.Json" Version="9.0.3" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Icon.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Update="Readme.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 </Project>
