@@ -27,4 +27,7 @@ The VSIX extension integrates with Visual Studio, offering an interactive interf
 
 ### NuGet Package
 
-Install the beta NuGet package in your project:
+Install the beta NuGet package in your project [Link](https://www.nuget.org/packages/MethodTrackerTool/).
+
+Using it in combination with the visualizer, will produce something like this:
+![example](https://github.com/user-attachments/assets/09f19d5f-d202-42dc-a2e4-9c63965e9fb7)
