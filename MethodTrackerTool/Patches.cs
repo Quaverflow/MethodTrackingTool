@@ -6,12 +6,12 @@ using MethodTrackerTool.Models;
 
 namespace MethodTrackerTool;
 
-public static class Patches
+internal static class Patches
 {
-    internal static readonly List<LogEntry> TopLevelCalls = [];
-    internal static readonly Stack<LogEntry> CallStack = new();
+    public static readonly List<LogEntry> TopLevelCalls = [];
+    public static readonly Stack<LogEntry> CallStack = new();
 
-    internal static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
+    public static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
         var parameters = __originalMethod.GetParameters();
         var argsDictionary =
@@ -47,7 +47,7 @@ public static class Patches
         }
     }
 
-    internal static void LogMethodExit(MethodInfo __originalMethod, object? __result)
+    public static void LogMethodExit(MethodInfo __originalMethod, object? __result)
     {
         if (__result is Task task)
         {
@@ -72,7 +72,7 @@ public static class Patches
         }
     }
 
-    private static void AddToStack(LogEntry entry)
+    public static void AddToStack(LogEntry entry)
     {
         ArgumentNullException.ThrowIfNull(entry);
 

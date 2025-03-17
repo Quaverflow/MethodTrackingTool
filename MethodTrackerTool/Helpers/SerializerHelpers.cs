@@ -6,7 +6,7 @@ using MethodTrackerTool.Models;
 
 namespace MethodTrackerTool.Helpers;
 
-public class SerializerHelpers
+internal class SerializerHelpers
 {
     public static readonly JsonSerializerOptions SerializerOptions = new()
     {
