@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Threading;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class ExceptionsView : UserControl
+public partial class ExceptionsView
 {
     private readonly List<LogEntry> _data;
     private List<LogEntry> _matchedTextEntries = [];

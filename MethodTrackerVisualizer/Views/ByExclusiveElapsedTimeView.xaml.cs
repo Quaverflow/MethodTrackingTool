@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class ByExclusiveElapsedTimeView : UserControl
+public partial class ByExclusiveElapsedTimeView
 {
     public ByExclusiveElapsedTimeView()
     {

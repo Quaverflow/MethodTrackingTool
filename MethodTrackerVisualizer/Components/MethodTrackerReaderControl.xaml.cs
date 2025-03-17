@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
+﻿namespace MethodTrackerVisualizer.Components;
 
-namespace MethodTrackerVisualizer.Components;
-
-public partial class MethodTrackerReader : UserControl
+public partial class MethodTrackerReader
 {
     public MethodTrackerReader()
     {

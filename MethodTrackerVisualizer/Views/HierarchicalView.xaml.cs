@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Threading;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class HierarchicalView : UserControl
+public partial class HierarchicalView
 {
     private List<LogEntry> _matchedTextEntries = [];
     private int _currentMatchTextEntriesIndex = -1;

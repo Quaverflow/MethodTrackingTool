@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Windows.Controls;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class SearchBar : UserControl
+public partial class SearchBar
 {
     public event EventHandler<string> SearchTextChanged;
     public event EventHandler PreviousClicked;
