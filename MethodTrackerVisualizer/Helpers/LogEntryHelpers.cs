@@ -12,12 +12,15 @@ public static class LogEntryHelpers
         var result = new List<LogEntry>();
         foreach (var entry in entries)
         {
-            var found = ParametersMatch(searchText, entry)||
-                        entry.ReturnValue.IsMatchingValue(searchText) ||
-                        entry.MethodName.IsMatchingValue(searchText) ||
-                        entry.ReturnType.IsMatchingValue(searchText)
-                        || ExceptionsMatch(searchText, entry.Exceptions);
-
+            var data = JsonConvert.SerializeObject(new
+            {
+                entry.Parameters,
+                entry.ReturnValue,
+                entry.MethodName,
+                entry.ReturnType,
+                entry.Exceptions,
+            });
+            var found = data.IsMatchingValue(searchText);
 
             if (found)
             {
@@ -32,15 +35,6 @@ public static class LogEntryHelpers
         }
         return result;
     }
-
-    private static bool ParametersMatch(string searchText, LogEntry entry)
-    {
-        return entry.Parameters.Any(paramValue => paramValue.Value.IsMatchingValue(searchText) || paramValue.Key.IsMatchingValue(searchText));
-    }
-
-    private static bool ExceptionsMatch(string searchText, object[] exceptions) =>
-        JsonConvert.SerializeObject(exceptions).Contains(searchText);
-
 
     private static bool ContainsExceptionDeep(LogEntry entry)
     {
