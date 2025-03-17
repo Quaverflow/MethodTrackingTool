@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Text.Differencing;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;

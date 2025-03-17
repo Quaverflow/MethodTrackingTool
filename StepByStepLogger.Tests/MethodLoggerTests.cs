@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using MethodTracker.MockProject;
+﻿using MethodTracker.MockProject;
 using MethodTrackerTool;
 using Xunit.Abstractions;
 
