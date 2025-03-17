@@ -12,6 +12,7 @@ In addition to the core logging functionality available via a NuGet package, a V
 - **Hierarchical Call Trees:** Displays a complete call hierarchy for easy drill-down analysis.
 - **Visual Studio Integration:**  
   A VSIX extension provides a dedicated tool window for an interactive experience to visualize and navigate the log data.
+  Download here [Method Tracker Visualizer GitHub Releases](https://marketplace.visualstudio.com/items?itemName=MirkoSangrigoli.MethodTrackerVisualizer) page and install it into Visual Studio.
 
 ## How It Works
 
