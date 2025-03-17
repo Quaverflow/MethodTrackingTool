@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 
 namespace MethodTrackerVisualizer.Helpers;
@@ -43,14 +45,36 @@ public static class LogEntryHelpers
         JsonConvert.SerializeObject(exceptions).Contains(searchText);
 
 
+    private static bool ContainsExceptionDeep(LogEntry entry)
+    {
+        if (entry.Exceptions != null && entry.Exceptions.Any())
+        {
+            return true;
+        }
 
-    public static List<LogEntry> ExcludeMatching(this IEnumerable<LogEntry> data, Func<LogEntry, bool> predicate)
-        => data.Where(entry => !predicate(entry))
+        return entry.Children.Any(ContainsExceptionDeep);
+    }
+
+    public static List<LogEntry> FilterByDeepExceptions(this IEnumerable<LogEntry> data)
+    {
+        return data
+            .Where(ContainsExceptionDeep)
             .Select(entry =>
             {
-                var newEntry = entry.Clone();
-
-                newEntry.Children = newEntry.Children.ExcludeMatching(predicate);
+                var newEntry = Clone(entry);
+                newEntry.Children = newEntry.Children.FilterByDeepExceptions();
                 return newEntry;
-            }).ToList();
+            })
+            .ToList();
+    }
+
+    public static LogEntry Clone(LogEntry entry)
+    {
+        return new LogEntry
+        {
+            MethodName = entry.MethodName,
+            Exceptions = entry.Exceptions?.ToArray() ?? [],
+            Children = entry.Children.Select(Clone).ToList()
+        };
+    }
 }

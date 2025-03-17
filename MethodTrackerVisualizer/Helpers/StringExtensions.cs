@@ -7,11 +7,12 @@ public static class StringExtensions
 {
     public static bool IsMatchingValue<T>(this T value, string searchText)
     {
-        var str = value?.ToString();
         if (value == null)
         {
             return false;
         }
+
+        var str = value.ToString();
 
         var keywords = searchText
             .Split(['&'], StringSplitOptions.RemoveEmptyEntries)

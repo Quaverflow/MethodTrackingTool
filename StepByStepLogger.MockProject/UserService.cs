@@ -124,12 +124,26 @@ public class NotificationService
     private void DoNotificationWork()
     {
         Console.WriteLine("NotificationService: Doing additional notification work.");
+        Capture();
     }
 
-    public void Throw()
+    public void Capture()
     {
-        throw new Exception("test exc");
+        try
+        {
+            Throw1();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
+
+    public void Throw1() => Throw2();
+    public void Throw2() => Throw3();
+    public void Throw3() => Throw4();
+    public void Throw4() => Throw5();
+    public void Throw5() => throw new Exception("test exc");
 }
 
 public class UserService

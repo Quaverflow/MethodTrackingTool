@@ -19,27 +19,4 @@ public class LogEntry
     public string MemoryIncrease { get; set; }
     public object[] Exceptions { get; set; } = [];
     public List<LogEntry> Children { get; set; } = [];
-
-    public LogEntry Clone()
-    {
-        var clonedParameters = Parameters.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        var clonedExceptions = Exceptions?.ToArray() ?? [];
-
-        return new LogEntry
-        {
-            MethodName = MethodName,
-            Parameters = clonedParameters,
-            ReturnType = ReturnType,
-            ReturnValue = ReturnValue,
-            StartTime = StartTime,
-            EndTime = EndTime,
-            ElapsedTime = ElapsedTime,
-            ExclusiveElapsedTime = ExclusiveElapsedTime,
-            MemoryBefore = MemoryBefore,
-            MemoryAfter = MemoryAfter,
-            MemoryIncrease = MemoryIncrease,
-            Exceptions = clonedExceptions,
-            Children = Children.Select(child => child.Clone()).ToList()
-        };
-    }
 }

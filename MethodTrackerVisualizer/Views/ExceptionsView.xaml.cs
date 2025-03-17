@@ -27,7 +27,8 @@ public partial class ExceptionsView : UserControl
     public ExceptionsView()
     {
         InitializeComponent();
-        _data = FileHelper.Data.ExcludeMatching(x => !x.Exceptions.Any());
+
+        _data = FileHelper.Data.FilterByDeepExceptions();
         ExceptionsTreeView.ItemsSource = _data;
         ExceptionSearchBar.SearchTextChanged += SearchForText;
         ExceptionSearchBar.PreviousClicked += PreviousText;
@@ -44,7 +45,7 @@ public partial class ExceptionsView : UserControl
             return;
         }
 
-        _matchedTextEntries = _data;
+        _matchedTextEntries = _data.FindMatchingText(ExceptionSearchText);
         if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;
