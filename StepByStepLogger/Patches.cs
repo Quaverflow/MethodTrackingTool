@@ -52,7 +52,6 @@ public static class Patches
         {
             task.ContinueWith(t =>
             {
-                // Cache the exception in a local variable
                 if (t.Exception?.InnerExceptions is { Count: > 0 } exceptions)
                 {
                     Finalize(__originalMethod, "n/a", [.. exceptions]);

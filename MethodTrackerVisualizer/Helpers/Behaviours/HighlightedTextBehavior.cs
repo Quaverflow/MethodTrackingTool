@@ -34,7 +34,7 @@ namespace MethodTrackerVisualizer.Helpers.Behaviours
             (string)obj.GetValue(SearchTextProperty);
         public static void SetSearchText(DependencyObject obj, string value) =>
             obj.SetValue(SearchTextProperty, value);
-
+       
         private static void OnPropertiesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TextBlock tb)

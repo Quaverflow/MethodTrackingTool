@@ -10,19 +10,16 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void LoggingOutput_IncludesNestedCallsAndPerformanceMetrics()
     {
-        // Arrange: capture logger output.
         var outputLines = new List<string>();
 
         MethodLogger.EnableLogging(Logger, Assembly.GetExecutingAssembly());
 
-        // Act: call a method.
         var service = new DummyService();
         var result = service.DoWork();
         Assert.Equal("done", result);
 
         var jsonOutput = string.Join(Environment.NewLine, outputLines);
 
-        // Assert that the JSON contains expected method names.
         Assert.Contains("DummyService.DoWork", jsonOutput);
         Assert.Contains("DummyService.InnerWork", jsonOutput);
         Assert.Contains("ms", jsonOutput);
@@ -35,17 +32,14 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
     [Fact]
     public void MultipleAssemblies_ArePatchedSuccessfully()
     {
-        // Arrange: capture output.
         var outputLines = new List<string>();
         MethodLogger.EnableLogging(Logger, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly());
 
-        // Act.
         var service = new DummyService();
         var result = service.DoWork();
         Assert.Equal("done", result);
         var jsonOutput = string.Join(Environment.NewLine, outputLines);
 
-        // Assert that output contains the expected method names.
         Assert.Contains("DummyService.DoWork", jsonOutput);
         void Logger(string s) => outputLines.Add(s);
     }
@@ -65,12 +59,9 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
                 ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
                 TotalAmount = 20
             });
-
-            //new NotificationService().Throw();
         }
         catch
         {
-            //ignore
         }
 
         MethodLogger.PrintJson();

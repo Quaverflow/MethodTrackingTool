@@ -27,7 +27,6 @@ public class SerializerHelpers
     {
         public override LogEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            // Deserialization is not supported.
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
@@ -69,7 +68,6 @@ public class SerializerHelpers
     {
         public override CultureInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            // Deserialization is not supported.
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
@@ -83,7 +81,6 @@ public class SerializerHelpers
     {
         public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            // Deserialization is not supported.
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
@@ -97,7 +94,6 @@ public class SerializerHelpers
     {
         public override Delegate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            // Deserialization is not supported.
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
@@ -110,7 +106,6 @@ public class SerializerHelpers
     {
         public override Exception Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            // Deserialization is not supported.
             throw new NotImplementedException("Deserialization is not supported.");
         }
 

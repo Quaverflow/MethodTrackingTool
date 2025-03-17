@@ -60,8 +60,6 @@ internal sealed class MethodTrackerReaderCommand
     /// <param name="package">Owner package, not null.</param>
     public static async Task InitializeAsync(AsyncPackage package)
     {
-        // Switch to the main thread - the call to AddCommand in MethodTrackerReaderCommand's constructor requires
-        // the UI thread.
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
         var commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
