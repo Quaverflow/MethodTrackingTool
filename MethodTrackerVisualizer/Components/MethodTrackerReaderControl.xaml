@@ -19,6 +19,48 @@
     </UserControl.Resources>
     <Grid Background="Black">
         <TabControl>
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="10,5"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="Border"
+                    Background="Transparent"
+                    CornerRadius="5,5,0,0"
+                    Padding="5,2">
+                                    <ContentPresenter ContentSource="Header" 
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Color="#FF800080" Offset="0"/>
+                                                    <GradientStop Color="#FF000000" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#FF4A4A4A"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <Style TargetType="TabControl">
+                    <Setter Property="Background" Value="#FF2D2D30"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="10"/>
+                </Style>
+            </TabControl.Resources>
             <TabItem Header="Hierarchical">
                 <views:HierarchicalView x:Name="ChronoTreeControl" DockPanel.Dock="Bottom"/>
             </TabItem>
