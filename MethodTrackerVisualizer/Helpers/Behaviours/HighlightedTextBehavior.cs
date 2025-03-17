@@ -67,7 +67,14 @@ namespace MethodTrackerVisualizer.Helpers.Behaviours
                 .Distinct(StringComparer.InvariantCultureIgnoreCase)
                 .ToArray();
 
-            var pattern = string.Join("|", keyWords.Select(Regex.Escape));
+            var allPresent = keyWords.All(kw => text.IndexOf(kw, StringComparison.OrdinalIgnoreCase) >= 0);
+            if (!allPresent)
+            {
+                span.Inlines.Add(new Run(text) { Foreground = Brushes.White });
+                return span;
+            }
+            var pattern = string.Join("" +
+                                      "|", keyWords.Select(Regex.Escape));
             var regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
             var lastIndex = 0;

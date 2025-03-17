@@ -1,34 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MethodTrackerVisualizer.Views;
 
 namespace MethodTrackerVisualizer.Helpers;
 
 public static class LogEntryHelpers
 {
 
-    public static List<LogEntry> FindMatchingMethod(this List<LogEntry> entries, string searchText)
-    {
-        var result = new List<LogEntry>();
-        foreach (var entry in entries)
-        {
-            if (entry.MethodName.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                result.Add(entry);
-            }
-            result.AddRange(FindMatchingMethod(entry.Children, searchText));
-        }
-        return result;
-    }
-
     public static List<LogEntry> FindMatchingText(this List<LogEntry> entries, string searchText)
     {
         var result = new List<LogEntry>();
         foreach (var entry in entries)
         {
-            var found = entry.Parameters?.Any(paramValue => StringExtensions.IsMatchingValue<object>(paramValue.Value, searchText)) is true ||
-                        entry.ReturnValue.IsMatchingValue( searchText);
+            var found = ParametersMatch(searchText, entry)||
+                        entry.ReturnValue.IsMatchingValue(searchText) ||
+                        entry.MethodName.IsMatchingValue(searchText) ||
+                        entry.ReturnType.IsMatchingValue(searchText)
+                        //|| ExceptionsMatch(searchText, entry.Exceptions)
+                        ;
+
 
             if (found)
             {
@@ -43,6 +33,16 @@ public static class LogEntryHelpers
         }
         return result;
     }
+
+    private static bool ParametersMatch(string searchText, LogEntry entry)
+    {
+        return entry.Parameters.Any(paramValue => paramValue.Value.IsMatchingValue(searchText) || paramValue.Key.IsMatchingValue(searchText));
+    }
+
+    //private static bool ExceptionsMatch(string searchText, params object[] exceptions) =>
+    //    exceptions.Any(x => x.Message.IsMatchingValue(searchText) ||
+    //                        x.StackTrace.IsMatchingValue(searchText) ||
+    //                        ExceptionsMatch(searchText, x.InnerException));
 
     public static List<LogEntry> ExcludeMatching(this IEnumerable<LogEntry> data, Func<LogEntry, bool> predicate)
         => data.Where(entry => !predicate(entry))
