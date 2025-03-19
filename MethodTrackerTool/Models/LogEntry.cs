@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace MethodTrackerTool.Models;
 
-public class LogEntry
+internal class LogEntry
 {
     [System.Text.Json.Serialization.JsonIgnore]
     public DateTime RawStartTime { get; set; }
@@ -24,7 +24,7 @@ public class LogEntry
     }
 
     public string MethodName { get; set; } = "";
-    public Dictionary<string, object> Parameters { get; set; } = [];
+    public List<ParameterEntry> Parameters { get; set; } = [];
     public string? ReturnType { get; set; }
     public object? ReturnValue { get; set; }
 
@@ -40,4 +40,11 @@ public class LogEntry
     public Exception[]? Exceptions { get; set; }
 
     public List<LogEntry> Children { get; set; } = [];
+}
+
+internal class ParameterEntry
+{
+    public string? Name { get; set; }   
+    public string? Type { get; set; }   
+    public object? Value { get; set; }   
 }

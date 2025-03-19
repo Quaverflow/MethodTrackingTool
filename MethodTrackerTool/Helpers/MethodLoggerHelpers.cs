@@ -8,7 +8,7 @@ namespace MethodTrackerTool.Helpers;
 internal static class MethodLoggerHelpers
 {
     public static bool IsValidMethod(MethodInfo method) =>
-        !method.IsSpecialName && !method.IsAbstract && method.DeclaringType != null &&
+        !method.IsSpecialName && method is { IsAbstract: false, DeclaringType: not null } &&
         method.DeclaringType.Namespace?.StartsWith("System") != true &&
         method.DeclaringType.Namespace?.StartsWith("Microsoft") != true &&
         !IsLambdaOrStateMachine(method) &&

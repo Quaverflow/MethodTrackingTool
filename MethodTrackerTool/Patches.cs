@@ -22,12 +22,14 @@ internal static class Patches
         {
             var parameters = __originalMethod.GetParameters();
             var argsDictionary =
-                __args?.Select((arg, i) => new
-                {
-                    Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
-                    Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
-                })
-                    .ToDictionary(x => x.Key, x => x.Value);
+                __args?.Select((arg, i) 
+                    => new ParameterEntry
+                    {
+                        Name = parameters[i].Name,
+                        Type = parameters[i].ParameterType.FullName,
+                        Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
+                    })
+                    .ToList();
 
             var entry = new LogEntry
             {

@@ -14,7 +14,7 @@ public class LogEntryToFormattedStringConverter : IValueConverter
         {
             var sb = new StringBuilder();
             sb.AppendLine($"Method Name: {entry.MethodName}");
-            sb.AppendLine($"Parameters: {(entry.Parameters != null ? string.Join(", ", entry.Parameters.Select(kvp => $"{kvp.Key}: {kvp.Value}")) : "none")}");
+            sb.AppendLine($"Parameters: {(entry.Parameters != null ? string.Join(", ", entry.Parameters.Select(kvp => $"{kvp.Type} {kvp.Name}: {kvp.Value}")) : "none")}");
             sb.AppendLine($"Return Type: {entry.ReturnType}");
             sb.AppendLine($"Return Value: {entry.ReturnValue}");
             sb.AppendLine($"Start: {entry.StartTime}");
