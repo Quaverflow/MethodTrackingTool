@@ -3,49 +3,45 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using HarmonyLib;
 using MethodTrackerTool.Helpers;
+using MethodTrackerTool.Public;
 
 namespace MethodTrackerTool;
 
 // ReSharper disable InconsistentNaming
 public static class MethodLogger
 {
-    private static Harmony? _harmonyInstance;
-
-    private static Action<string> _loggerOutput = _ => { };
+    public static readonly List<MethodInfo> Tests = [];
+    private static readonly Harmony _harmonyInstance = new("com.method.logger");
     private const BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-    private static bool _enabled;
 
-    /// <summary>
-    /// Enables logging for the assembly of the specified types
-    /// </summary>
-    public static void EnableLogging(Action<string> outputAction, params Type[] targetType)
+    static MethodLogger() => Startup();
+
+    private static void Startup()
     {
-        if (_enabled)
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+        Patch(assemblies);
+        foreach (var method in assemblies.SelectMany(x => x.GetTypes().SelectMany(y => y.GetMethods(_bindingFlags))))
         {
-            throw new InvalidOperationException("The patch is applied globally on the first run of this method. Trying to do so again might yield unexpected behaviours.");
+            if (method.GetCustomAttribute<TestToWatchAttribute>() != null)
+            {
+                Tests.Add(method);
+            }
         }
-        _enabled = true;
-        EnableLogging(outputAction, targetType.Select(x => x.Assembly).ToArray());
     }
 
-    /// <summary>
-    /// Enables logging for all valid methods in the specified assemblies.
-    /// </summary>
-    public static void EnableLogging(Action<string> outputAction, params Assembly[] targetAssemblies)
+    private static void Patch(Assembly[] assemblies)
     {
-        if (_harmonyInstance == null)
+        foreach (var assembly in assemblies)
         {
-            _harmonyInstance = new Harmony("com.stepbystep.logger");
-            _loggerOutput = outputAction;
-        }
-
-        foreach (var asm in targetAssemblies)
-        {
-            PatchAssembly(asm);
+            var attribute = assembly.GetCustomAttribute<AssemblyToPatchAttribute>();
+            if (attribute != null)
+            {
+                PatchAssembly(assembly);
+            }
         }
     }
 
@@ -76,30 +72,15 @@ public static class MethodLogger
         }
     }
 
-    public static string Log()
-    {
-        var output = JsonSerializer.Serialize(Patches.TopLevelCalls, SerializerHelpers.SerializerOptions);
-        _loggerOutput(output);
-
-        if (Patches.UnexpectedIssues.Any())
-        {
-            throw new UnexpectedMethodTrackerException();
-        }
-        return output;
-    }
-    public static string PrintJson()
+    private static string PrintJson()
     {
         var output = JsonSerializer.Serialize(Patches.TopLevelCalls, SerializerHelpers.SerializerOptions);
         WriteLogFile(output);
 
-        if (Patches.UnexpectedIssues.Any())
-        {
-            throw new UnexpectedMethodTrackerException();
-        }
-        return output;
+        return Patches.UnexpectedIssues.Any() ? throw new UnexpectedMethodTrackerException() : output;
     }
 
-    public static string GetLogFilePath()
+    private static string GetLogFilePath()
     {
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
         if (!Directory.Exists(folder))
