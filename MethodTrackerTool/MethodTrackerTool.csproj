@@ -4,7 +4,7 @@
 		<LangVersion>latest</LangVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>MethodTrackerTool</PackageId>
-		<Version>1.0.8-beta</Version>
+		<Version>1.0.9-beta</Version>
 		<Authors>Mirko Sangrigoli</Authors>
 		<Description>A beta version of MethodTracker, a tool for tracking method calls, input parameters, return values and exceptions.</Description>
 		<PackageReleaseNotes>Beta release. Some APIs might change.</PackageReleaseNotes>
