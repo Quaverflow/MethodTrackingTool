@@ -1,18 +1,18 @@
 ﻿using MethodTracker.MockProject;
 using MethodTrackerTool;
-using Xunit.Abstractions;
+using MethodTrackerTool.Public;
 
 namespace MethodTracker.Tests;
 
-public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
+public class MethodLoggerTests
 {
     [Fact]
+    [TestToWatch]
     public async Task Sample()
     {
-        MethodLogger.EnableLogging(testOutputHelper.WriteLine, typeof(OrderService));
-
         try
         {
+            MethodLogger.Initialize(typeof(OrderService).Assembly);
             await new OrderService().ProcessOrderAsync(new OrderRequest
             {
                 UserId = 13,
@@ -24,7 +24,5 @@ public class MethodLoggerTests(ITestOutputHelper testOutputHelper)
         {
             // ignore
         }
-
-        MethodLogger.PrintJson();
     }
 }

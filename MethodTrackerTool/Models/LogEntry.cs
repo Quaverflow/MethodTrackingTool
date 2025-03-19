@@ -7,13 +7,18 @@ namespace MethodTrackerTool.Models;
 public class LogEntry
 {
     [System.Text.Json.Serialization.JsonIgnore]
-    public DateTime RawStartTime { get; set; }
+    public bool IsEntryMethod { get; set; }
+  
+    [System.Text.Json.Serialization.JsonIgnore]
+    public DateTime RawStartTime { get; set; }    
+    
     [System.Text.Json.Serialization.JsonIgnore]
     public DateTime RawEndTime { get; set; }
+    
     [System.Text.Json.Serialization.JsonIgnore]
     public double RawElapsedMilliseconds => (RawEndTime - RawStartTime).TotalMilliseconds;
+   
     [System.Text.Json.Serialization.JsonIgnore]
-
     public double RawExclusiveElapsedMilliseconds => GetRawExclusiveElapsedMilliseconds();
 
     private double GetRawExclusiveElapsedMilliseconds()

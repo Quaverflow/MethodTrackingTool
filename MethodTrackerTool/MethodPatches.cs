@@ -1,25 +1,61 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
+using MethodTrackerTool.Public;
 
 // ReSharper disable InconsistentNaming
 
 namespace MethodTrackerTool;
-
-internal static class Patches
+internal class TestResults(string name)
 {
-    public static readonly List<LogEntry> TopLevelCalls = [];
-    private static readonly Stack<LogEntry> CallStack = [];
-    public static readonly List<Exception> UnexpectedIssues = [];
+    public readonly List<LogEntry> TopLevelCalls = [];
+    public readonly Stack<LogEntry> CallStack = [];
+    public readonly List<Exception> UnexpectedIssues = [];
+    public string Name { get; set; } = name;
+    public bool HasCompleted => CallStack.Count == 1 && CallStack.First().IsEntryMethod;
+}
+
+internal static class TestPatches
+{
+    public static readonly List<MethodInfo> Tests = [];
+    private const BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+    static TestPatches() => PatchTests();
+
+    private static void PatchTests()
+    {
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (var method in assemblies.SelectMany(x => x.GetTypes().SelectMany(y => y.GetMethods(_bindingFlags))))
+        {
+            if (method.GetCustomAttribute<TestToWatchAttribute>() != null)
+            {
+                Tests.Add(method);
+                MethodPatches.Tests.TryAdd(method.DeclaringType?.FullName + "." + method.Name, new(method.DeclaringType?.FullName + "." + method.Name));
+            }
+        }
+    }
+
+    public static void Prefix(MethodInfo __originalMethod)
+    {
+        var testId = TestTracking.GetOrAssignTestId();
+        MethodPatches.Tests.TryAdd(testId, new(__originalMethod.DeclaringType?.FullName + "." + __originalMethod.Name));
+    }
+}
+internal static class MethodPatches
+{
+    public static readonly ConcurrentDictionary<string, TestResults> Tests = [];
+    public static event Action? AllTestsCompleted;
 
     public static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
         try
         {
+            var testResults = GetTestResults();
+
             var parameters = __originalMethod.GetParameters();
             var argsDictionary =
                 __args?.Select((arg, i) => new
@@ -36,14 +72,24 @@ internal static class Patches
                 Parameters = argsDictionary ?? [],
                 RawStartTime = DateTime.UtcNow
             };
+            if (testResults.CallStack.Count == 0)
+            {
+                entry.IsEntryMethod = true;
+            }
             entry.StartTime = entry.RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
 
-            CallStack.Push(entry);
+            testResults.CallStack.Push(entry);
         }
         catch (Exception e)
         {
             ReportIssue(e, MethodSection.Entry);
         }
+    }
+
+    private static TestResults GetTestResults()
+    {
+        var testId = TestTracking.GetOrAssignTestId();
+        return Tests[testId];
     }
 
     public static void LogVoidMethodExit(MethodInfo __originalMethod)
@@ -60,6 +106,7 @@ internal static class Patches
 
     public static void Finalizer(MethodInfo __originalMethod, Exception __exception)
     {
+        var testResults = GetTestResults();
         try
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -70,7 +117,15 @@ internal static class Patches
         }
         catch (Exception e)
         {
-            UnexpectedIssues.Add(e);
+            testResults.UnexpectedIssues.Add(e);
+        }
+    }
+
+    private static void CheckAllTestsCompleted()
+    {
+        if (Tests.All(x => x.Value.HasCompleted))
+        {
+            AllTestsCompleted?.Invoke();
         }
     }
 
@@ -115,8 +170,9 @@ internal static class Patches
     /// <param name="methodSection"></param>
     private static void ReportIssue(Exception e, MethodSection methodSection)
     {
-        UnexpectedIssues.Add(e);
-        if (CallStack.Count == 0)
+        var testResults = GetTestResults();
+        testResults.UnexpectedIssues.Add(e);
+        if (testResults.CallStack.Count == 0)
         {
             return;
         }
@@ -125,44 +181,29 @@ internal static class Patches
         {
             if (methodSection == MethodSection.Exit)
             {
-                CallStack.Pop();
+                testResults.CallStack.Pop();
             }
             else
             {
-                CallStack.Push(new LogEntry());
+                testResults.CallStack.Push(new LogEntry());
             }
         }
         catch (Exception exception)
         {
-            UnexpectedIssues.Add(exception);
+            testResults.UnexpectedIssues.Add(exception);
         }
     }
 
-    private static void AddToStack(LogEntry entry)
-    {
-        if (entry == null)
-        {
-            throw new ArgumentNullException(nameof(entry));
-        }
-
-        if (CallStack.Count > 0)
-        {
-            CallStack.Peek().Children.Add(entry);
-        }
-        else
-        {
-            TopLevelCalls.Add(entry);
-        }
-    }
 
     private static void Finalize(MethodInfo originalMethod, object? result, params Exception?[]? exceptions)
     {
-        if (CallStack.Count == 0)
+        var testResults = GetTestResults();
+        if (testResults.CallStack.Count == 0)
         {
             return;
         }
 
-        var entry = CallStack.Pop();
+        var entry = testResults.CallStack.Pop();
         entry.RawEndTime = DateTime.UtcNow;
         entry.MemoryAfter = GC.GetTotalMemory(false);
         entry.EndTime = entry.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
@@ -171,7 +212,21 @@ internal static class Patches
         entry.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(originalMethod);
         entry.Exceptions = exceptions?.OfType<Exception>().ToArray();
         entry.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(result);
-        AddToStack(entry);
+        if (entry == null)
+        {
+            throw new ArgumentNullException(nameof(entry));
+        }
+
+        if (testResults.CallStack.Count > 0)
+        {
+            testResults.CallStack.Peek().Children.Add(entry);
+        }
+        else
+        {
+            testResults.TopLevelCalls.Add(entry);
+        }
+     
+        CheckAllTestsCompleted();
     }
 
     private enum MethodSection
