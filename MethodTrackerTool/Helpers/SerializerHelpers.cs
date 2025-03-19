@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Globalization;
-using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -11,7 +9,21 @@ namespace MethodTrackerTool.Helpers;
 
 internal class SerializerHelpers
 {
-    public static readonly JsonSerializerOptions SerializerOptions = SafeJsonFactory.CreateOptions();
+    public static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        MaxDepth = 200,
+        Converters =
+        {
+            new LogEntryConverter(),
+            new CultureInfoConverter(),
+            new TypeConverter(),
+            new DelegateConverterFactory(),
+            new ExceptionConverter()
+        }
+    };
     private class LogEntryConverter : JsonConverter<LogEntry>
     {
         public override LogEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -66,6 +78,45 @@ internal class SerializerHelpers
         }
     }
 
+    public class TypeConverter : JsonConverter<Type>
+    {
+        public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException("Deserialization is not supported.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue("System.Type object is not serializable.");
+        }
+    }
+    public class DelegateConverterFactory : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return typeof(Delegate).IsAssignableFrom(typeToConvert);
+        }
+
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        {
+            var converterType = typeof(DelegateConverter<>).MakeGenericType(typeToConvert);
+            return (JsonConverter)Activator.CreateInstance(converterType);
+        }
+    }
+
+    public class DelegateConverter<T> : JsonConverter<T> where T : Delegate
+    {
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException("Deserializing delegates is not supported.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue($"{typeof(T).FullName} delegate is not serializable.");
+        }
+    }
+
     public class ExceptionConverter : JsonConverter<Exception>
     {
         public override Exception Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -78,74 +129,6 @@ internal class SerializerHelpers
             var stackTrace = value.StackTrace?.Split(["\r\n", "\n"], StringSplitOptions.None);
             var result = new { value.Message, StackTrace = stackTrace, value.InnerException };
             JsonSerializer.Serialize(writer, result, options);
-        }
-    }
-    public static class SafeJsonFactory
-    {
-        private static readonly ConcurrentDictionary<Type, JsonConverter> _converters = new();
-
-        public static JsonSerializerOptions CreateOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                WriteIndented = true,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                MaxDepth = 200,
-                Converters =
-                {
-                    new LogEntryConverter(),
-                    new CultureInfoConverter(),
-                    new ExceptionConverter(),
-                    new SafeJsonFactoryConverter()
-                }
-            };
-
-            return options;
-        }
-
-        private class SafeJsonFactoryConverter : JsonConverterFactory
-        {
-            public override bool CanConvert(Type typeToConvert)
-            {
-                return !typeToConvert.IsPrimitive && typeToConvert != typeof(string);
-            }
-
-            public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
-            {
-                return _converters.GetOrAdd(typeToConvert,
-                    t => (JsonConverter)Activator.CreateInstance(typeof(SafeJsonConverter<>).MakeGenericType(t)));
-            }
-        }
-    }
-    public class SafeJsonConverter<T> : JsonConverter<T>
-    {
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            throw new NotImplementedException("Deserialization is not supported.");
-        }
-
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        {
-            writer.WriteStartObject();
-            foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                try
-                {
-                    var propValue = property.GetValue(value);
-                    if (propValue != null)
-                    {
-                        writer.WritePropertyName(property.Name);
-                        JsonSerializer.Serialize(writer, propValue, options);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log error or handle it gracefully
-                    Console.WriteLine($"Skipping property '{property.Name}' due to error: {ex.Message}");
-                }
-            }
-            writer.WriteEndObject();
         }
     }
 }
