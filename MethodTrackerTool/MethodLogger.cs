@@ -87,6 +87,7 @@ public static class MethodLogger
         }
         return output;
     }
+
     public static string PrintJson()
     {
         var output = JsonSerializer.Serialize(Patches.TopLevelCalls, SerializerHelpers.SerializerOptions);

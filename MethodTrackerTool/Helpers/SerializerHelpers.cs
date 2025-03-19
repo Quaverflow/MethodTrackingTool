@@ -99,7 +99,7 @@ internal class SerializerHelpers
 
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            Type converterType = typeof(DelegateConverter<>).MakeGenericType(typeToConvert);
+            var converterType = typeof(DelegateConverter<>).MakeGenericType(typeToConvert);
             return (JsonConverter)Activator.CreateInstance(converterType);
         }
     }
