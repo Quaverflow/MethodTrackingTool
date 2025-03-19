@@ -1,4 +1,4 @@
-# MethodTracker (Beta)
+# Method Tracker (Beta)
 
 **MethodTracker** is a lightweight debugging and logging tool for .NET that leverages Harmony to instrument your application at runtime—capturing method calls, performance metrics, and exceptions without modifying your source code.
 
@@ -20,11 +20,14 @@ MethodTracker uses Harmony to inject IL code into your application. It instrumen
 
 The VSIX extension integrates with Visual Studio, offering an interactive interface to:
 - View the call tree.
-- Filter log entries.
+- Filter log entries. This uses & as separator for multiple matches: User&Notification would try to match any entry that has both in any part of the entry.
 - Navigate directly to specific log entries.
 
 ## Installation
 
 ### NuGet Package
 
-Install the beta NuGet package in your project:
+Install the beta NuGet package in your project [Link](https://www.nuget.org/packages/MethodTrackerTool/).
+
+Using it in combination with the visualizer, will produce something like this:
+![example](https://github.com/user-attachments/assets/09f19d5f-d202-42dc-a2e4-9c63965e9fb7)
