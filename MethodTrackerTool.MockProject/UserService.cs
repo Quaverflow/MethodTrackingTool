@@ -14,6 +14,7 @@ public class OrderRequest
     public int UserId { get; set; }
     public List<int> ProductIds { get; set; } = [];
     public decimal TotalAmount { get; set; }
+    public Func<string> X { get; set; } = () => "";
 }
 
 public class Order

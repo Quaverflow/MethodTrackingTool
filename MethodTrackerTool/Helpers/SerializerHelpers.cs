@@ -17,10 +17,10 @@ internal class SerializerHelpers
         MaxDepth = 200,
         Converters =
         {
-            new LogEntryConverter(), 
+            new LogEntryConverter(),
             new CultureInfoConverter(),
             new TypeConverter(),
-            new DelegateConverter(),
+            new DelegateConverterFactory(),
             new ExceptionConverter()
         }
     };
@@ -51,7 +51,7 @@ internal class SerializerHelpers
             writer.WriteString(nameof(LogEntry.EndTime), value.EndTime);
             writer.WriteString(nameof(LogEntry.ElapsedTime), value.ElapsedTime);
             writer.WriteString(nameof(LogEntry.ExclusiveElapsedTime), value.ExclusiveElapsedTime);
-          
+
             writer.WritePropertyName(nameof(LogEntry.MemoryBefore));
             JsonSerializer.Serialize(writer, value.MemoryBefore, options);
             writer.WritePropertyName(nameof(LogEntry.MemoryAfter));
@@ -76,8 +76,8 @@ internal class SerializerHelpers
         {
             writer.WriteStringValue("System.CultureInfo is removed.");
         }
-    }    
-    
+    }
+
     public class TypeConverter : JsonConverter<Type>
     {
         public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -89,20 +89,34 @@ internal class SerializerHelpers
         {
             writer.WriteStringValue("System.Type object is not serializable.");
         }
-    }  
-    
-    public class DelegateConverter : JsonConverter<Delegate>
+    }
+    public class DelegateConverterFactory : JsonConverterFactory
     {
-        public override Delegate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override bool CanConvert(Type typeToConvert)
         {
-            throw new NotImplementedException("Deserialization is not supported.");
+            return typeof(Delegate).IsAssignableFrom(typeToConvert);
         }
 
-        public override void Write(Utf8JsonWriter writer, Delegate value, JsonSerializerOptions options)
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            writer.WriteStringValue("System.Delegate object is not serializable.");
+            Type converterType = typeof(DelegateConverter<>).MakeGenericType(typeToConvert);
+            return (JsonConverter)Activator.CreateInstance(converterType);
         }
-    }    
+    }
+
+    public class DelegateConverter<T> : JsonConverter<T> where T : Delegate
+    {
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException("Deserializing delegates is not supported.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue($"{typeof(T).FullName} delegate is not serializable.");
+        }
+    }
+
     public class ExceptionConverter : JsonConverter<Exception>
     {
         public override Exception Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -114,7 +128,7 @@ internal class SerializerHelpers
         {
             var stackTrace = value.StackTrace?.Split(["\r\n", "\n"], StringSplitOptions.None);
             var result = new { value.Message, StackTrace = stackTrace, value.InnerException };
-            JsonSerializer.Serialize(writer, result, options);       
+            JsonSerializer.Serialize(writer, result, options);
         }
     }
 }
