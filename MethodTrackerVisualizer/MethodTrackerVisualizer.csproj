@@ -86,6 +86,9 @@
     <Compile Include="Views\FileSystemView.xaml.cs">
       <DependentUpon>FileSystemView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SimpleSearchBar.xaml.cs">
+      <DependentUpon>SimpleSearchBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SearchBar.xaml.cs">
       <DependentUpon>SearchBar.xaml</DependentUpon>
     </Compile>
@@ -147,6 +150,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\FileSystemView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SimpleSearchBar.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </Page>

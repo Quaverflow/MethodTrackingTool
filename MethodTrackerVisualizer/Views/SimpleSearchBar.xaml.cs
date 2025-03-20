@@ -4,13 +4,11 @@ using System.Windows;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class SearchBar
+public partial class SimpleSearchBar
 {
     public event EventHandler<string> SearchTextChanged;
-    public event EventHandler PreviousClicked;
-    public event EventHandler NextClicked;
 
-    public SearchBar()
+    public SimpleSearchBar()
     {
         InitializeComponent();
         SearchTextBox.TextChanged += (_, _) =>
@@ -18,7 +16,5 @@ public partial class SearchBar
             var text = SearchTextBox.Text.Trim();
             SearchTextChanged?.Invoke(this, text);
         };
-        PreviousButton.Click += (_, _) => PreviousClicked?.Invoke(this, EventArgs.Empty);
-        NextButton.Click += (_, _) => NextClicked?.Invoke(this, EventArgs.Empty);
     }
 }

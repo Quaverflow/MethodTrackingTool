@@ -36,7 +36,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <views:SearchBar Grid.Row="0"  x:Name="HierarchicalSearchBar"/>
+        <views:SearchBar Grid.Row="0" x:Name="HierarchicalSearchBar"/>
         <TreeView Grid.Row="1" x:Name="HierarchicalTreeView" Background="Black" Foreground="White"/>
     </Grid>
 </UserControl>

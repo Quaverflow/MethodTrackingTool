@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="MethodTrackerVisualizer.Views.SimpleSearchBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Black">
+    <StackPanel Orientation="Horizontal" Margin="5">
+        <TextBlock Text="Search" FontWeight="Bold" Foreground="White" FontSize="14" Margin="0,0,10,0"/>
+        <TextBox x:Name="SearchTextBox" 
+                 Width="200" Margin="0,0,5,0" 
+                 VerticalAlignment="Center" 
+                 ToolTip="This will search through Parameters (type and value), Return (type and value), Method Name and Exceptions. To make a complex search matching multiple words, separate each word with &amp; (i.e. User&amp;Account)"
+                 Background="White" Foreground="Black" BorderBrush="Gray"/>
+    </StackPanel>
+</UserControl>
