@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
@@ -17,16 +19,14 @@ internal class TestResults(string name)
     public readonly Stack<LogEntry> CallStack = [];
     public readonly List<Exception> UnexpectedIssues = [];
     public string Name { get; set; } = name;
-    public bool HasCompleted => CallStack.Count == 1 && CallStack.First().IsEntryMethod;
 }
 
 internal static class TestPatches
 {
     public static readonly List<MethodInfo> Tests = [];
     private const BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-    static TestPatches() => PatchTests();
-
-    private static void PatchTests()
+    
+    public static void PatchTests()
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
         foreach (var method in assemblies.SelectMany(x => x.GetTypes().SelectMany(y => y.GetMethods(_bindingFlags))))
@@ -38,17 +38,10 @@ internal static class TestPatches
             }
         }
     }
-
-    public static void Prefix(MethodInfo __originalMethod)
-    {
-        var testId = TestTracking.GetOrAssignTestId();
-        MethodPatches.Tests.TryAdd(testId, new(__originalMethod.DeclaringType?.FullName + "." + __originalMethod.Name));
-    }
 }
 internal static class MethodPatches
 {
     public static readonly ConcurrentDictionary<string, TestResults> Tests = [];
-    public static event Action? AllTestsCompleted;
 
     public static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
@@ -118,14 +111,6 @@ internal static class MethodPatches
         catch (Exception e)
         {
             testResults.UnexpectedIssues.Add(e);
-        }
-    }
-
-    private static void CheckAllTestsCompleted()
-    {
-        if (Tests.All(x => x.Value.HasCompleted))
-        {
-            AllTestsCompleted?.Invoke();
         }
     }
 
@@ -225,8 +210,7 @@ internal static class MethodPatches
         {
             testResults.TopLevelCalls.Add(entry);
         }
-     
-        CheckAllTestsCompleted();
+
     }
 
     private enum MethodSection

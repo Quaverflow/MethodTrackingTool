@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using HarmonyLib;
 using MethodTrackerTool.Helpers;
+using MethodTrackerTool.Public;
 
 namespace MethodTrackerTool;
 
@@ -16,44 +18,44 @@ public static class MethodLogger
     private const BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
     private static bool _isInitialized;
 
-    public static void Initialize(params Assembly[] assemblies)
+    public static void Initialize()
     {
         if (_isInitialized)
         {
             return;
         }
         _isInitialized = true;
-        PatchTests();
-        PatchAssemblies(assemblies);
-        MethodPatches.AllTestsCompleted += PrintJson;
+        PatchAssemblies();
+        TestPatches.PatchTests();
+    }
+    public static void PrintJson()
+    {
+        var testId = TestTracking.GetOrAssignTestId();
+        var data = MethodPatches.Tests[testId];
+        var output = JsonSerializer.Serialize(data.TopLevelCalls, SerializerHelpers.SerializerOptions);
+        WriteLogFile(output, data.Name);
+        if (data.UnexpectedIssues.Any())
+        {
+            throw new UnexpectedMethodTrackerException();
+        }
     }
 
+    public static IEnumerable<Assembly> FindAssemblyMarkers() =>
+        AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetCustomAttributes(typeof(AssemblyMarkerAttribute), inherit: false)
+                .Cast<AssemblyMarkerAttribute>()
+                .Select(x => x.Assembly)
+                .ToArray());
 
-    private static void PatchAssemblies(Assembly[] assemblies)
+    private static void PatchAssemblies()
     {
+        var assemblies = FindAssemblyMarkers();
         foreach (var assembly in assemblies)
         {
             PatchAssemblyMethods(assembly);
         }
     }
-
-    private static void PatchTests()
-    {
-        foreach (var test in TestPatches.Tests)
-        {
-
-            try
-            {
-                var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(TestPatches.Prefix), _bindingFlags));
-
-                _harmonyInstance?.Patch(test, prefix: prefix);
-            }
-            catch
-            {
-                // ignore unpatched methods
-            }
-        }
-    }
+ 
     private static void PatchAssemblyMethods(Assembly targetAssembly)
     {
         var methods = targetAssembly.GetTypes()
@@ -81,18 +83,13 @@ public static class MethodLogger
         }
     }
 
-    internal static void PrintJson()
+    private static void WriteLogFile(string output, string testName)
     {
-        var results = MethodPatches.Tests;
-        foreach (var result in results)
-        {
-            var output = JsonSerializer.Serialize(result.Value, SerializerHelpers.SerializerOptions);
-            WriteLogFile(output, result.Value.Name);
-            if (result.Value.UnexpectedIssues.Any())
-            {
-                throw new UnexpectedMethodTrackerException();
-            }
-        }
+
+        var timestamp = DateTime.Now.ToString("_yyyyMMdd_HHmmss");
+
+        var path = CreateFile(testName + timestamp);
+        File.WriteAllText(path, output);
     }
 
     private static string CreateFile(string testName)
@@ -103,14 +100,5 @@ public static class MethodLogger
             Directory.CreateDirectory(folder);
         }
         return Path.Combine(folder, $"{testName}.json");
-    }
-
-    private static void WriteLogFile(string output, string testName)
-    {
-
-        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-
-        var path = CreateFile(testName + timestamp);
-        File.WriteAllText(testName, output);
     }
 }

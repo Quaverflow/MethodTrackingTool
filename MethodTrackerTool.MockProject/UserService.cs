@@ -52,8 +52,8 @@ public class OrderService
         notificationService.SendOrderConfirmation(order);
 
         Console.WriteLine("OrderService: ProcessOrderAsync completed.");
-
-        throw new Exception("Test exception");
+        return new();
+        //throw new Exception("Test exception");
     }
 
     private static void ValidateOrder(OrderRequest request)
