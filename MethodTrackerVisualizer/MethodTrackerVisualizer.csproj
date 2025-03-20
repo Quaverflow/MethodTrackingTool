@@ -77,6 +77,7 @@
     <Compile Include="Views\ComparerPanelView.xaml.cs">
       <DependentUpon>ComparerPanelView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\DiffHelper.cs" />
     <Compile Include="Views\ExceptionsView.xaml.cs">
       <DependentUpon>ExceptionsView.xaml</DependentUpon>
     </Compile>

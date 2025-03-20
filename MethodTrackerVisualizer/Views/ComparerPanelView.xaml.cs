@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Threading;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
@@ -10,11 +11,17 @@ namespace MethodTrackerVisualizer.Views;
 public partial class ComparerPanelView
 {
 
+    public event EventHandler FileSelectionChanged;
     public EntryFile Selected = FileHelper.Selected;
     public ComparerPanelView()
     {
         InitializeComponent();
         Loaded += Load;
+    }
+    private void OnFileSelectionChanged()
+    {
+        // Raise the event if any subscriber exists.
+        FileSelectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void Load(object sender, RoutedEventArgs e)
@@ -22,6 +29,7 @@ public partial class ComparerPanelView
         HierarchicalTreeView.ItemsSource = Selected.Data;
         FilesDataGrid.ItemsSource = FileHelper.Data.Select(x => new { x.FileName, x.Updated });
         FileSystemSearchBar.SearchTextChanged += SearchForText;
+
     }
 
     private void SearchForText(object _, string searchText)
@@ -46,11 +54,24 @@ public partial class ComparerPanelView
             {
                 Selected = FileHelper.Data.Single(x => x.FileName == fileName);
                 HierarchicalTreeView.ItemsSource = Selected.Data;
+                OnFileSelectionChanged();
             }
             else
             {
                 MessageBox.Show("File not found.");
             }
         }
+    }
+
+    public void NavigateToEntry(object dataItem)
+    {
+
+        HierarchicalTreeView.ExpandAllParents(dataItem);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var tvi = HierarchicalTreeView.GetTreeViewItem(dataItem);
+            tvi.ExpandExpanderForEntry();
+            tvi.BringIntoView();
+        }), DispatcherPriority.Background);
     }
 }
