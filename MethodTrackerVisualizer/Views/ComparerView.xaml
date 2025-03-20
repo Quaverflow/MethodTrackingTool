@@ -5,9 +5,9 @@
              Background="Black">
     <Grid Background="Black">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -15,7 +15,7 @@
         </Grid.ColumnDefinitions>
         <views:ComparerPanelView x:Name="LeftPanel" Grid.Row="0" Grid.Column="0"/>
         <views:ComparerPanelView x:Name="RightPanel" Grid.Row="0"  Grid.Column="1"/>
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0">
             <Button Content="Previous Difference" Click="PreviousDifference_Click" Margin="5"/>
             <Button Content="Next Difference" Click="NextDifference_Click" Margin="5"/>
         </StackPanel>
