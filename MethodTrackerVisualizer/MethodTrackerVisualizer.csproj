@@ -78,6 +78,9 @@
       <DependentUpon>ComparerPanelView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DiffHelper.cs" />
+    <Compile Include="Views\DiffViewer.xaml.cs">
+      <DependentUpon>DiffViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ExceptionsView.xaml.cs">
       <DependentUpon>ExceptionsView.xaml</DependentUpon>
     </Compile>
@@ -121,6 +124,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="DiffPlex">
+      <Version>1.7.2</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.32112.339" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.10.2186" />
   </ItemGroup>
@@ -153,6 +159,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ComparerPanelView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DiffViewer.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </Page>

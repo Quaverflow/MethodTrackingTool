@@ -1,84 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
+using MethodTrackerVisualizer.Helpers;
 using static MethodTrackerVisualizer.Views.DiffHelper;
 
 namespace MethodTrackerVisualizer.Views
 {
     public partial class ComparerView : UserControl
     {
-        private List<DiffNode> _diffNodes = [];
-        private int _currentDiffIndex = -1;
+        // Optionally, if you plan on navigating through a flattened diff,
+        // you can store diff nodes here.
+        private List<DiffNode> _diffNodes = new List<DiffNode>();
+        private int _currentDiffIndex = 0;
 
         public ComparerView()
         {
             InitializeComponent();
             Loaded += ComparerView_Loaded;
-            LeftPanel.FileSelectionChanged += OnChildFileSelectionChanged;
-            RightPanel.FileSelectionChanged += OnChildFileSelectionChanged;
         }
 
-        private void ComparerView_Loaded(object sender, RoutedEventArgs e) => Load();
+        private void ComparerView_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Subscribe to file selection changed events if needed
+            // (Assuming ComparerPanelView raises an event when its selection changes.)
+            LeftPanel.FileSelectionChanged += OnFileSelectionChanged;
+            RightPanel.FileSelectionChanged += OnFileSelectionChanged;
 
-        private void OnChildFileSelectionChanged(object sender, EventArgs e) => Load();
+            // Initial diff update.
+            UpdateDiffViewer();
+        }
 
-        private void Load()
+        private void OnFileSelectionChanged(object sender, System.EventArgs e)
+        {
+            UpdateDiffViewer();
+        }
+
+        private void UpdateDiffViewer()
         {
             if (LeftPanel.Selected != null && RightPanel.Selected != null)
             {
-                var diffRoot = DiffLogEntries(LeftPanel.Selected.Data.Single(), RightPanel.Selected.Data.Single());
-                _diffNodes = [];
-                FlattenDiffTree(diffRoot, _diffNodes);
+                LogEntry leftLog = LeftPanel.Selected.Data.Single();
+                LogEntry rightLog = RightPanel.Selected.Data.Single();
+
+                DiffViewerControl.UpdateDiffView(leftLog, rightLog);
             }
         }
 
-        private void FlattenDiffTree(DiffNode node, List<DiffNode> list)
-        {
-            if (node.DiffType != DiffType.Unchanged)
-            {
-                list.Add(node);
-            }
-
-            foreach (var child in node.Children)
-            {
-                FlattenDiffTree(child, list);
-            }
-        }
 
         private void NextDifference_Click(object sender, RoutedEventArgs e)
         {
-            if (_diffNodes == null || _diffNodes.Count == 0)
+            if (_diffNodes.Any())
             {
-                MessageBox.Show("No differences found.");
-                return;
+                _currentDiffIndex = (_currentDiffIndex + 1) % _diffNodes.Count;
+                var diff = _diffNodes[_currentDiffIndex];
+                DiffViewerControl.UpdateDiffView(diff.Left, diff.Right);
             }
-            _currentDiffIndex = (_currentDiffIndex + 1) % _diffNodes.Count;
-            NavigateToDifference(_diffNodes[_currentDiffIndex]);
+            else
+            {
+                UpdateDiffViewer();
+            }
         }
 
         private void PreviousDifference_Click(object sender, RoutedEventArgs e)
         {
-            if (_diffNodes == null || _diffNodes.Count == 0)
+            if (_diffNodes.Any())
             {
-                MessageBox.Show("No differences found.");
-                return;
+                _currentDiffIndex = (_currentDiffIndex - 1 + _diffNodes.Count) % _diffNodes.Count;
+                var diff = _diffNodes[_currentDiffIndex];
+                DiffViewerControl.UpdateDiffView(diff.Left, diff.Right);
             }
-            _currentDiffIndex = (_currentDiffIndex - 1 + _diffNodes.Count) % _diffNodes.Count;
-            NavigateToDifference(_diffNodes[_currentDiffIndex]);
-        }
-
-        private void NavigateToDifference(DiffNode diffNode)
-        {
-            if (diffNode.Left != null)
+            else
             {
-                LeftPanel.NavigateToEntry(diffNode.Left);
-            }
-            if (diffNode.Right != null)
-            {
-                RightPanel.NavigateToEntry(diffNode.Right);
+                UpdateDiffViewer();
             }
         }
     }

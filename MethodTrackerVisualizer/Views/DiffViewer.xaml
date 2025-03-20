@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="MethodTrackerVisualizer.Views.DiffViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Black">
+    <Grid Background="Black">
+        <RichTextBox x:Name="DiffRichTextBox"
+                     Background="#FF1E1E1E"
+                     Foreground="White"
+                     IsReadOnly="True"
+                     BorderThickness="0" 
+                     Margin="5"
+                     FontSize="14"
+                     FontWeight="Medium"/>
+    </Grid>
+</UserControl>
