@@ -36,12 +36,14 @@ namespace MethodTrackerVisualizer.Views
             if (entry == null)
                 return string.Empty;
 
+            var exceptionsText = (entry.Exceptions != null && entry.Exceptions.Length > 0)
+                ? JsonConvert.SerializeObject(entry.Exceptions)
+                : "None";
             return $"Method: {entry.MethodName}\n" +
                    $"Parameters: {JsonConvert.SerializeObject(entry.Parameters)}\n" +
                    $"Return Type: {entry.ReturnType}\n" +
                    $"Return Value: {entry.ReturnValue}\n" +
-                   $"Exclusive Elapsed: {entry.ExclusiveElapsedTime}\n" +
-                   $"Memory Increase: {entry.MemoryIncrease}\n";
+                   $"Exceptions: {exceptionsText}\n";
         }
 
         /// <summary>

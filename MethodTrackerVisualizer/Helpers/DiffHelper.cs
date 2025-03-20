@@ -1,41 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DiffPlex.DiffBuilder.Model;
-using DiffPlex.DiffBuilder;
-using DiffPlex;
-using System.Windows.Documents;
-using System.Windows.Media;
 using MethodTrackerVisualizer.Helpers;
 using Newtonsoft.Json;
 
 namespace MethodTrackerVisualizer.Views;
-public static class DiffDocumentBuilder
-{
-    public static FlowDocument BuildDiffDocument(string leftText, string rightText)
-    {
-        var diffBuilder = new InlineDiffBuilder(new Differ());
-        var diffResult = diffBuilder.BuildDiffModel(leftText, rightText);
-
-        var flowDoc = new FlowDocument();
-        var paragraph = new Paragraph();
-
-        foreach (var line in diffResult.Lines)
-        {
-            var run = new Run(line.Text);
-            run.Background = line.Type switch
-            {
-                ChangeType.Inserted => Brushes.LightGreen,
-                ChangeType.Deleted => Brushes.LightCoral,
-                ChangeType.Modified => Brushes.LightBlue,
-                _ => run.Background
-            };
-            paragraph.Inlines.Add(run);
-            paragraph.Inlines.Add(new LineBreak());
-        }
-        flowDoc.Blocks.Add(paragraph);
-        return flowDoc;
-    }
-}
 public static class DiffHelper
 {
     public static bool DeepEquals(object a, object b)
@@ -75,11 +43,12 @@ public static class DiffHelper
             var returnTypeChanged = left.ReturnType != right.ReturnType;
             var returnValueChanged = !DeepEquals(left.ReturnValue, right.ReturnValue);
             var exceptionsChanged = !DeepEquals(left.Exceptions, right.Exceptions);
-            var exclusiveElapsedChanged = left.ExclusiveElapsedTime != right.ExclusiveElapsedTime;
-            var memoryIncreaseChanged = left.MemoryIncrease != right.MemoryIncrease;
 
-            if (methodChanged || parametersChanged || returnTypeChanged || returnValueChanged ||
-                exceptionsChanged|| exclusiveElapsedChanged || memoryIncreaseChanged)
+            if (methodChanged || 
+                parametersChanged || 
+                returnTypeChanged || 
+                returnValueChanged || 
+                exceptionsChanged)
             {
                 diff.DiffType = DiffType.Modified;
             }
