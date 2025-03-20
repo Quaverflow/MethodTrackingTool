@@ -77,7 +77,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Last Updated" SortMemberPath="Updated" Width="*">
+                <DataGridTemplateColumn Header="Last Updated" SortMemberPath="Updated" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Updated, StringFormat={}{0:G}}"

@@ -12,7 +12,6 @@ public partial class HierarchicalView
     private List<LogEntry> _matchedTextEntries = [];
     private int _currentMatchTextEntriesIndex = -1;
 
-
     public string CurrentSearchText
     {
         get => (string)GetValue(CurrentSearchTextProperty);
