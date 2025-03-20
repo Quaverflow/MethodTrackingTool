@@ -27,7 +27,7 @@ public partial class ExceptionsView
     {
         InitializeComponent();
 
-        _data = FileHelper.Data.FilterByDeepExceptions();
+        _data = FileHelper.Selected.Data.FilterByDeepExceptions();
         ExceptionsTreeView.ItemsSource = _data;
         ExceptionSearchBar.SearchTextChanged += SearchForText;
         ExceptionSearchBar.PreviousClicked += PreviousText;

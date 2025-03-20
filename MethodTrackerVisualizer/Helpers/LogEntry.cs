@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MethodTrackerVisualizer.Helpers;
 
@@ -17,4 +18,11 @@ public class LogEntry
     public string MemoryIncrease { get; set; }
     public object[] Exceptions { get; set; } = [];
     public List<LogEntry> Children { get; set; } = [];
+}
+
+public class EntryFile
+{
+    public DateTime Updated { get; set; }
+    public string FileName { get; set; }
+    public List<LogEntry> Data { get; set; }
 }
