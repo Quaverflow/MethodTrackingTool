@@ -1,6 +1,5 @@
 ﻿using MethodTracker.MockProject;
 using MethodTrackerTool;
-using MethodTrackerTool.Public;
 
 namespace MethodTracker.Tests;
 

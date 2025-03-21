@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="MethodTrackerVisualizer.ceca3dbd-4dec-4510-ac8a-0d9b69363f37" Version="2.0" Language="en-US" Publisher="Mirko Sangrigoli" />
+        <Identity Id="MethodTrackerVisualizer.ceca3dbd-4dec-4510-ac8a-0d9b69363f37" Version="2.1" Language="en-US" Publisher="Mirko Sangrigoli" />
         <DisplayName>Method Tracker Visualizer</DisplayName>
         <Description xml:space="preserve">The Method Tracker Visualizer VSIX Extension brings interactive visualization, search, and navigation of your MethodTrackerTool logs directly into Visual Studio. With this tool window, you can inspect the call tree, filter log entries, and quickly jump to methods with issues—all within the IDE.
 </Description>
