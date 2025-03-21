@@ -15,7 +15,6 @@ internal static class SerializerHelpers
     {
         Formatting = Formatting.Indented,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-        ContractResolver = new VerificationContractResolver(),
         Converters =
         {
             new LogEntryConverter(),
@@ -23,36 +22,13 @@ internal static class SerializerHelpers
             new TypeConverter(),
             new DelegateConverter(),
             new ExceptionConverter()
+        },
+        Error = (sender, args) =>
+        {
+            args.ErrorContext.Handled = true;
         }
     };
-    public class VerificationContractResolver : DefaultContractResolver
-    {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
-        {
-            var properties = base.CreateProperties(type, memberSerialization).ToList();
-            var newCollection = new List<JsonProperty>();
-            foreach (var property in properties)
-            {
 
-                var underlyingProvider = property.ValueProvider;
-                property.ShouldSerialize = instance =>
-                {
-                    try
-                    {
-                        var value = underlyingProvider.GetValue(instance);
-                        JsonConvert.SerializeObject(value);
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
-                };
-            }
-
-            return properties;
-        }
-    }
     private class LogEntryConverter : JsonConverter<LogEntry>
     {
         public override LogEntry ReadJson(JsonReader reader, Type objectType, LogEntry existingValue, bool hasExistingValue, JsonSerializer serializer)
