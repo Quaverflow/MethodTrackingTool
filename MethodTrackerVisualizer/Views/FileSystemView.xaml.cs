@@ -13,6 +13,7 @@ public partial class FileSystemView
         InitializeComponent();
         FilesDataGrid.ItemsSource = FileHelper.Data.Select(x => new {x.FileName, x.Updated});
         FileSystemSearchBar.SearchTextChanged += SearchForText;
+        FileHelper.Refresh += Refresh;
     }
 
     private void SearchForText(object _, string searchText)
@@ -27,6 +28,8 @@ public partial class FileSystemView
         }
 
     }
+
+    private void Refresh(object sender, EventArgs eventArgs) => FilesDataGrid.ItemsSource = FileHelper.Data.Select(x => new { x.FileName, x.Updated });
 
     private void FileNameButton_Click(object sender, RoutedEventArgs e)
     {

@@ -16,7 +16,14 @@ public partial class ComparerPanelView
     {
         InitializeComponent();
         Loaded += Load;
+        FileHelper.Refresh += Refresh;
     }
+    private void Refresh(object sender, EventArgs eventArgs)
+    {
+        FilesDataGrid.ItemsSource = FileHelper.Data.Select(x => new { x.FileName, x.Updated });
+        HierarchicalTreeView.ItemsSource = Selected.Data;
+    }
+
     private void OnFileSelectionChanged()
     {
         // Raise the event if any subscriber exists.

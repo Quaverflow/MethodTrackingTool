@@ -7,6 +7,7 @@ using System.Text.Json;
 using HarmonyLib;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Public;
+using Newtonsoft.Json;
 
 namespace MethodTrackerTool;
 
@@ -32,7 +33,7 @@ public static class MethodLogger
     public static void PrintJson()
     {
         var data = MethodPatches.Result;
-        var output = JsonSerializer.Serialize(data.TopLevelCalls, SerializerHelpers.SerializerOptions);
+        var output = JsonConvert.SerializeObject(data.TopLevelCalls, SerializerHelpers.SerializerSettings);
         WriteLogFile(output, data.Name);
         if (data.UnexpectedIssues.Any())
         {

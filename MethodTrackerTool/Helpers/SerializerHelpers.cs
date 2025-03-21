@@ -1,134 +1,155 @@
 ﻿using System;
 using System.Globalization;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using MethodTrackerTool.Models;
+using Newtonsoft.Json;
 
 namespace MethodTrackerTool.Helpers;
 
-internal class SerializerHelpers
+internal static class SerializerHelpers
 {
-    public static readonly JsonSerializerOptions SerializerOptions = new()
+    public static readonly JsonSerializerSettings SerializerSettings = new()
     {
-        ReferenceHandler = ReferenceHandler.IgnoreCycles,
-        WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        MaxDepth = 200,
+        Formatting = Formatting.Indented,
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
         Converters =
         {
             new LogEntryConverter(),
             new CultureInfoConverter(),
             new TypeConverter(),
-            new DelegateConverterFactory(),
+            new DelegateConverter(),
             new ExceptionConverter()
         }
     };
+
     private class LogEntryConverter : JsonConverter<LogEntry>
     {
-        public override LogEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override LogEntry ReadJson(JsonReader reader, Type objectType, LogEntry existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
-        public override void Write(Utf8JsonWriter writer, LogEntry value, JsonSerializerOptions options)
+        public override void WriteJson(JsonWriter writer, LogEntry value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
 
-            writer.WriteString(nameof(LogEntry.MethodName), value.MethodName);
+            writer.WritePropertyName(nameof(LogEntry.MethodName));
+            writer.WriteValue(value.MethodName);
 
             writer.WritePropertyName(nameof(LogEntry.Parameters));
-            JsonSerializer.Serialize(writer, value.Parameters, options);
+            serializer.Serialize(writer, value.Parameters);
 
             writer.WritePropertyName(nameof(LogEntry.ReturnValue));
-            JsonSerializer.Serialize(writer, value.ReturnValue, options);
+            serializer.Serialize(writer, value.ReturnValue);
 
-            writer.WriteString(nameof(LogEntry.ReturnType), value.ReturnType);
+            writer.WritePropertyName(nameof(LogEntry.ReturnType));
+            writer.WriteValue(value.ReturnType);
+
             writer.WritePropertyName(nameof(LogEntry.Exceptions));
-            JsonSerializer.Serialize(writer, value.Exceptions, options);
+            serializer.Serialize(writer, value.Exceptions);
 
-            writer.WriteString(nameof(LogEntry.StartTime), value.StartTime);
-            writer.WriteString(nameof(LogEntry.EndTime), value.EndTime);
-            writer.WriteString(nameof(LogEntry.ElapsedTime), value.ElapsedTime);
-            writer.WriteString(nameof(LogEntry.ExclusiveElapsedTime), value.ExclusiveElapsedTime);
+            writer.WritePropertyName(nameof(LogEntry.StartTime));
+            writer.WriteValue(value.StartTime);
+
+            writer.WritePropertyName(nameof(LogEntry.EndTime));
+            writer.WriteValue(value.EndTime);
+
+            writer.WritePropertyName(nameof(LogEntry.ElapsedTime));
+            writer.WriteValue(value.ElapsedTime);
+
+            writer.WritePropertyName(nameof(LogEntry.ExclusiveElapsedTime));
+            writer.WriteValue(value.ExclusiveElapsedTime);
 
             writer.WritePropertyName(nameof(LogEntry.MemoryBefore));
-            JsonSerializer.Serialize(writer, value.MemoryBefore, options);
+            serializer.Serialize(writer, value.MemoryBefore);
+
             writer.WritePropertyName(nameof(LogEntry.MemoryAfter));
-            JsonSerializer.Serialize(writer, value.MemoryAfter, options);
+            serializer.Serialize(writer, value.MemoryAfter);
+
             writer.WritePropertyName(nameof(LogEntry.MemoryIncrease));
-            JsonSerializer.Serialize(writer, value.MemoryIncrease, options);
+            serializer.Serialize(writer, value.MemoryIncrease);
 
             writer.WritePropertyName(nameof(LogEntry.Children));
-            JsonSerializer.Serialize(writer, value.Children, options);
+            serializer.Serialize(writer, value.Children);
 
             writer.WriteEndObject();
         }
     }
-    public class CultureInfoConverter : JsonConverter<CultureInfo>
+
+    private class CultureInfoConverter : JsonConverter<CultureInfo>
     {
-        public override CultureInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override CultureInfo ReadJson(JsonReader reader, Type objectType, CultureInfo existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
-        public override void Write(Utf8JsonWriter writer, CultureInfo value, JsonSerializerOptions options)
+        public override void WriteJson(JsonWriter writer, CultureInfo value, JsonSerializer serializer)
         {
-            writer.WriteStringValue("System.CultureInfo is removed.");
+            writer.WriteValue("System.CultureInfo is removed.");
         }
     }
 
-    public class TypeConverter : JsonConverter<Type>
+    private class TypeConverter : JsonConverter<Type>
     {
-        public override Type Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Type ReadJson(JsonReader reader, Type objectType, Type existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
-        public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options)
+        public override void WriteJson(JsonWriter writer, Type value, JsonSerializer serializer)
         {
-            writer.WriteStringValue("System.Type object is not serializable.");
-        }
-    }
-    public class DelegateConverterFactory : JsonConverterFactory
-    {
-        public override bool CanConvert(Type typeToConvert)
-        {
-            return typeof(Delegate).IsAssignableFrom(typeToConvert);
-        }
-
-        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
-        {
-            var converterType = typeof(DelegateConverter<>).MakeGenericType(typeToConvert);
-            return (JsonConverter)Activator.CreateInstance(converterType);
+            writer.WriteValue("System.Type object is not serializable.");
         }
     }
 
-    public class DelegateConverter<T> : JsonConverter<T> where T : Delegate
+    private class DelegateConverter : JsonConverter
     {
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override bool CanConvert(Type objectType) => typeof(Delegate).IsAssignableFrom(objectType);
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             throw new NotSupportedException("Deserializing delegates is not supported.");
         }
 
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            writer.WriteStringValue($"{typeof(T).FullName} delegate is not serializable.");
+            writer.WriteValue($"{value.GetType().FullName} delegate is not serializable.");
         }
     }
 
-    public class ExceptionConverter : JsonConverter<Exception>
+    private class ExceptionConverter : JsonConverter<Exception>
     {
-        public override Exception Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Exception ReadJson(JsonReader reader, Type objectType, Exception existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException("Deserialization is not supported.");
         }
 
-        public override void Write(Utf8JsonWriter writer, Exception value, JsonSerializerOptions options)
+        public override void WriteJson(JsonWriter writer, Exception value, JsonSerializer serializer)
         {
-            var stackTrace = value.StackTrace?.Split(["\r\n", "\n"], StringSplitOptions.None);
-            var result = new { value.Message, StackTrace = stackTrace, value.InnerException };
-            JsonSerializer.Serialize(writer, result, options);
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("Message");
+            writer.WriteValue(value.Message);
+
+            writer.WritePropertyName("StackTrace");
+            if (value.StackTrace is not null)
+            {
+                writer.WriteStartArray();
+                foreach (var line in value.StackTrace.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+                {
+                    writer.WriteValue(line);
+                }
+                writer.WriteEndArray();
+            }
+            else
+            {
+                writer.WriteNull();
+            }
+
+            writer.WritePropertyName("InnerException");
+            serializer.Serialize(writer, value.InnerException);
+
+            writer.WriteEndObject();
         }
     }
+
 }

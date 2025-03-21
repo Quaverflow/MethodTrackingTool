@@ -11,7 +11,39 @@ public static class FileHelper
 {
     public static List<EntryFile> Data = LoadLogData() ?? [];
     public static EntryFile Selected = Data.FirstOrDefault();
-    public static Func<List<EntryFile>> RefreshData = () => Data = LoadLogData();
+    private static FileSystemWatcher _watcher;
+
+    static FileHelper()
+    {
+        StartWatching();
+    }
+
+    public static event EventHandler Refresh;
+    public static void StartWatching()
+    {
+        _watcher = new FileSystemWatcher(GetLogFolder())
+        {
+            NotifyFilter = NotifyFilters.FileName
+                           | NotifyFilters.LastWrite
+                           | NotifyFilters.CreationTime,
+            IncludeSubdirectories = false,
+            EnableRaisingEvents = true
+        };
+
+        // Subscribe to events
+        _watcher.Changed += OnFileChanged;
+        _watcher.Created += OnFileChanged;
+        _watcher.Deleted += OnFileChanged;
+        _watcher.Renamed += OnFileChanged;
+    }
+
+    private static void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        Data = LoadLogData() ?? [];
+        Selected = Data.FirstOrDefault();
+
+        Application.Current.Dispatcher.BeginInvoke(new Action(() => { Refresh?.Invoke(null, EventArgs.Empty); }));
+    }
 
     private static string GetLogFolder()
     {
@@ -28,7 +60,7 @@ public static class FileHelper
         var folderPath = GetLogFolder();
         var files = Directory.GetFiles(folderPath);
 
-           return files.Select(LoadFile).ToList();
+        return files.Select(LoadFile).ToList();
     }
 
     private static EntryFile LoadFile(string filePath)
