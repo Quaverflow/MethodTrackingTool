@@ -45,7 +45,7 @@ public partial class FileSystemView
         {
             if (btn.IsChecked == true)
             {
-                var items = ((System.Collections.IEnumerable)FilesDataGrid.ItemsSource)
+                var items = FilesDataGrid.ItemsSource
                     .Cast<FileItem>().ToList();
 
                 foreach (var item in items)
@@ -64,7 +64,7 @@ public partial class FileSystemView
                     FileHelper.Selected = selectedFile;
                 }
 
-                FilesDataGrid.ItemsSource = items;
+                FilesDataGrid.ItemsSource = items.OrderByDescending(x => x.Selected);
             }
             else
             {

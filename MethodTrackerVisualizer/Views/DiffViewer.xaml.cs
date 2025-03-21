@@ -34,7 +34,9 @@ namespace MethodTrackerVisualizer.Views
         private string FormatLogEntry(LogEntry entry)
         {
             if (entry == null)
+            {
                 return string.Empty;
+            }
 
             var exceptionsText = (entry.Exceptions != null && entry.Exceptions.Length > 0)
                 ? JsonConvert.SerializeObject(entry.Exceptions)

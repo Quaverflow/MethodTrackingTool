@@ -54,9 +54,14 @@ namespace MethodTrackerVisualizer.Views
         private void FlattenDiffTree(DiffNode node, List<DiffNode> list)
         {
             if (node.DiffType != DiffType.Unchanged)
+            {
                 list.Add(node);
+            }
+
             foreach (var child in node.Children)
+            {
                 FlattenDiffTree(child, list);
+            }
         }
 
         private void NextDifference_Click(object sender, RoutedEventArgs e)

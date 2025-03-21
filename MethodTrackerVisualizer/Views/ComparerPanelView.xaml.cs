@@ -43,6 +43,7 @@ namespace MethodTrackerVisualizer.Views
         {
             _fileItems = FileHelper.Data
                 .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
+                .OrderByDescending(x => x.Selected)
                 .ToList();
 
             FilesDataGrid.ItemsSource = _fileItems;
@@ -58,6 +59,7 @@ namespace MethodTrackerVisualizer.Views
         {
             _fileItems = FileHelper.Data
                 .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
+                .OrderByDescending(x => x.Selected)
                 .ToList();
 
             FilesDataGrid.ItemsSource = _fileItems;
@@ -78,11 +80,17 @@ namespace MethodTrackerVisualizer.Views
 
         private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox btn && btn.DataContext is FileItem selectedItem)
+            if (sender is CheckBox { DataContext: FileItem selectedItem } btn)
             {
                 if (btn.IsChecked == true)
                 {
-                    foreach (var item in _fileItems) if (item != selectedItem) item.Selected = false;
+                    foreach (var item in _fileItems)
+                    {
+                        if (item != selectedItem)
+                        {
+                            item.Selected = false;
+                        }
+                    }
 
                     selectedItem.Selected = true;
                     var selectedFile = FileHelper.Data.FirstOrDefault(x => x.FileName == selectedItem.FileName);
@@ -94,10 +102,13 @@ namespace MethodTrackerVisualizer.Views
                         OnFileSelectionChanged();
                     }
                 }
-                else selectedItem.Selected = false;
+                else
+                {
+                    selectedItem.Selected = false;
+                }
 
                 FilesDataGrid.ItemsSource = null;
-                FilesDataGrid.ItemsSource = _fileItems;
+                FilesDataGrid.ItemsSource = _fileItems.OrderByDescending(x => x.Selected);
             }
         }
 
