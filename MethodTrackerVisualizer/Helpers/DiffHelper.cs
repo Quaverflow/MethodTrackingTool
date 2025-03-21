@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using MethodTrackerVisualizer.Helpers;
 using Newtonsoft.Json;
 
-namespace MethodTrackerVisualizer.Views;
+namespace MethodTrackerVisualizer.Helpers;
 
 public static class DiffHelper
 {

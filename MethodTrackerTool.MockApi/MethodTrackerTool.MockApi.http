@@ -1,0 +1,6 @@
+@MethodTrackerTool.MockApi_HostAddress = http://localhost:5222
+
+GET {{MethodTrackerTool.MockApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

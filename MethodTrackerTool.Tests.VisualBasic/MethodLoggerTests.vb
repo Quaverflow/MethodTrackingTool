@@ -1,4 +1,5 @@
-Imports MethodTrackerTool.VisualBasic.MockProject.MethodTracker.MockProject
+
+Imports MethodTrackerTool.VisualBasic.MockProject
 Imports Xunit
 
 Public Class MethodLoggerTests

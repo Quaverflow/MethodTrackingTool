@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "MethodTracker.Tests": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:25253;http://localhost:25254"
+    }
+  }
+}

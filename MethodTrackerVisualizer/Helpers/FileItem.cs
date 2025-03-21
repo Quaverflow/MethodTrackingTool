@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace MethodTrackerVisualizer.Views;
+namespace MethodTrackerVisualizer.Helpers;
 
 public class FileItem : INotifyPropertyChanged
 {
