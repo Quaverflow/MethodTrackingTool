@@ -30,8 +30,8 @@ namespace MethodTrackerVisualizer.Views
 
         private void UpdateDiffViewer()
         {
-            var leftLog = LeftPanel.Selected.Data.Single();
-            var rightLog = RightPanel.Selected.Data.Single();
+            var leftLog = LeftPanel.Selected.Data.FirstOrDefault();
+            var rightLog = RightPanel.Selected.Data.FirstOrDefault();
             if (LeftPanel.Selected != null && RightPanel.Selected != null)
             {
                 var diffTree = DiffLogEntries(leftLog, rightLog);
