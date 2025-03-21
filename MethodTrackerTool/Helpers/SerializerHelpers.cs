@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using MethodTrackerTool.Models;
 using Newtonsoft.Json;
@@ -25,22 +27,29 @@ internal static class SerializerHelpers
     };
     public class VerificationContractResolver : DefaultContractResolver
     {
-        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
-            var property = base.CreateProperty(member, memberSerialization);
-            var underlyingProvider = property.ValueProvider;
-            property.ValueProvider = new VerifyingValueProvider(underlyingProvider, member.Name);
-            property.ShouldSerialize = instance =>
-            {
-                var value = underlyingProvider.GetValue(instance);
-                if (!VerifyProperty(member.Name, value))
-                {
-                    return false;
-                }
-                return true;
-            };
+            var properties = base.CreateProperties(type, memberSerialization).ToList();
 
-            return property;
+            foreach (var property in properties)
+            {
+                var underlyingProvider = property.ValueProvider;
+                property.ValueProvider = new VerifyingValueProvider(underlyingProvider, property.PropertyName);
+                property.ShouldSerialize = instance =>
+                {
+                    try
+                    {
+                        var value = underlyingProvider.GetValue(instance);
+                        return VerifyProperty(property.PropertyName, value);
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                };
+            }
+
+            return properties;
         }
 
         private bool VerifyProperty(string _, object value)
@@ -73,7 +82,7 @@ internal static class SerializerHelpers
                 innerProvider.SetValue(target, value);
             }
 
-            private bool VerifyProperty(string _, object value)
+            private bool VerifyProperty(string propertyName, object value)
             {
                 try
                 {
