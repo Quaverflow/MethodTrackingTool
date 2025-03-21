@@ -30,17 +30,18 @@ internal static class SerializerHelpers
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
             var properties = base.CreateProperties(type, memberSerialization).ToList();
-
+            var newCollection = new List<JsonProperty>();
             foreach (var property in properties)
             {
+
                 var underlyingProvider = property.ValueProvider;
-                property.ValueProvider = new VerifyingValueProvider(underlyingProvider, property.PropertyName);
                 property.ShouldSerialize = instance =>
                 {
                     try
                     {
                         var value = underlyingProvider.GetValue(instance);
-                        return VerifyProperty(property.PropertyName, value);
+                        JsonConvert.SerializeObject(value);
+                        return true;
                     }
                     catch (Exception)
                     {
@@ -50,50 +51,6 @@ internal static class SerializerHelpers
             }
 
             return properties;
-        }
-
-        private bool VerifyProperty(string _, object value)
-        {
-            try
-            {
-                JsonConvert.SerializeObject(value);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private class VerifyingValueProvider(IValueProvider innerProvider, string propertyName) : IValueProvider
-        {
-            public object GetValue(object target)
-            {
-                var value = innerProvider.GetValue(target);
-                if (!VerifyProperty(propertyName, value))
-                {
-                    return $"{value.GetType().FullName} is not serializable";
-                }
-                return value;
-            }
-
-            public void SetValue(object target, object value)
-            {
-                innerProvider.SetValue(target, value);
-            }
-
-            private bool VerifyProperty(string propertyName, object value)
-            {
-                try
-                {
-                    JsonConvert.SerializeObject(value);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
         }
     }
     private class LogEntryConverter : JsonConverter<LogEntry>
