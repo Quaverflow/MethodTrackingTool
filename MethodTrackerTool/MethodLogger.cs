@@ -18,20 +18,20 @@ public static class MethodLogger
     private const BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
     private static bool _isInitialized;
 
-    public static void Initialize()
+    public static void Initialize(string name)
     {
         if (_isInitialized)
         {
-            return;
+            throw new InvalidOperationException("You can only run this in one test");
         }
         _isInitialized = true;
+        var data = MethodPatches.Result = new(name);
         PatchAssemblies();
-        TestPatches.PatchTests();
     }
+
     public static void PrintJson()
     {
-        var testId = TestTracking.GetOrAssignTestId();
-        var data = MethodPatches.Tests[testId];
+        var data = MethodPatches.Result;
         var output = JsonSerializer.Serialize(data.TopLevelCalls, SerializerHelpers.SerializerOptions);
         WriteLogFile(output, data.Name);
         if (data.UnexpectedIssues.Any())

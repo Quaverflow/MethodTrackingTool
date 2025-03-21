@@ -23,10 +23,10 @@ namespace MethodTrackerVisualizer.Views
         /// <param name="rightEntry">The LogEntry from the right (current) test run.</param>
         public void UpdateDiffView(LogEntry leftEntry, LogEntry rightEntry)
         {
-            string leftText = FormatLogEntry(leftEntry);
-            string rightText = FormatLogEntry(rightEntry);
+            var leftText = FormatLogEntry(leftEntry);
+            var rightText = FormatLogEntry(rightEntry);
 
-            FlowDocument diffDoc = BuildDiffDocument(leftText, rightText);
+            var diffDoc = BuildDiffDocument(leftText, rightText);
             DiffRichTextBox.Document = diffDoc;
         }
 
@@ -57,16 +57,16 @@ namespace MethodTrackerVisualizer.Views
         {
             // Create a diff builder and compute the diff.
             var diffBuilder = new InlineDiffBuilder(new Differ());
-            DiffPaneModel diffModel = diffBuilder.BuildDiffModel(leftText, rightText);
+            var diffModel = diffBuilder.BuildDiffModel(leftText, rightText);
 
             // Create a FlowDocument to host the diff.
-            FlowDocument doc = new FlowDocument();
-            Paragraph paragraph = new Paragraph();
+            var doc = new FlowDocument();
+            var paragraph = new Paragraph();
 
             // Iterate over each diff line and create a Run with appropriate highlighting.
             foreach (var line in diffModel.Lines)
             {
-                Run run = new Run(line.Text);
+                var run = new Run(line.Text);
                 switch (line.Type)
                 {
                     case ChangeType.Inserted:

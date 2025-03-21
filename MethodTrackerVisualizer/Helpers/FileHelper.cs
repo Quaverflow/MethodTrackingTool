@@ -26,7 +26,7 @@ public static class FileHelper
     public static List<EntryFile> LoadLogData()
     {
         var folderPath = GetLogFolder();
-        string[] files = Directory.GetFiles(folderPath);
+        var files = Directory.GetFiles(folderPath);
 
            return files.Select(LoadFile).ToList();
     }
@@ -45,6 +45,7 @@ public static class FileHelper
             var data = JsonConvert.DeserializeObject<List<LogEntry>>(json, new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
+                MaxDepth = 500
             });
             var fileInfo = new FileInfo(filePath);
             return new EntryFile

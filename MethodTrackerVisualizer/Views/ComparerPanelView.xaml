@@ -73,7 +73,7 @@
 
     <Grid Background="Black">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="200"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Background="Black">
@@ -83,7 +83,7 @@
             </Grid.RowDefinitions>
             <views:SimpleSearchBar Grid.Row="0" x:Name="FileSystemSearchBar" Margin="0,0,0,10"/>
             <DataGrid x:Name="FilesDataGrid"
-                  Grid.Row="0"
+                  Grid.Row="1"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   CanUserSortColumns="True"

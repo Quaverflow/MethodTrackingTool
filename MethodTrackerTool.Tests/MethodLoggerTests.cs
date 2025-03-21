@@ -7,10 +7,9 @@ namespace MethodTracker.Tests;
 public class MethodLoggerTests
 {
     [Fact]
-    [TestToWatch]
     public async Task Sample()
     {
-            MethodLogger.Initialize();
+            MethodLogger.Initialize("Sample");
             await new OrderService().ProcessOrderAsync(new OrderRequest
             {
                 UserId = 13,

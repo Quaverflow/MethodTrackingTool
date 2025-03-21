@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using MethodTrackerVisualizer.Helpers;
 using static MethodTrackerVisualizer.Views.DiffHelper;
 
 namespace MethodTrackerVisualizer.Views
@@ -31,8 +30,8 @@ namespace MethodTrackerVisualizer.Views
 
         private void UpdateDiffViewer()
         {
-            LogEntry leftLog = LeftPanel.Selected.Data.Single();
-            LogEntry rightLog = RightPanel.Selected.Data.Single();
+            var leftLog = LeftPanel.Selected.Data.Single();
+            var rightLog = RightPanel.Selected.Data.Single();
             if (LeftPanel.Selected != null && RightPanel.Selected != null)
             {
                 var diffTree = DiffLogEntries(leftLog, rightLog);

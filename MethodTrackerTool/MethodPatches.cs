@@ -13,39 +13,19 @@ using MethodTrackerTool.Public;
 namespace MethodTrackerTool;
 internal class TestResults(string name)
 {
+    public string Name { get; } = name;
     public readonly List<LogEntry> TopLevelCalls = [];
     public readonly Stack<LogEntry> CallStack = [];
     public readonly List<Exception> UnexpectedIssues = [];
-    public string Name { get; set; } = name;
 }
 
-internal static class TestPatches
-{
-    public static readonly List<MethodInfo> Tests = [];
-    private const BindingFlags _bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-    
-    public static void PatchTests()
-    {
-        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        foreach (var method in assemblies.SelectMany(x => x.GetTypes().SelectMany(y => y.GetMethods(_bindingFlags))))
-        {
-            if (method.GetCustomAttribute<TestToWatchAttribute>() != null)
-            {
-                Tests.Add(method);
-                MethodPatches.Tests.TryAdd(method.DeclaringType?.FullName + "." + method.Name, new(method.DeclaringType?.FullName + "." + method.Name));
-            }
-        }
-    }
-}
 internal static class MethodPatches
 {
-    public static readonly ConcurrentDictionary<string, TestResults> Tests = [];
-
+    public static TestResults Result;
     public static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
     {
         try
         {
-            var testResults = GetTestResults();
 
             var parameters = __originalMethod.GetParameters();
             var argsDictionary =
@@ -63,24 +43,18 @@ internal static class MethodPatches
                 Parameters = argsDictionary ?? [],
                 RawStartTime = DateTime.UtcNow
             };
-            if (testResults.CallStack.Count == 0)
+            if (Result.CallStack.Count == 0)
             {
                 entry.IsEntryMethod = true;
             }
             entry.StartTime = entry.RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
 
-            testResults.CallStack.Push(entry);
+            Result.CallStack.Push(entry);
         }
         catch (Exception e)
         {
             ReportIssue(e, MethodSection.Entry);
         }
-    }
-
-    private static TestResults GetTestResults()
-    {
-        var testId = TestTracking.GetOrAssignTestId();
-        return Tests[testId];
     }
 
     public static void LogVoidMethodExit(MethodInfo __originalMethod)
@@ -97,7 +71,6 @@ internal static class MethodPatches
 
     public static void Finalizer(MethodInfo __originalMethod, Exception __exception)
     {
-        var testResults = GetTestResults();
         try
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -108,7 +81,7 @@ internal static class MethodPatches
         }
         catch (Exception e)
         {
-            testResults.UnexpectedIssues.Add(e);
+            Result.UnexpectedIssues.Add(e);
         }
     }
 
@@ -153,9 +126,8 @@ internal static class MethodPatches
     /// <param name="methodSection"></param>
     private static void ReportIssue(Exception e, MethodSection methodSection)
     {
-        var testResults = GetTestResults();
-        testResults.UnexpectedIssues.Add(e);
-        if (testResults.CallStack.Count == 0)
+        Result.UnexpectedIssues.Add(e);
+        if (Result.CallStack.Count == 0)
         {
             return;
         }
@@ -164,29 +136,27 @@ internal static class MethodPatches
         {
             if (methodSection == MethodSection.Exit)
             {
-                testResults.CallStack.Pop();
+                Result.CallStack.Pop();
             }
             else
             {
-                testResults.CallStack.Push(new LogEntry());
+                Result.CallStack.Push(new LogEntry());
             }
         }
         catch (Exception exception)
         {
-            testResults.UnexpectedIssues.Add(exception);
+            Result.UnexpectedIssues.Add(exception);
         }
     }
 
-
     private static void Finalize(MethodInfo originalMethod, object? result, params Exception?[]? exceptions)
     {
-        var testResults = GetTestResults();
-        if (testResults.CallStack.Count == 0)
+        if (Result.CallStack.Count == 0)
         {
             return;
         }
 
-        var entry = testResults.CallStack.Pop();
+        var entry = Result.CallStack.Pop();
         entry.RawEndTime = DateTime.UtcNow;
         entry.MemoryAfter = GC.GetTotalMemory(false);
         entry.EndTime = entry.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
@@ -200,13 +170,13 @@ internal static class MethodPatches
             throw new ArgumentNullException(nameof(entry));
         }
 
-        if (testResults.CallStack.Count > 0)
+        if (Result.CallStack.Count > 0)
         {
-            testResults.CallStack.Peek().Children.Add(entry);
+            Result.CallStack.Peek().Children.Add(entry);
         }
         else
         {
-            testResults.TopLevelCalls.Add(entry);
+            Result.TopLevelCalls.Add(entry);
         }
 
     }
