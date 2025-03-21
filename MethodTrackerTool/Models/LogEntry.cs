@@ -7,6 +7,9 @@ namespace MethodTrackerTool.Models;
 public class LogEntry
 {
     [System.Text.Json.Serialization.JsonIgnore]
+    public LogEntry? Parent { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool IsEntryMethod { get; set; }
   
     [System.Text.Json.Serialization.JsonIgnore]
@@ -45,4 +48,28 @@ public class LogEntry
     public Exception[]? Exceptions { get; set; }
 
     public List<LogEntry> Children { get; set; } = [];
+
+    public LogEntry Clone()
+    {
+        var clone = new LogEntry
+        {
+            MethodName = MethodName,
+            Parameters = Parameters.ToDictionary(kv => kv.Key, kv => kv.Value),
+            ReturnType = ReturnType,
+            ReturnValue = ReturnValue,
+            StartTime = StartTime,
+            EndTime = EndTime,
+            ElapsedTime = ElapsedTime,
+            ExclusiveElapsedTime = ExclusiveElapsedTime,
+            MemoryBefore = MemoryBefore,
+            MemoryAfter = MemoryAfter,
+            Exceptions = Exceptions?.ToArray(),
+            IsEntryMethod = IsEntryMethod,
+            RawStartTime = RawStartTime,
+            RawEndTime = RawEndTime,
+            Children = Children.Select(child => child.Clone()).ToList()
+        };
+
+        return clone;
+    }
 }

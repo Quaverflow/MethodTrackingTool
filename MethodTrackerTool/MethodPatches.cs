@@ -1,82 +1,85 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
-using MethodTrackerTool.Public;
 
-// ReSharper disable InconsistentNaming
-
-namespace MethodTrackerTool;
 internal class TestResults(string name)
 {
     public string Name { get; } = name;
-    public readonly List<LogEntry> TopLevelCalls = [];
-    public readonly Stack<LogEntry> CallStack = [];
-    public readonly List<Exception> UnexpectedIssues = [];
+    public readonly List<LogEntry> TopLevelCalls = new();
+    public readonly List<Exception> UnexpectedIssues = new();
 }
 
 internal static class MethodPatches
 {
     public static TestResults Result;
-    public static void LogMethodEntry(MethodInfo __originalMethod, object?[]? __args)
+    public static LogEntry? Current;
+    public static void Prefix(MethodInfo __originalMethod, object?[]? __args, out LogEntry __state)
     {
         try
         {
-
             var parameters = __originalMethod.GetParameters();
-            var argsDictionary =
-                __args?.Select((arg, i) => new
+            var argsDictionary = __args?
+                .Select((arg, i) => new
                 {
                     Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
                     Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
                 })
-                    .ToDictionary(x => x.Key, x => x.Value);
+                .ToDictionary(x => x.Key, x => x.Value)
+                ?? new Dictionary<string, object>();
 
             var entry = new LogEntry
             {
                 MemoryBefore = GC.GetTotalMemory(false),
                 MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
-                Parameters = argsDictionary ?? [],
-                RawStartTime = DateTime.UtcNow
+                Parameters = argsDictionary,
+                RawStartTime = DateTime.UtcNow,
+                StartTime = DateTime.UtcNow.ToString("HH:mm:ss:ff d/M/yyyy"),
+                Parent = Current
             };
-            if (Result.CallStack.Count == 0)
+
+            __state = entry;
+            Current = entry;
+        }
+        catch (Exception e)
+        {
+            __state = new LogEntry { MethodName = __originalMethod.Name };
+            Result.UnexpectedIssues.Add(e);
+        }
+    }
+
+    public static void Postfix(MethodInfo __originalMethod, object? __result, LogEntry __state)
+    {
+        PostfixInternal(__originalMethod, __result, __state);
+    }
+
+    public static void VoidPostfix(MethodInfo __originalMethod, LogEntry __state)
+    {
+        PostfixInternal(__originalMethod, "void", __state);
+    }
+
+    private static void PostfixInternal(MethodInfo __originalMethod, object? __result, LogEntry __state)
+    {
+        try
+        {
+            __state.RawEndTime = DateTime.UtcNow;
+            __state.MemoryAfter = GC.GetTotalMemory(false);
+            __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
+            var elapsed = __state.RawEndTime - __state.RawStartTime;
+            __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F3} ms";
+            __state.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(__originalMethod);
+            __state.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(__result);
+
+            Current = __state.Parent;
+            if (__state.Parent != null)
             {
-                entry.IsEntryMethod = true;
+                __state.Parent.Children.Add(__state);
             }
-            entry.StartTime = entry.RawStartTime.ToString("HH:mm:ss:ff d/M/yyyy");
-
-            Result.CallStack.Push(entry);
-        }
-        catch (Exception e)
-        {
-            ReportIssue(e, MethodSection.Entry);
-        }
-    }
-
-    public static void LogVoidMethodExit(MethodInfo __originalMethod)
-    {
-        try
-        {
-            Finalize(__originalMethod, "void");
-        }
-        catch (Exception e)
-        {
-            ReportIssue(e, MethodSection.Exit);
-        }
-    }
-
-    public static void Finalizer(MethodInfo __originalMethod, Exception __exception)
-    {
-        try
-        {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (__exception != null)
+            else
             {
-                Finalize(__originalMethod, "n/a", __exception);
+                Result.TopLevelCalls.Add(__state);
             }
         }
         catch (Exception e)
@@ -85,105 +88,35 @@ internal static class MethodPatches
         }
     }
 
-    public static void LogMethodExit(MethodInfo __originalMethod, object? __result)
+    public static void Finalizer(MethodInfo __originalMethod, Exception __exception, LogEntry __state)
     {
+        if (__exception == null)
+        {
+            return;
+        }
         try
         {
-            if (__result is Task task)
+            __state.RawEndTime = DateTime.UtcNow;
+            __state.MemoryAfter = GC.GetTotalMemory(false);
+            __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
+            var elapsed = __state.RawEndTime - __state.RawStartTime;
+            __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F3} ms";
+            __state.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(__originalMethod);
+            __state.Exceptions = [__exception];
+
+            Current = __state.Parent;
+            if (__state.Parent != null)
             {
-                task.ContinueWith(t =>
-                {
-                    if (t.Exception?.InnerExceptions is { Count: > 0 } exceptions)
-                    {
-                        Finalize(__originalMethod, "n/a", [.. exceptions]);
-                    }
-                    else
-                    {
-                        var taskResult = t.GetType().GenericTypeArguments.Any()
-                            ? MethodLoggerHelpers.GetTaskResult(t)
-                            : t;
-                        Finalize(__originalMethod, taskResult);
-                    }
-                });
+                __state.Parent.Children.Add(__state);
             }
             else
             {
-                Finalize(__originalMethod, __result);
+                Result.TopLevelCalls.Add(__state);
             }
         }
         catch (Exception e)
         {
-            ReportIssue(e, MethodSection.Exit);
+            Result.UnexpectedIssues.Add(e);
         }
-    }
-
-    /// <summary>
-    /// The idea is that we report the issue and:
-    /// If we are in the method entry we push an empty entry in the stack, which will be popped off when the method exits.
-    /// If we're in the exit or exception we then pop the method off the list.
-    /// </summary>
-    /// <param name="e"></param>
-    /// <param name="methodSection"></param>
-    private static void ReportIssue(Exception e, MethodSection methodSection)
-    {
-        Result.UnexpectedIssues.Add(e);
-        if (Result.CallStack.Count == 0)
-        {
-            return;
-        }
-
-        try
-        {
-            if (methodSection == MethodSection.Exit)
-            {
-                Result.CallStack.Pop();
-            }
-            else
-            {
-                Result.CallStack.Push(new LogEntry());
-            }
-        }
-        catch (Exception exception)
-        {
-            Result.UnexpectedIssues.Add(exception);
-        }
-    }
-
-    private static void Finalize(MethodInfo originalMethod, object? result, params Exception?[]? exceptions)
-    {
-        if (Result.CallStack.Count == 0)
-        {
-            return;
-        }
-
-        var entry = Result.CallStack.Pop();
-        entry.RawEndTime = DateTime.UtcNow;
-        entry.MemoryAfter = GC.GetTotalMemory(false);
-        entry.EndTime = entry.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
-        entry.ElapsedTime = $"{entry.RawElapsedMilliseconds:F3} ms";
-        entry.ExclusiveElapsedTime = $"{entry.RawExclusiveElapsedMilliseconds:F3} ms";
-        entry.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(originalMethod);
-        entry.Exceptions = exceptions?.OfType<Exception>().ToArray();
-        entry.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(result);
-        if (entry == null)
-        {
-            throw new ArgumentNullException(nameof(entry));
-        }
-
-        if (Result.CallStack.Count > 0)
-        {
-            Result.CallStack.Peek().Children.Add(entry);
-        }
-        else
-        {
-            Result.TopLevelCalls.Add(entry);
-        }
-
-    }
-
-    private enum MethodSection
-    {
-        Entry,
-        Exit
     }
 }

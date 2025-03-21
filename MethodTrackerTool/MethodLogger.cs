@@ -67,10 +67,10 @@ public static class MethodLogger
         foreach (var method in methods)
         {
             var postfixMethodName = method.ReturnType == typeof(void)
-                ? nameof(MethodPatches.LogVoidMethodExit)
-                : nameof(MethodPatches.LogMethodExit);
+                ? nameof(MethodPatches.VoidPostfix)
+                : nameof(MethodPatches.Postfix);
 
-            var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.LogMethodEntry), _bindingFlags));
+            var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Prefix), _bindingFlags));
             var postfix = new HarmonyMethod(typeof(MethodPatches).GetMethod(postfixMethodName, _bindingFlags));
             var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), _bindingFlags));
             try
