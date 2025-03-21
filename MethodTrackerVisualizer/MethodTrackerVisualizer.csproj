@@ -64,6 +64,7 @@
     <Compile Include="Helpers\Converters\LogEntryToExceptionStringConverter.cs" />
     <Compile Include="Helpers\Converters\LogEntryToFormattedStringConverter.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
+    <Compile Include="Helpers\FileItem.cs" />
     <Compile Include="Helpers\LogEntry.cs" />
     <Compile Include="Helpers\LogEntryHelpers.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />

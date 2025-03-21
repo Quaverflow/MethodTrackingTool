@@ -98,14 +98,15 @@
                     <DataGridTemplateColumn Header="File Name" SortMemberPath="FileName" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="{Binding FileName}"
-                      Background="Transparent"
-                      BorderThickness="0"
-                      Foreground="White"
-                      HorizontalAlignment="Left"
-                      Padding="10"
-                            
-                      Click="FileNameButton_Click"/>
+                                <CheckBox Content="{Binding FileName}"
+                                          Background="White"
+                                          BorderThickness="0"
+                                          Foreground="White"
+                                          HorizontalAlignment="Left"
+                                          Padding="5, 0, 0, 0"
+                                          VerticalAlignment="Center"
+                                          Click="ToggleButton_OnChecked"
+                                          IsChecked="{Binding Selected, Mode=TwoWay}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

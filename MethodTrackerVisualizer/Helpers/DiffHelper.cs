@@ -4,6 +4,7 @@ using MethodTrackerVisualizer.Helpers;
 using Newtonsoft.Json;
 
 namespace MethodTrackerVisualizer.Views;
+
 public static class DiffHelper
 {
     public static bool DeepEquals(object a, object b)
