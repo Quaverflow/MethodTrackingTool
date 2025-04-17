@@ -95,7 +95,7 @@ public class PaymentService
         Console.WriteLine("PaymentService: Charging user.");
         await Task.Delay(300);
         var success = order.TotalAmount < 1000;
-        var transactionId = success ? Guid.NewGuid().ToString() : user.ToString() ?? "";
+        var transactionId = success ? "SUCCESS" : user.Name;
         Console.WriteLine("PaymentService: Charge completed.");
         return new PaymentResult { Success = success, TransactionId = transactionId };
     }

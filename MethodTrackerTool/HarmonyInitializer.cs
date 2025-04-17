@@ -32,7 +32,7 @@ public static class HarmonyInitializer
     {
         var methods = targetAssembly.GetTypes()
             .Where(type => !TypeHelpers.IsSystemType(type) && !TypeHelpers.IsTestType(type))
-            .SelectMany(type => type.GetMethods(MethodLoggerHelpers.CommonBindingFlags))
+            .SelectMany(type => type.GetMethods(CommonHelpers.CommonBindingFlags))
             .Where(MethodHelpers.IsValidMethod);
 
         foreach (var method in methods)
@@ -41,9 +41,9 @@ public static class HarmonyInitializer
                 ? nameof(MethodPatches.VoidPostfix)
                 : nameof(MethodPatches.Postfix);
 
-            var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Prefix), MethodLoggerHelpers.CommonBindingFlags));
-            var postfix = new HarmonyMethod(typeof(MethodPatches).GetMethod(postfixMethodName, MethodLoggerHelpers.CommonBindingFlags));
-            var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), MethodLoggerHelpers.CommonBindingFlags));
+            var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Prefix), Helpers.CommonHelpers.CommonBindingFlags));
+            var postfix = new HarmonyMethod(typeof(MethodPatches).GetMethod(postfixMethodName, Helpers.CommonHelpers.CommonBindingFlags));
+            var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), Helpers.CommonHelpers.CommonBindingFlags));
             try
             {
                 _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix, finalizer: finalizer);

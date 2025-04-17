@@ -1,0 +1,572 @@
+[
+  {
+    "MethodName": "OrderService.ProcessOrderAsync",
+    "Parameters": {
+      "MethodTracker.MockProject.OrderRequest request": {
+        "UserId": 13,
+        "ProductIds": [
+          1,
+          4,
+          55,
+          342,
+          33,
+          334,
+          864,
+          268,
+          1042
+        ],
+        "TotalAmount": 20.0,
+        "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+      }
+    },
+    "ReturnValue": {
+      "OrderId": null,
+      "Customer": {
+        "Id": 0,
+        "Name": "",
+        "Age": 0
+      },
+      "ProductIds": [],
+      "TotalAmount": 0.0,
+      "OrderDate": "0001-01-01T00:00:00",
+      "Type": null,
+      "CultureInfo": null
+    },
+    "ReturnType": "System.Threading.Tasks.Task<MethodTracker.MockProject.Order>",
+    "Exceptions": null,
+    "StartTime": "22:23:11:16 17/4/2025",
+    "EndTime": "22:23:11:68 17/4/2025",
+    "ElapsedTime": "529.792 ms",
+    "ExclusiveElapsedTime": null,
+    "MemoryBefore": 9403960,
+    "MemoryAfter": 9681968,
+    "MemoryIncrease": 278008,
+    "Children": [
+      {
+        "MethodName": "OrderService.ValidateOrder",
+        "Parameters": {
+          "MethodTracker.MockProject.OrderRequest request": {
+            "UserId": 13,
+            "ProductIds": [
+              1,
+              4,
+              55,
+              342,
+              33,
+              334,
+              864,
+              268,
+              1042
+            ],
+            "TotalAmount": 20.0,
+            "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+          }
+        },
+        "ReturnValue": "void",
+        "ReturnType": "System.Void",
+        "Exceptions": null,
+        "StartTime": "22:23:11:16 17/4/2025",
+        "EndTime": "22:23:11:16 17/4/2025",
+        "ElapsedTime": "0.328 ms",
+        "ExclusiveElapsedTime": null,
+        "MemoryBefore": 9420408,
+        "MemoryAfter": 9420408,
+        "MemoryIncrease": 0,
+        "Children": []
+      },
+      {
+        "MethodName": "UserService.GetUser",
+        "Parameters": {
+          "System.Int32 id": 13
+        },
+        "ReturnValue": {
+          "Id": 13,
+          "Name": "User-13",
+          "Age": 23
+        },
+        "ReturnType": "MethodTracker.MockProject.User",
+        "Exceptions": null,
+        "StartTime": "22:23:11:16 17/4/2025",
+        "EndTime": "22:23:11:16 17/4/2025",
+        "ElapsedTime": "0.218 ms",
+        "ExclusiveElapsedTime": null,
+        "MemoryBefore": 9428632,
+        "MemoryAfter": 9428632,
+        "MemoryIncrease": 0,
+        "Children": [
+          {
+            "MethodName": "UserService.GenerateUserName",
+            "Parameters": {
+              "System.Int32 id": 13
+            },
+            "ReturnValue": "User-13",
+            "ReturnType": "System.String",
+            "Exceptions": null,
+            "StartTime": "22:23:11:16 17/4/2025",
+            "EndTime": "22:23:11:16 17/4/2025",
+            "ElapsedTime": "0.040 ms",
+            "ExclusiveElapsedTime": null,
+            "MemoryBefore": 9428632,
+            "MemoryAfter": 9428632,
+            "MemoryIncrease": 0,
+            "Children": []
+          },
+          {
+            "MethodName": "UserService.CalculateUserAge",
+            "Parameters": {
+              "System.Int32 id": 13
+            },
+            "ReturnValue": 23,
+            "ReturnType": "System.Int32",
+            "Exceptions": null,
+            "StartTime": "22:23:11:16 17/4/2025",
+            "EndTime": "22:23:11:16 17/4/2025",
+            "ElapsedTime": "0.013 ms",
+            "ExclusiveElapsedTime": null,
+            "MemoryBefore": 9428632,
+            "MemoryAfter": 9428632,
+            "MemoryIncrease": 0,
+            "Children": []
+          }
+        ]
+      },
+      {
+        "MethodName": "OrderService.BuildOrder",
+        "Parameters": {
+          "MethodTracker.MockProject.OrderRequest request": {
+            "UserId": 13,
+            "ProductIds": [
+              1,
+              4,
+              55,
+              342,
+              33,
+              334,
+              864,
+              268,
+              1042
+            ],
+            "TotalAmount": 20.0,
+            "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+          },
+          "MethodTracker.MockProject.User customer": {
+            "Id": 13,
+            "Name": "User-13",
+            "Age": 23
+          }
+        },
+        "ReturnValue": {
+          "OrderId": "SampleTest",
+          "Customer": {
+            "Id": 13,
+            "Name": "User-13",
+            "Age": 23
+          },
+          "ProductIds": [
+            1,
+            4,
+            55,
+            342,
+            33,
+            334,
+            864,
+            268,
+            1042
+          ],
+          "TotalAmount": 20.0,
+          "OrderDate": "2025-04-17T00:00:00",
+          "Type": "System.Type object is not serializable.",
+          "CultureInfo": "System.CultureInfo is removed."
+        },
+        "ReturnType": "MethodTracker.MockProject.Order",
+        "Exceptions": null,
+        "StartTime": "22:23:11:16 17/4/2025",
+        "EndTime": "22:23:11:16 17/4/2025",
+        "ElapsedTime": "0.301 ms",
+        "ExclusiveElapsedTime": null,
+        "MemoryBefore": 9428632,
+        "MemoryAfter": 9436856,
+        "MemoryIncrease": 8224,
+        "Children": []
+      },
+      {
+        "MethodName": "InventoryService.ReserveInventoryAsync",
+        "Parameters": {
+          "MethodTracker.MockProject.Order order": {
+            "OrderId": "SampleTest",
+            "Customer": {
+              "Id": 13,
+              "Name": "User-13",
+              "Age": 23
+            },
+            "ProductIds": [
+              1,
+              4,
+              55,
+              342,
+              33,
+              334,
+              864,
+              268,
+              1042
+            ],
+            "TotalAmount": 20.0,
+            "OrderDate": "2025-04-17T00:00:00",
+            "Type": "System.Type object is not serializable.",
+            "CultureInfo": "System.CultureInfo is removed."
+          }
+        },
+        "ReturnValue": null,
+        "ReturnType": "System.Threading.Tasks.Task<System.Boolean>",
+        "Exceptions": null,
+        "StartTime": "22:23:11:16 17/4/2025",
+        "EndTime": "22:23:11:16 17/4/2025",
+        "ElapsedTime": "0.742 ms",
+        "ExclusiveElapsedTime": null,
+        "MemoryBefore": 9436856,
+        "MemoryAfter": 9436856,
+        "MemoryIncrease": 0,
+        "Children": []
+      },
+      {
+        "MethodName": "PaymentService.ChargeUserAsync",
+        "Parameters": {
+          "MethodTracker.MockProject.User user": {
+            "Id": 13,
+            "Name": "User-13",
+            "Age": 23
+          },
+          "MethodTracker.MockProject.Order order": {
+            "OrderId": "SampleTest",
+            "Customer": {
+              "Id": 13,
+              "Name": "User-13",
+              "Age": 23
+            },
+            "ProductIds": [
+              1,
+              4,
+              55,
+              342,
+              33,
+              334,
+              864,
+              268,
+              1042
+            ],
+            "TotalAmount": 20.0,
+            "OrderDate": "2025-04-17T00:00:00",
+            "Type": "System.Type object is not serializable.",
+            "CultureInfo": "System.CultureInfo is removed."
+          }
+        },
+        "ReturnValue": null,
+        "ReturnType": "System.Threading.Tasks.Task<MethodTracker.MockProject.PaymentResult>",
+        "Exceptions": null,
+        "StartTime": "22:23:11:37 17/4/2025",
+        "EndTime": "22:23:11:37 17/4/2025",
+        "ElapsedTime": "0.841 ms",
+        "ExclusiveElapsedTime": null,
+        "MemoryBefore": 9461528,
+        "MemoryAfter": 9461528,
+        "MemoryIncrease": 0,
+        "Children": []
+      },
+      {
+        "MethodName": "OrderService.SaveOrder",
+        "Parameters": {
+          "MethodTracker.MockProject.Order order": {
+            "OrderId": "SampleTest",
+            "Customer": {
+              "Id": 13,
+              "Name": "User-13",
+              "Age": 23
+            },
+            "ProductIds": [
+              1,
+              4,
+              55,
+              342,
+              33,
+              334,
+              864,
+              268,
+              1042
+            ],
+            "TotalAmount": 20.0,
+            "OrderDate": "2025-04-17T00:00:00",
+            "Type": "System.Type object is not serializable.",
+            "CultureInfo": "System.CultureInfo is removed."
+          }
+        },
+        "ReturnValue": "void",
+        "ReturnType": "System.Void",
+        "Exceptions": null,
+        "StartTime": "22:23:11:68 17/4/2025",
+        "EndTime": "22:23:11:68 17/4/2025",
+        "ElapsedTime": "0.169 ms",
+        "ExclusiveElapsedTime": null,
+        "MemoryBefore": 9632880,
+        "MemoryAfter": 9632880,
+        "MemoryIncrease": 0,
+        "Children": [
+          {
+            "MethodName": "OrderService.LogOrder",
+            "Parameters": {
+              "MethodTracker.MockProject.Order order": {
+                "OrderId": "SampleTest",
+                "Customer": {
+                  "Id": 13,
+                  "Name": "User-13",
+                  "Age": 23
+                },
+                "ProductIds": [
+                  1,
+                  4,
+                  55,
+                  342,
+                  33,
+                  334,
+                  864,
+                  268,
+                  1042
+                ],
+                "TotalAmount": 20.0,
+                "OrderDate": "2025-04-17T00:00:00",
+                "Type": "System.Type object is not serializable.",
+                "CultureInfo": "System.CultureInfo is removed."
+              }
+            },
+            "ReturnValue": "void",
+            "ReturnType": "System.Void",
+            "Exceptions": null,
+            "StartTime": "22:23:11:68 17/4/2025",
+            "EndTime": "22:23:11:68 17/4/2025",
+            "ElapsedTime": "0.111 ms",
+            "ExclusiveElapsedTime": null,
+            "MemoryBefore": 9632880,
+            "MemoryAfter": 9632880,
+            "MemoryIncrease": 0,
+            "Children": []
+          }
+        ]
+      },
+      {
+        "MethodName": "NotificationService.SendOrderConfirmation",
+        "Parameters": {
+          "MethodTracker.MockProject.Order order": {
+            "OrderId": "SampleTest",
+            "Customer": {
+              "Id": 13,
+              "Name": "User-13",
+              "Age": 23
+            },
+            "ProductIds": [
+              1,
+              4,
+              55,
+              342,
+              33,
+              334,
+              864,
+              268,
+              1042
+            ],
+            "TotalAmount": 20.0,
+            "OrderDate": "2025-04-17T00:00:00",
+            "Type": "System.Type object is not serializable.",
+            "CultureInfo": "System.CultureInfo is removed."
+          }
+        },
+        "ReturnValue": "void",
+        "ReturnType": "System.Void",
+        "Exceptions": null,
+        "StartTime": "22:23:11:68 17/4/2025",
+        "EndTime": "22:23:11:68 17/4/2025",
+        "ElapsedTime": "6.412 ms",
+        "ExclusiveElapsedTime": null,
+        "MemoryBefore": 9632880,
+        "MemoryAfter": 9681968,
+        "MemoryIncrease": 49088,
+        "Children": [
+          {
+            "MethodName": "NotificationService.DoNotificationWork",
+            "Parameters": {},
+            "ReturnValue": "void",
+            "ReturnType": "System.Void",
+            "Exceptions": null,
+            "StartTime": "22:23:11:68 17/4/2025",
+            "EndTime": "22:23:11:68 17/4/2025",
+            "ElapsedTime": "6.385 ms",
+            "ExclusiveElapsedTime": null,
+            "MemoryBefore": 9632880,
+            "MemoryAfter": 9681968,
+            "MemoryIncrease": 49088,
+            "Children": [
+              {
+                "MethodName": "NotificationService.Capture",
+                "Parameters": {},
+                "ReturnValue": "void",
+                "ReturnType": "System.Void",
+                "Exceptions": null,
+                "StartTime": "22:23:11:68 17/4/2025",
+                "EndTime": "22:23:11:68 17/4/2025",
+                "ElapsedTime": "6.357 ms",
+                "ExclusiveElapsedTime": null,
+                "MemoryBefore": 9632880,
+                "MemoryAfter": 9673744,
+                "MemoryIncrease": 40864,
+                "Children": [
+                  {
+                    "MethodName": "NotificationService.Throw1",
+                    "Parameters": {},
+                    "ReturnValue": null,
+                    "ReturnType": "System.Void",
+                    "Exceptions": [
+                      {
+                        "Message": "test exc",
+                        "StackTrace": [
+                          "   at MethodTracker.MockProject.NotificationService.Throw5_Patch3(NotificationService this)",
+                          "   at MethodTracker.MockProject.NotificationService.Throw4_Patch3(NotificationService this)",
+                          "   at MethodTracker.MockProject.NotificationService.Throw3_Patch3(NotificationService this)",
+                          "   at MethodTracker.MockProject.NotificationService.Throw2_Patch3(NotificationService this)",
+                          "   at MethodTracker.MockProject.NotificationService.Throw1_Patch3(NotificationService this)",
+                          "   at MethodTracker.MockProject.NotificationService.Capture_Patch3(NotificationService this)"
+                        ],
+                        "InnerException": null
+                      }
+                    ],
+                    "StartTime": "22:23:11:68 17/4/2025",
+                    "EndTime": "22:23:11:68 17/4/2025",
+                    "ElapsedTime": "0.643 ms",
+                    "ExclusiveElapsedTime": null,
+                    "MemoryBefore": 9632880,
+                    "MemoryAfter": 9640848,
+                    "MemoryIncrease": 7968,
+                    "Children": [
+                      {
+                        "MethodName": "NotificationService.Throw2",
+                        "Parameters": {},
+                        "ReturnValue": null,
+                        "ReturnType": "System.Void",
+                        "Exceptions": [
+                          {
+                            "Message": "test exc",
+                            "StackTrace": [
+                              "   at MethodTracker.MockProject.NotificationService.Throw5_Patch3(NotificationService this)",
+                              "   at MethodTracker.MockProject.NotificationService.Throw4_Patch3(NotificationService this)",
+                              "   at MethodTracker.MockProject.NotificationService.Throw3_Patch3(NotificationService this)",
+                              "   at MethodTracker.MockProject.NotificationService.Throw2_Patch3(NotificationService this)",
+                              "   at MethodTracker.MockProject.NotificationService.Throw1_Patch3(NotificationService this)",
+                              "   at MethodTracker.MockProject.NotificationService.Capture_Patch3(NotificationService this)"
+                            ],
+                            "InnerException": null
+                          }
+                        ],
+                        "StartTime": "22:23:11:68 17/4/2025",
+                        "EndTime": "22:23:11:68 17/4/2025",
+                        "ElapsedTime": "0.615 ms",
+                        "ExclusiveElapsedTime": null,
+                        "MemoryBefore": 9640848,
+                        "MemoryAfter": 9640848,
+                        "MemoryIncrease": 0,
+                        "Children": [
+                          {
+                            "MethodName": "NotificationService.Throw3",
+                            "Parameters": {},
+                            "ReturnValue": null,
+                            "ReturnType": "System.Void",
+                            "Exceptions": [
+                              {
+                                "Message": "test exc",
+                                "StackTrace": [
+                                  "   at MethodTracker.MockProject.NotificationService.Throw5_Patch3(NotificationService this)",
+                                  "   at MethodTracker.MockProject.NotificationService.Throw4_Patch3(NotificationService this)",
+                                  "   at MethodTracker.MockProject.NotificationService.Throw3_Patch3(NotificationService this)",
+                                  "   at MethodTracker.MockProject.NotificationService.Throw2_Patch3(NotificationService this)",
+                                  "   at MethodTracker.MockProject.NotificationService.Throw1_Patch3(NotificationService this)",
+                                  "   at MethodTracker.MockProject.NotificationService.Capture_Patch3(NotificationService this)"
+                                ],
+                                "InnerException": null
+                              }
+                            ],
+                            "StartTime": "22:23:11:68 17/4/2025",
+                            "EndTime": "22:23:11:68 17/4/2025",
+                            "ElapsedTime": "0.595 ms",
+                            "ExclusiveElapsedTime": null,
+                            "MemoryBefore": 9640848,
+                            "MemoryAfter": 9640848,
+                            "MemoryIncrease": 0,
+                            "Children": [
+                              {
+                                "MethodName": "NotificationService.Throw4",
+                                "Parameters": {},
+                                "ReturnValue": null,
+                                "ReturnType": "System.Void",
+                                "Exceptions": [
+                                  {
+                                    "Message": "test exc",
+                                    "StackTrace": [
+                                      "   at MethodTracker.MockProject.NotificationService.Throw5_Patch3(NotificationService this)",
+                                      "   at MethodTracker.MockProject.NotificationService.Throw4_Patch3(NotificationService this)",
+                                      "   at MethodTracker.MockProject.NotificationService.Throw3_Patch3(NotificationService this)",
+                                      "   at MethodTracker.MockProject.NotificationService.Throw2_Patch3(NotificationService this)",
+                                      "   at MethodTracker.MockProject.NotificationService.Throw1_Patch3(NotificationService this)",
+                                      "   at MethodTracker.MockProject.NotificationService.Capture_Patch3(NotificationService this)"
+                                    ],
+                                    "InnerException": null
+                                  }
+                                ],
+                                "StartTime": "22:23:11:68 17/4/2025",
+                                "EndTime": "22:23:11:68 17/4/2025",
+                                "ElapsedTime": "0.570 ms",
+                                "ExclusiveElapsedTime": null,
+                                "MemoryBefore": 9640848,
+                                "MemoryAfter": 9640848,
+                                "MemoryIncrease": 0,
+                                "Children": [
+                                  {
+                                    "MethodName": "NotificationService.Throw5",
+                                    "Parameters": {},
+                                    "ReturnValue": null,
+                                    "ReturnType": "System.Void",
+                                    "Exceptions": [
+                                      {
+                                        "Message": "test exc",
+                                        "StackTrace": [
+                                          "   at MethodTracker.MockProject.NotificationService.Throw5_Patch3(NotificationService this)",
+                                          "   at MethodTracker.MockProject.NotificationService.Throw4_Patch3(NotificationService this)",
+                                          "   at MethodTracker.MockProject.NotificationService.Throw3_Patch3(NotificationService this)",
+                                          "   at MethodTracker.MockProject.NotificationService.Throw2_Patch3(NotificationService this)",
+                                          "   at MethodTracker.MockProject.NotificationService.Throw1_Patch3(NotificationService this)",
+                                          "   at MethodTracker.MockProject.NotificationService.Capture_Patch3(NotificationService this)"
+                                        ],
+                                        "InnerException": null
+                                      }
+                                    ],
+                                    "StartTime": "22:23:11:68 17/4/2025",
+                                    "EndTime": "22:23:11:68 17/4/2025",
+                                    "ElapsedTime": "0.488 ms",
+                                    "ExclusiveElapsedTime": null,
+                                    "MemoryBefore": 9640848,
+                                    "MemoryAfter": 9640848,
+                                    "MemoryIncrease": 0,
+                                    "Children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

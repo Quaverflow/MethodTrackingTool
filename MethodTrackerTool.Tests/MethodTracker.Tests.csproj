@@ -13,6 +13,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="FluentAssertions" Version="8.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 		<PackageReference Include="xunit" Version="2.9.3" />
@@ -21,7 +22,11 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-
+	<ItemGroup>
+		<None Include="SampleTest.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\MethodTrackerTool.MockProject\MethodTracker.MockProject.csproj" />
 		<ProjectReference Include="..\MethodTrackerTool.TestApi\MethodTrackerTool.TestApi.csproj" />

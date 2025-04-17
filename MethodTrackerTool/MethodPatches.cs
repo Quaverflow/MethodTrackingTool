@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
 
@@ -52,10 +53,10 @@ namespace MethodTrackerTool
                     .Select((arg, i) => new
                     {
                         Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
-                        Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
+                        Value = arg
                     })
                     .ToDictionary(x => x.Key, x => x.Value)
-                    ?? new Dictionary<string, object>();
+                    ?? [];
 
                 // Create new entry
                 var entry = new LogEntry
@@ -112,7 +113,8 @@ namespace MethodTrackerTool
 
                 // Return info
                 __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
-                __state.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(__result);
+
+                __state.ReturnValue = Helpers.CommonHelpers.UnwrapTaskResult(__result);
 
                 // Pop and verify
                 if (stack.Pop() != __state)
