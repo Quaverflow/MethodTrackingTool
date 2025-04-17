@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Text.Json;
-using MethodTrackerTool.Helpers;
 
 namespace MethodTrackerTool;
 

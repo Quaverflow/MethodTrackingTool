@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
 
-internal class TestResults(string name)
-{
-    public string Name { get; } = name;
-    public readonly List<LogEntry> TopLevelCalls = new();
-    public readonly List<Exception> UnexpectedIssues = new();
-}
+namespace MethodTrackerTool;
 
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class MethodPatches
 {
-    public static TestResults Result;
+    public static TestResults Result = null!;
     public static LogEntry? Current;
     public static void Prefix(MethodInfo __originalMethod, object?[]? __args, out LogEntry __state)
     {
@@ -22,13 +19,13 @@ internal static class MethodPatches
         {
             var parameters = __originalMethod.GetParameters();
             var argsDictionary = __args?
-                .Select((arg, i) => new
-                {
-                    Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
-                    Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
-                })
-                .ToDictionary(x => x.Key, x => x.Value)
-                ?? new Dictionary<string, object>();
+                                     .Select((arg, i) => new
+                                     {
+                                         Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
+                                         Value = MethodLoggerHelpers.ConvertToSerializableValue(arg)
+                                     })
+                                     .ToDictionary(x => x.Key, x => x.Value)
+                                 ?? new Dictionary<string, object>();
 
             var entry = new LogEntry
             {
@@ -50,15 +47,11 @@ internal static class MethodPatches
         }
     }
 
-    public static void Postfix(MethodInfo __originalMethod, object? __result, LogEntry __state)
-    {
-        PostfixInternal(__originalMethod, __result, __state);
-    }
+    public static void Postfix(MethodInfo __originalMethod, object? __result, LogEntry __state) 
+        => PostfixInternal(__originalMethod, __result, __state);
 
-    public static void VoidPostfix(MethodInfo __originalMethod, LogEntry __state)
-    {
-        PostfixInternal(__originalMethod, "void", __state);
-    }
+    public static void VoidPostfix(MethodInfo __originalMethod, LogEntry __state) 
+        => PostfixInternal(__originalMethod, "void", __state);
 
     private static void PostfixInternal(MethodInfo __originalMethod, object? __result, LogEntry __state)
     {
@@ -69,7 +62,7 @@ internal static class MethodPatches
             __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
             var elapsed = __state.RawEndTime - __state.RawStartTime;
             __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F3} ms";
-            __state.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(__originalMethod);
+            __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
             __state.ReturnValue = MethodLoggerHelpers.ConvertToSerializableValue(__result);
 
             Current = __state.Parent;
@@ -90,6 +83,7 @@ internal static class MethodPatches
 
     public static void Finalizer(MethodInfo __originalMethod, Exception __exception, LogEntry __state)
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (__exception == null)
         {
             return;
@@ -101,7 +95,7 @@ internal static class MethodPatches
             __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
             var elapsed = __state.RawEndTime - __state.RawStartTime;
             __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F3} ms";
-            __state.ReturnType = MethodLoggerHelpers.BuildReturnTypeString(__originalMethod);
+            __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
             __state.Exceptions = [__exception];
 
             Current = __state.Parent;
