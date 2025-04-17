@@ -19,7 +19,7 @@ public class OrderRequest
 
 public class Order
 {
-    public int OrderId { get; set; }
+    public string OrderId { get; set; }
     public User Customer { get; set; } = new();
     public List<int> ProductIds { get; set; } = [];
     public decimal TotalAmount { get; set; }
@@ -34,7 +34,7 @@ public class PaymentResult
     public string TransactionId { get; set; } = "";
 }
 
-public class OrderService
+public class OrderService(string nextOrderId, DateTime now)
 {
     public async Task<Order> ProcessOrderAsync(OrderRequest request)
     {
@@ -66,11 +66,11 @@ public class OrderService
         Console.WriteLine("OrderService: Building order.");
         return new Order
         {
-            OrderId = new Random().Next(1000, 9999),
+            OrderId = nextOrderId,
             Customer = customer,
             ProductIds = request.ProductIds,
             TotalAmount = request.TotalAmount,
-            OrderDate = DateTime.Now,
+            OrderDate = now,
             Type = GetType(),
             CultureInfo = CultureInfo.CurrentCulture
         };

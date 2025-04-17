@@ -20,7 +20,7 @@ public interface IWeatherForecastService
 
 public class WeatherForecastService : IWeatherForecastService
 {
-    public async Task Call() => await new OrderService().ProcessOrderAsync(new OrderRequest
+    public async Task Call() => await new OrderService("ApiCall", DateTime.Now).ProcessOrderAsync(new OrderRequest
     {
         UserId = 13,
         ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],
