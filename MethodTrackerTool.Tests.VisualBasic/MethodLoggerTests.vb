@@ -6,7 +6,7 @@ Public Class MethodLoggerTests
 
     <Fact>
     Public Async Function Sample() As Task
-        MethodLogger.Initialize("Sample")
+        MethodLogger.Initialize()
 
         Await New OrderService().ProcessOrderAsync(New OrderRequest With {
                                                       .UserId = 13,

@@ -20,13 +20,12 @@ namespace MethodTracker.Tests
         }
 
         [Fact]
-        public async Task Get_Endpoint_ReturnsSuccessStatusCode()
-        {
-            MethodLogger.Initialize("Get_Endpoint_ReturnsSuccessStatusCode");
-            var response = await _client.GetAsync("/WeatherForecast"); // Adjust the URL as needed.
-            response.EnsureSuccessStatusCode();
-            MethodLogger.PrintJson();
-        }
+        public async Task Get_Endpoint_ReturnsSuccessStatusCode() =>
+            await  MethodLogger.InitializeAsync("Get_Endpoint_ReturnsSuccessStatusCode", async () =>
+            {
+                var response = await _client.GetAsync("/WeatherForecast"); // Adjust the URL as needed.
+                response.EnsureSuccessStatusCode();
+            });
 
         public void Dispose()
         {
