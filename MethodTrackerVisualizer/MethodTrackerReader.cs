@@ -21,8 +21,8 @@ public class MethodTrackerReader : ToolWindowPane
     /// </summary>
     public MethodTrackerReader() : base(null)
     {
-        this.Caption = "MethodTrackerReader";
+        Caption = "MethodTrackerReader";
         // ReSharper disable once VirtualMemberCallInConstructor
-        this.Content = new Components.MethodTrackerReader();
+        Content = new Components.MethodTrackerReader();
     }
 }

@@ -47,7 +47,7 @@ public sealed class MethodTrackerVisualizerPackage : AsyncPackage
         
 
 
-        await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+        await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
         await MethodTrackerReaderCommand.InitializeAsync(this);
     }
 }

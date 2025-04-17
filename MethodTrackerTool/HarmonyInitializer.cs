@@ -41,9 +41,9 @@ public static class HarmonyInitializer
                 ? nameof(MethodPatches.VoidPostfix)
                 : nameof(MethodPatches.Postfix);
 
-            var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Prefix), Helpers.CommonHelpers.CommonBindingFlags));
-            var postfix = new HarmonyMethod(typeof(MethodPatches).GetMethod(postfixMethodName, Helpers.CommonHelpers.CommonBindingFlags));
-            var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), Helpers.CommonHelpers.CommonBindingFlags));
+            var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Prefix), CommonHelpers.CommonBindingFlags));
+            var postfix = new HarmonyMethod(typeof(MethodPatches).GetMethod(postfixMethodName, CommonHelpers.CommonBindingFlags));
+            var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), CommonHelpers.CommonBindingFlags));
             try
             {
                 _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix, finalizer: finalizer);

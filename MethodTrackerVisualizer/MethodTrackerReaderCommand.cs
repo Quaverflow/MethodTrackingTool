@@ -38,7 +38,7 @@ internal sealed class MethodTrackerReaderCommand
         commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
         var menuCommandID = new CommandID(CommandSet, CommandId);
-        var menuItem = new MenuCommand(this.Execute, menuCommandID);
+        var menuItem = new MenuCommand(Execute, menuCommandID);
         commandService.AddCommand(menuItem);
     }
 
@@ -54,7 +54,7 @@ internal sealed class MethodTrackerReaderCommand
     /// <summary>
     /// Gets the service provider from the owner package.
     /// </summary>
-    private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider => this.package;
+    private IAsyncServiceProvider ServiceProvider => package;
 
     /// <summary>
     /// Initializes the singleton instance of the command.
@@ -75,9 +75,9 @@ internal sealed class MethodTrackerReaderCommand
     /// <param name="e">The event args.</param>
     private void Execute(object sender, EventArgs e)
     {
-        this.package.JoinableTaskFactory.RunAsync(async delegate
+        package.JoinableTaskFactory.RunAsync(async delegate
         {
-            var window = await this.package.ShowToolWindowAsync(typeof(MethodTrackerReader), 0, true, this.package.DisposalToken);
+            var window = await package.ShowToolWindowAsync(typeof(MethodTrackerReader), 0, true, package.DisposalToken);
             if ((null == window) || (null == window.Frame))
             {
                 throw new NotSupportedException("Cannot create tool window");

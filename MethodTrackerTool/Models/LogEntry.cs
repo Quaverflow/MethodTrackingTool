@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace MethodTrackerTool.Models;
@@ -21,14 +22,11 @@ public class LogEntry
     [System.Text.Json.Serialization.JsonIgnore]
     public double RawElapsedMilliseconds => (RawEndTime - RawStartTime).TotalMilliseconds;
    
-    [System.Text.Json.Serialization.JsonIgnore]
-    public double RawExclusiveElapsedMilliseconds => GetRawExclusiveElapsedMilliseconds();
-
-    private double GetRawExclusiveElapsedMilliseconds()
+    private string GetExclusiveElapsedMilliseconds()
     {
         var result = RawElapsedMilliseconds - Children.Sum(child => child.RawElapsedMilliseconds);
-
-        return result < 0 ? 0 : result;
+        var value = result < 0 ? 0 : result;
+        return value.ToString(CultureInfo.InvariantCulture);
     }
 
     public string MethodName { get; set; } = "";
@@ -39,7 +37,7 @@ public class LogEntry
     public string? StartTime { get; set; }
     public string? EndTime { get; set; }
     public string? ElapsedTime { get; set; }
-    public string? ExclusiveElapsedTime { get; set; }
+    public string? ExclusiveElapsedTime => GetExclusiveElapsedMilliseconds();
 
     public long MemoryBefore { get; set; }
     public long MemoryAfter { get; set; }
@@ -60,7 +58,6 @@ public class LogEntry
             StartTime = StartTime,
             EndTime = EndTime,
             ElapsedTime = ElapsedTime,
-            ExclusiveElapsedTime = ExclusiveElapsedTime,
             MemoryBefore = MemoryBefore,
             MemoryAfter = MemoryAfter,
             Exceptions = Exceptions?.ToArray(),

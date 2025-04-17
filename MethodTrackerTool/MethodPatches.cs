@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
 
@@ -44,10 +43,8 @@ namespace MethodTrackerTool
                 var testId = CurrentTestId.Value ?? throw new InvalidOperationException("InitializeForTest was not called.");
                 var stack = CallStacks[testId];
 
-                // Parent is the top of stack, if any
                 var parent = stack.Count > 0 ? stack.Peek() : null;
 
-                // Build argument dictionary
                 var parameters = __originalMethod.GetParameters();
                 var argsDictionary = __args?
                     .Select((arg, i) => new
@@ -58,7 +55,6 @@ namespace MethodTrackerTool
                     .ToDictionary(x => x.Key, x => x.Value)
                     ?? [];
 
-                // Create new entry
                 var entry = new LogEntry
                 {
                     MemoryBefore = GC.GetTotalMemory(false),
@@ -69,7 +65,6 @@ namespace MethodTrackerTool
                     Parent = parent
                 };
 
-                // Push and assign
                 stack.Push(entry);
                 __state = entry;
             }
@@ -104,25 +99,21 @@ namespace MethodTrackerTool
                 var results = ResultsByTest[testId];
                 var stack = CallStacks[testId];
 
-                // Populate timing and memory
                 __state.RawEndTime = DateTime.UtcNow;
                 __state.MemoryAfter = GC.GetTotalMemory(false);
                 __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
                 var elapsed = __state.RawEndTime - __state.RawStartTime;
                 __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F3} ms";
 
-                // Return info
                 __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
 
-                __state.ReturnValue = Helpers.CommonHelpers.UnwrapTaskResult(__result);
+                __state.ReturnValue = CommonHelpers.UnwrapTaskResult(__result);
 
-                // Pop and verify
                 if (stack.Pop() != __state)
                 {
                     throw new InvalidOperationException("Call stack mismatch in FinishInternal");
                 }
 
-                // Attach to parent or top-level
                 if (__state.Parent != null)
                 {
                     __state.Parent.Children.Add(__state);
@@ -146,7 +137,6 @@ namespace MethodTrackerTool
                 var results = ResultsByTest[testId];
                 var stack = CallStacks[testId];
 
-                // Populate exception info
                 __state.RawEndTime = DateTime.UtcNow;
                 __state.MemoryAfter = GC.GetTotalMemory(false);
                 __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
@@ -155,13 +145,11 @@ namespace MethodTrackerTool
                 __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
                 __state.Exceptions = [exception];
 
-                // Pop and verify
                 if (stack.Pop() != __state)
                 {
                     throw new InvalidOperationException("Call stack mismatch in FinishWithException");
                 }
 
-                // Attach
                 if (__state.Parent != null)
                 {
                     __state.Parent.Children.Add(__state);
