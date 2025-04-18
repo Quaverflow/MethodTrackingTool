@@ -1,14 +1,6 @@
-﻿using System.Windows;
-using MethodTrackerVisualizer.Helpers;
-
-namespace MethodTrackerVisualizer.Components;
+﻿namespace MethodTrackerVisualizer.Components;
 
 public partial class MethodTrackerReader
 {
-    public MethodTrackerReader()
-    {
-        InitializeComponent();
-    }
-
-
+    public MethodTrackerReader() => InitializeComponent();
 }

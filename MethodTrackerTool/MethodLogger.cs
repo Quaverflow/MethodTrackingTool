@@ -15,7 +15,7 @@ public class MethodLogger
     private MethodLogger(string name)
     {
         _name = name;
-        ApiPatcher.Initialize();
+        ClientPatcher.Initialize();
         MethodPatches.Initialize(name);
     }
 

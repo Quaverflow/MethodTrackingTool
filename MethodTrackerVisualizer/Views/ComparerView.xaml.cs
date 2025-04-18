@@ -23,10 +23,7 @@ public partial class ComparerView
             UpdateDiffViewer();
         }
 
-    private void OnFileSelectionChanged(object sender, System.EventArgs e)
-    {
-            UpdateDiffViewer();
-        }
+    private void OnFileSelectionChanged(object sender, System.EventArgs e) => UpdateDiffViewer();
 
     private void UpdateDiffViewer()
     {

@@ -74,8 +74,7 @@ internal sealed class MethodTrackerReaderCommand
     /// </summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The event args.</param>
-    private void Execute(object sender, EventArgs e)
-    {
+    private void Execute(object sender, EventArgs e) =>
         package.JoinableTaskFactory.RunAsync(async delegate
         {
             var window = await package.ShowToolWindowAsync(typeof(MethodTrackerReader), 0, true, package.DisposalToken);
@@ -84,5 +83,4 @@ internal sealed class MethodTrackerReaderCommand
                 throw new NotSupportedException("Cannot create tool window");
             }
         });
-    }
 }

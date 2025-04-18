@@ -1,47 +1,31 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
 using Microsoft.AspNetCore.Builder;
 using System.Net.Http;
 using System.Threading;
-using MethodTrackerTool.Helpers;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Http;
-using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-
-#if NETFRAMEWORK
-using System.Web;
-#endif
 
 namespace MethodTrackerTool;
 
-internal static class ApiPatcher
+internal static class ClientPatcher
 {
     public static void Initialize()
     {
-        var harmony = new Harmony("com.mycompany.methodlogger");
-
-        // 1) Client‑side: inject X‑Test‑Id into HttpClient requests
         var invokerType = typeof(HttpMessageInvoker);
         var sendAsync = invokerType.GetMethod(
             nameof(HttpMessageInvoker.SendAsync),
-            new[] { typeof(HttpRequestMessage), typeof(CancellationToken) }
+            [typeof(HttpRequestMessage), typeof(CancellationToken)]
         );
         if (sendAsync != null)
         {
-            harmony.Patch(
+            HarmonyInitializer.HarmonyInstance.Patch(
                 sendAsync,
-                prefix: new HarmonyMethod(typeof(ApiPatcher), nameof(SendAsync_Prefix))
+                prefix: new HarmonyMethod(typeof(ClientPatcher), nameof(SendAsync_Prefix))
             );
         }
     }
 
-    /// <summary>
-    /// Prefix: adds X‑Test‑Id header to outgoing HTTP requests.
-    /// </summary>
     public static void SendAsync_Prefix(HttpRequestMessage request)
     {
         var testId = MethodPatches.CurrentTestId.Value;
@@ -59,9 +43,8 @@ public static class TestServerExtensions
 
     internal class LoggingStartupFilter : IStartupFilter
     {
-        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
-        {
-            return app =>
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) =>
+            app =>
             {
                 app.Use(async (ctx, nextMiddleware) =>
                 {
@@ -73,6 +56,5 @@ public static class TestServerExtensions
                 });
                 next(app);
             };
-        }
     }
 }

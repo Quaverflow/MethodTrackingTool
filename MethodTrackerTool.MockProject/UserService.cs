@@ -56,10 +56,7 @@ public class OrderService(string nextOrderId, DateTime now)
         //throw new Exception("Test exception");
     }
 
-    private static void ValidateOrder(OrderRequest request)
-    {
-        Console.WriteLine($"OrderService: Validating order request. {request}");
-    }
+    private static void ValidateOrder(OrderRequest request) => Console.WriteLine($"OrderService: Validating order request. {request}");
 
     private Order BuildOrder(OrderRequest request, User customer)
     {
@@ -82,10 +79,7 @@ public class OrderService(string nextOrderId, DateTime now)
         LogOrder(order);
     }
 
-    private void LogOrder(Order order)
-    {
-        Console.WriteLine($"OrderService: Order {order.OrderId} for {order.Customer.Name} logged.");
-    }
+    private void LogOrder(Order order) => Console.WriteLine($"OrderService: Order {order.OrderId} for {order.Customer.Name} logged.");
 }
 
 public class PaymentService

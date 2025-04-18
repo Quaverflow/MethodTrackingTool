@@ -123,8 +123,5 @@ public partial class ComparerPanelView : INotifyPropertyChanged
             }), DispatcherPriority.Background);
         }
 
-    private void OnPropertyChanged(string propertyName)
-    {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

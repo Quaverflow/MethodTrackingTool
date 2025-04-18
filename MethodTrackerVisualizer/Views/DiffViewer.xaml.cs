@@ -11,10 +11,7 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class DiffViewer : UserControl
 {
-    public DiffViewer()
-    {
-            InitializeComponent();
-        }
+    public DiffViewer() => InitializeComponent();
 
     /// <summary>
     /// Updates the diff view by comparing the details of the two LogEntry objects.

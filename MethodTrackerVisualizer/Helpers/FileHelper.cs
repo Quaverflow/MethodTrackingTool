@@ -13,10 +13,7 @@ public static class FileHelper
     public static EntryFile Selected = Data.FirstOrDefault();
     private static FileSystemWatcher _watcher;
 
-    static FileHelper()
-    {
-        StartWatching();
-    }
+    static FileHelper() => StartWatching();
 
     public static event EventHandler Refresh;
     public static void StartWatching()

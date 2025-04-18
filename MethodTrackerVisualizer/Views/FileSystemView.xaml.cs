@@ -32,12 +32,10 @@ public partial class FileSystemView
         }
     }
 
-    private void Refresh(object sender, EventArgs eventArgs)
-    {
+    private void Refresh(object sender, EventArgs eventArgs) =>
         FilesDataGrid.ItemsSource = FileHelper.Data
             .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
             .ToList();
-    }
 
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
     {

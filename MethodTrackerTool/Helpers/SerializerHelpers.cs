@@ -27,10 +27,7 @@ internal static class SerializerHelpers
 
     private class LogEntryConverter : JsonConverter<LogEntry>
     {
-        public override LogEntry ReadJson(JsonReader reader, Type objectType, LogEntry existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException("Deserialization is not supported.");
-        }
+        public override LogEntry ReadJson(JsonReader reader, Type objectType, LogEntry existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
 
         public override void WriteJson(JsonWriter writer, LogEntry value, JsonSerializer serializer)
         {
@@ -81,51 +78,30 @@ internal static class SerializerHelpers
 
     private class CultureInfoConverter : JsonConverter<CultureInfo>
     {
-        public override CultureInfo ReadJson(JsonReader reader, Type objectType, CultureInfo existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException("Deserialization is not supported.");
-        }
+        public override CultureInfo ReadJson(JsonReader reader, Type objectType, CultureInfo existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
 
-        public override void WriteJson(JsonWriter writer, CultureInfo value, JsonSerializer serializer)
-        {
-            writer.WriteValue("System.CultureInfo is removed.");
-        }
+        public override void WriteJson(JsonWriter writer, CultureInfo value, JsonSerializer serializer) => writer.WriteValue("System.CultureInfo is removed.");
     }
 
     private class TypeConverter : JsonConverter<Type>
     {
-        public override Type ReadJson(JsonReader reader, Type objectType, Type existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException("Deserialization is not supported.");
-        }
+        public override Type ReadJson(JsonReader reader, Type objectType, Type existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
 
-        public override void WriteJson(JsonWriter writer, Type value, JsonSerializer serializer)
-        {
-            writer.WriteValue("System.Type object is not serializable.");
-        }
+        public override void WriteJson(JsonWriter writer, Type value, JsonSerializer serializer) => writer.WriteValue("System.Type object is not serializable.");
     }
 
     private class DelegateConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType) => typeof(Delegate).IsAssignableFrom(objectType);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            throw new NotSupportedException("Deserializing delegates is not supported.");
-        }
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) => throw new NotSupportedException("Deserializing delegates is not supported.");
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            writer.WriteValue($"{value.GetType().FullName} delegate is not serializable.");
-        }
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => writer.WriteValue($"{value.GetType().FullName} delegate is not serializable.");
     }
 
     private class ExceptionConverter : JsonConverter<Exception>
     {
-        public override Exception ReadJson(JsonReader reader, Type objectType, Exception existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException("Deserialization is not supported.");
-        }
+        public override Exception ReadJson(JsonReader reader, Type objectType, Exception existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
 
         public override void WriteJson(JsonWriter writer, Exception value, JsonSerializer serializer)
         {

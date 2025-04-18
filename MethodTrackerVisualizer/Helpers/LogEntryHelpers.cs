@@ -46,9 +46,8 @@ public static class LogEntryHelpers
         return entry.Children.Any(ContainsExceptionDeep);
     }
 
-    public static List<LogEntry> FilterByDeepExceptions(this IEnumerable<LogEntry> data)
-    {
-        return data
+    public static List<LogEntry> FilterByDeepExceptions(this IEnumerable<LogEntry> data) =>
+        data
             .Where(ContainsExceptionDeep)
             .Select(entry =>
             {
@@ -57,15 +56,12 @@ public static class LogEntryHelpers
                 return newEntry;
             })
             .ToList();
-    }
 
-    public static LogEntry Clone(LogEntry entry)
-    {
-        return new LogEntry
+    public static LogEntry Clone(LogEntry entry) =>
+        new()
         {
             MethodName = entry.MethodName,
             Exceptions = entry.Exceptions?.ToArray() ?? [],
             Children = entry.Children.Select(Clone).ToList()
         };
-    }
 }
