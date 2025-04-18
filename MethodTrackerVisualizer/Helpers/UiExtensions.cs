@@ -12,6 +12,7 @@ public static class UiExtensions
         while (true)
         {
             var tvi = container.GetTreeViewItem(dataItem);
+
             if (tvi != null)
             {
                 tvi.IsExpanded = true;
@@ -27,7 +28,7 @@ public static class UiExtensions
         }
     }
 
-    public static TreeViewItem GetTreeViewItem(this ItemsControl container, object dataItem)
+    public static TreeViewItem? GetTreeViewItem(this ItemsControl container, object dataItem)
     {
         if (container.ItemContainerGenerator.Status != GeneratorStatus.ContainersGenerated)
         {
@@ -44,16 +45,15 @@ public static class UiExtensions
             {
                 parentContainer.IsExpanded = true; // Ensure children are generated.
                 var childTvi = parentContainer.GetTreeViewItem(dataItem);
-                if (childTvi != null)
-                {
-                    return childTvi;
-                }
+
+                return childTvi;
             }
         }
+
         return null;
     }
 
-    public static ItemsControl GetParent(this TreeViewItem item)
+    public static ItemsControl? GetParent(this TreeViewItem item)
     {
         var parent = VisualTreeHelper.GetParent(item);
         while (parent is not null and not TreeViewItem and not TreeView)
@@ -71,14 +71,9 @@ public static class UiExtensions
             expander.IsExpanded = true;
         }
     }
-    
-    public static T FindVisualChild<T>(this DependencyObject parent) where T : DependencyObject
-    {
-        if (parent == null)
-        {
-            return null;
-        }
 
+    public static T? FindVisualChild<T>(this DependencyObject parent) where T : DependencyObject
+    {
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
         {
             var child = VisualTreeHelper.GetChild(parent, i);
@@ -88,11 +83,13 @@ public static class UiExtensions
             }
 
             var result = FindVisualChild<T>(child);
+
             if (result != null)
             {
                 return result;
             }
         }
+
         return null;
     }
 }

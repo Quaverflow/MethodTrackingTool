@@ -29,7 +29,7 @@ public partial class HierarchicalView
 
     public void Load(object sender, RoutedEventArgs e)
     {
-        HierarchicalTreeView.ItemsSource = FileHelper.Selected.Data;
+        HierarchicalTreeView.ItemsSource = FileHelper.Selected?.Data ?? [];
         HierarchicalSearchBar.SearchTextChanged += SearchForText;
         HierarchicalSearchBar.PreviousClicked += PreviousText;
         HierarchicalSearchBar.NextClicked += NextText;
@@ -45,7 +45,7 @@ public partial class HierarchicalView
             return;
         }
 
-        _matchedTextEntries = FileHelper.Selected.Data.FindMatchingText(CurrentSearchText);
+        _matchedTextEntries = FileHelper.Selected?.Data.FindMatchingText(CurrentSearchText) ?? [];
         if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;

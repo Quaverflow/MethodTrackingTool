@@ -9,7 +9,7 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class ExceptionsView
 {
-    private readonly List<LogEntry> _data;
+    private readonly List<LogEntry>? _data;
     private List<LogEntry> _matchedTextEntries = [];
     private int _currentMatchTextEntriesIndex = -1;
 
@@ -27,7 +27,7 @@ public partial class ExceptionsView
     {
         InitializeComponent();
 
-        _data = FileHelper.Selected.Data.FilterByDeepExceptions();
+        _data = FileHelper.Selected?.Data?.FilterByDeepExceptions();
         ExceptionsTreeView.ItemsSource = _data;
         ExceptionSearchBar.SearchTextChanged += SearchForText;
         ExceptionSearchBar.PreviousClicked += PreviousText;
@@ -44,7 +44,7 @@ public partial class ExceptionsView
             return;
         }
 
-        _matchedTextEntries = _data.FindMatchingText(ExceptionSearchText);
+        _matchedTextEntries = _data?.FindMatchingText(ExceptionSearchText) ?? [];
         if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;
@@ -77,8 +77,8 @@ public partial class ExceptionsView
         Dispatcher.BeginInvoke(new Action(() =>
         {
             var tvi = ExceptionsTreeView.GetTreeViewItem(dataItem);
-            tvi.ExpandExpanderForEntry();
-            tvi.BringIntoView();
+            tvi?.ExpandExpanderForEntry();
+            tvi?.BringIntoView();
         }), DispatcherPriority.Background);
     }
 

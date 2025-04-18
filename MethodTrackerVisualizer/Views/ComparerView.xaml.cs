@@ -8,7 +8,7 @@ namespace MethodTrackerVisualizer.Views;
 public partial class ComparerView
 {
     private readonly List<DiffNode> _diffNodes = [];
-    private int _currentDiffIndex = 0;
+    private int _currentDiffIndex;
 
     public ComparerView()
     {
@@ -63,7 +63,7 @@ public partial class ComparerView
 
     private void NextDifference_Click(object sender, RoutedEventArgs e)
     {
-        if (_diffNodes == null || !_diffNodes.Any())
+        if (!_diffNodes.Any())
         {
             MessageBox.Show("No differences found.");
             return;
@@ -76,7 +76,7 @@ public partial class ComparerView
 
     private void PreviousDifference_Click(object sender, RoutedEventArgs e)
     {
-        if (_diffNodes == null || !_diffNodes.Any())
+        if (!_diffNodes.Any())
         {
             MessageBox.Show("No differences found.");
             return;

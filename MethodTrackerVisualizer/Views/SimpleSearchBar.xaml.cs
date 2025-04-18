@@ -4,7 +4,7 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class SimpleSearchBar
 {
-    public event EventHandler<string> SearchTextChanged;
+    public event EventHandler<string>? SearchTextChanged;
 
     public SimpleSearchBar()
     {

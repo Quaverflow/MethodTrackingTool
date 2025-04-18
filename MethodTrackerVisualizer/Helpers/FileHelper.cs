@@ -9,13 +9,13 @@ namespace MethodTrackerVisualizer.Helpers;
 
 public static class FileHelper
 {
-    public static List<EntryFile> Data = LoadLogData() ?? [];
-    public static EntryFile Selected = Data.FirstOrDefault();
-    private static FileSystemWatcher _watcher;
+    public static List<EntryFile?> Data = LoadLogData();
+    public static EntryFile? Selected = Data.FirstOrDefault();
+    private static FileSystemWatcher? _watcher;
+    public static event EventHandler? Refresh;
 
     static FileHelper() => StartWatching();
 
-    public static event EventHandler Refresh;
     public static void StartWatching()
     {
         _watcher = new FileSystemWatcher(GetLogFolder())
@@ -27,7 +27,6 @@ public static class FileHelper
             EnableRaisingEvents = true
         };
 
-        // Subscribe to events
         _watcher.Changed += OnFileChanged;
         _watcher.Created += OnFileChanged;
         _watcher.Deleted += OnFileChanged;
@@ -36,10 +35,10 @@ public static class FileHelper
 
     private static void OnFileChanged(object sender, FileSystemEventArgs e)
     {
-        Data = LoadLogData() ?? [];
+        Data = LoadLogData();
         Selected = Data.FirstOrDefault();
 
-        Application.Current.Dispatcher.BeginInvoke(new Action(() => { Refresh?.Invoke(null, EventArgs.Empty); }));
+        Application.Current.Dispatcher.BeginInvoke(new Action(() => Refresh?.Invoke(null, EventArgs.Empty)));
     }
 
     private static string GetLogFolder()
@@ -52,7 +51,7 @@ public static class FileHelper
         return folder;
     }
 
-    public static List<EntryFile> LoadLogData()
+    public static List<EntryFile?> LoadLogData()
     {
         var folderPath = GetLogFolder();
         var files = Directory.GetFiles(folderPath);
@@ -60,7 +59,7 @@ public static class FileHelper
         return files.Select(LoadFile).ToList();
     }
 
-    private static EntryFile LoadFile(string filePath)
+    private static EntryFile? LoadFile(string filePath)
     {
         if (!File.Exists(filePath))
         {
@@ -81,7 +80,7 @@ public static class FileHelper
             {
                 Updated = fileInfo.LastWriteTimeUtc,
                 FileName = fileInfo.Name,
-                Data = data
+                Data = data ?? []
             };
         }
         catch (Exception ex)

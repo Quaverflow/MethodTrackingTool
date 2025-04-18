@@ -15,12 +15,12 @@ public partial class ByExclusiveElapsedTimeView
 
     public void Load(object sender, RoutedEventArgs e)
     {
-        ExclusiveListView.ItemsSource = FileHelper.Selected.Data;
+        ExclusiveListView.ItemsSource = FileHelper.Selected?.Data;
         PopulateTreeViews();
     }
     private void PopulateTreeViews()
     {
-        var flatList = FlattenLogEntries(FileHelper.Selected.Data);
+        var flatList = FlattenLogEntries(FileHelper.Selected?.Data ?? []);
         var exclusiveSorted = flatList.OrderByDescending(e =>
         {
             var text = e.ExclusiveElapsedTime.Replace(" ms", "").Trim();

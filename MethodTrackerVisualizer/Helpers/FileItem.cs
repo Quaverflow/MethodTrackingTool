@@ -6,8 +6,9 @@ namespace MethodTrackerVisualizer.Helpers;
 public class FileItem : INotifyPropertyChanged
 {
     private bool _selected;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
     public DateTime Updated { get; set; }
 
     public bool Selected
@@ -22,8 +23,6 @@ public class FileItem : INotifyPropertyChanged
             }
         }
     }
-
-    public event PropertyChangedEventHandler PropertyChanged;
 
     protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

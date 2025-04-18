@@ -27,7 +27,7 @@ public static class LogEntryHelpers
                 result.Add(entry);
             }
 
-            if (entry.Children != null && entry.Children.Any())
+            if (entry.Children.Any())
             {
                 var childMatches = FindMatchingText(entry.Children, searchText);
                 result.AddRange(childMatches);
@@ -36,15 +36,8 @@ public static class LogEntryHelpers
         return result;
     }
 
-    private static bool ContainsExceptionDeep(LogEntry entry)
-    {
-        if (entry.Exceptions != null && entry.Exceptions.Any())
-        {
-            return true;
-        }
-
-        return entry.Children.Any(ContainsExceptionDeep);
-    }
+    private static bool ContainsExceptionDeep(LogEntry entry) 
+        => entry.Exceptions.Any() || entry.Children.Any(ContainsExceptionDeep);
 
     public static List<LogEntry> FilterByDeepExceptions(this IEnumerable<LogEntry> data) =>
         data
@@ -61,7 +54,7 @@ public static class LogEntryHelpers
         new()
         {
             MethodName = entry.MethodName,
-            Exceptions = entry.Exceptions?.ToArray() ?? [],
+            Exceptions = entry.Exceptions.ToArray(),
             Children = entry.Children.Select(Clone).ToList()
         };
 }

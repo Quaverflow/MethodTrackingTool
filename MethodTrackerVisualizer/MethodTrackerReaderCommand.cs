@@ -46,16 +46,12 @@ internal sealed class MethodTrackerReaderCommand
     /// <summary>
     /// Gets the instance of the command.
     /// </summary>
-    public static MethodTrackerReaderCommand Instance
+    public static MethodTrackerReaderCommand? Instance
     {
         get;
         private set;
     }
 
-    /// <summary>
-    /// Gets the service provider from the owner package.
-    /// </summary>
-    private IAsyncServiceProvider ServiceProvider => package;
 
     /// <summary>
     /// Initializes the singleton instance of the command.
@@ -65,8 +61,10 @@ internal sealed class MethodTrackerReaderCommand
     {
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-        var commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
-        Instance = new MethodTrackerReaderCommand(package, commandService);
+        if (await package.GetServiceAsync((typeof(IMenuCommandService))) is OleMenuCommandService commandService)
+        {
+            Instance = new MethodTrackerReaderCommand(package, commandService);
+        }
     }
 
     /// <summary>

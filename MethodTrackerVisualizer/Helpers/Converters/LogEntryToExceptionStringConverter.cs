@@ -8,14 +8,8 @@ namespace MethodTrackerVisualizer.Helpers.Converters;
 
 public class LogEntryToExceptionStringConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is LogEntry entry)
-        {
-            return GetExceptionInfo(entry);
-        }
-        return string.Empty;
-    }
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) 
+        => value is LogEntry entry ? GetExceptionInfo(entry) : string.Empty;
 
     private static string GetExceptionInfo(LogEntry entry)
     {
@@ -42,7 +36,10 @@ public class LogEntryToExceptionStringConverter : IValueConverter
         return sb.ToString();
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
-    private static bool ContainsExceptions(LogEntry entry) => entry.Exceptions?.Any() == true;
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) 
+        => throw new NotImplementedException();
+
+    private static bool ContainsExceptions(LogEntry entry) 
+        => entry.Exceptions.Any();
 
 }

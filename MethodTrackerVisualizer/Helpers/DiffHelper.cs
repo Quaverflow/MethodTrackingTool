@@ -6,7 +6,7 @@ namespace MethodTrackerVisualizer.Helpers;
 
 public static class DiffHelper
 {
-    public static bool DeepEquals(object a, object b)
+    public static bool DeepEquals(object? a, object? b)
     {
         try
         {
@@ -20,7 +20,7 @@ public static class DiffHelper
         }
     }
 
-    public static DiffNode DiffLogEntries(LogEntry left, LogEntry right)
+    public static DiffNode DiffLogEntries(LogEntry? left, LogEntry? right)
     {
         var diff = new DiffNode
         {
@@ -43,22 +43,10 @@ public static class DiffHelper
             var returnTypeChanged = left.ReturnType != right.ReturnType;
             var returnValueChanged = !DeepEquals(left.ReturnValue, right.ReturnValue);
             var exceptionsChanged = !DeepEquals(left.Exceptions, right.Exceptions);
-
-            if (methodChanged || 
-                parametersChanged || 
-                returnTypeChanged || 
-                returnValueChanged || 
-                exceptionsChanged)
-            {
-                diff.DiffType = DiffType.Modified;
-            }
-            else
-            {
-                diff.DiffType = DiffType.Unchanged;
-            }
+            var hasChanged = methodChanged || parametersChanged || returnTypeChanged || returnValueChanged || exceptionsChanged;
+            diff.DiffType = hasChanged ? DiffType.Modified : DiffType.Unchanged;
         }
 
-        // Recursively compare children.
         var leftCount = left?.Children.Count ?? 0;
         var rightCount = right?.Children.Count ?? 0;
         var maxCount = Math.Max(leftCount, rightCount);
@@ -84,10 +72,9 @@ public static class DiffHelper
 
     public class DiffNode
     {
-        public LogEntry Left { get; set; }   // null if added in right run
-        public LogEntry Right { get; set; }  // null if removed in right run
+        public LogEntry? Left { get; set; }
+        public LogEntry? Right { get; set; }
         public DiffType DiffType { get; set; }
-        public List<DiffNode> Children { get; } = new List<DiffNode>();
+        public List<DiffNode> Children { get; } = [];
     }
-
 }

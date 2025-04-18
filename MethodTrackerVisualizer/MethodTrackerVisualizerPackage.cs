@@ -3,6 +3,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable CommentTypo
+// ReSharper disable StringLiteralTypo
 
 namespace MethodTrackerVisualizer;
 

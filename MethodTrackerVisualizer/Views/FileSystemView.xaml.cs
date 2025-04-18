@@ -13,10 +13,11 @@ public partial class FileSystemView
         InitializeComponent();
 
         FilesDataGrid.ItemsSource = FileHelper.Data
+            .OfType<EntryFile>()
             .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
             .ToList();
 
-        FileHelper.Refresh += (_, __) => Dispatcher.Invoke(Refresh);
+        FileHelper.Refresh += (_, _) => Dispatcher.Invoke(Refresh);
         FileSystemSearchBar.SearchTextChanged += SearchForText;
     }
 
@@ -26,6 +27,7 @@ public partial class FileSystemView
         if (!string.IsNullOrEmpty(searchText))
         {
             FilesDataGrid.ItemsSource = FileHelper.Data
+                .OfType<EntryFile>()
                 .Where(x => x.FileName.IndexOf(searchText, StringComparison.CurrentCultureIgnoreCase) != -1)
                 .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
                 .ToList();
@@ -34,12 +36,13 @@ public partial class FileSystemView
 
     private void Refresh(object sender, EventArgs eventArgs) =>
         FilesDataGrid.ItemsSource = FileHelper.Data
+            .OfType<EntryFile>()
             .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
             .ToList();
 
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox btn && btn.DataContext is FileItem selectedItem)
+        if (sender is CheckBox { DataContext: FileItem selectedItem } btn)
         {
             if (btn.IsChecked == true)
             {
@@ -56,7 +59,7 @@ public partial class FileSystemView
 
                 selectedItem.Selected = true;
 
-                var selectedFile = FileHelper.Data.FirstOrDefault(x => x.FileName == selectedItem.FileName);
+                var selectedFile = FileHelper.Data.FirstOrDefault(x => x?.FileName == selectedItem.FileName);
                 if (selectedFile != null)
                 {
                     FileHelper.Selected = selectedFile;

@@ -42,6 +42,7 @@ public partial class ComparerPanelView : INotifyPropertyChanged
     private void Refresh(object sender, EventArgs eventArgs)
     {
         _fileItems = FileHelper.Data
+            .OfType<EntryFile>()
             .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
             .ToList();
 
@@ -57,6 +58,7 @@ public partial class ComparerPanelView : INotifyPropertyChanged
     public void Load(object sender, RoutedEventArgs e)
     {
         _fileItems = FileHelper.Data
+            .OfType<EntryFile>()
             .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
             .OrderByDescending(x => x.Selected)
             .ToList();
@@ -66,7 +68,7 @@ public partial class ComparerPanelView : INotifyPropertyChanged
         {
             HierarchicalTreeView.ItemsSource = Selected.Data;
         }
-        FileSystemSearchBar.SearchTextChanged += (s, text) => CurrentSearchText = text;
+        FileSystemSearchBar.SearchTextChanged += (_, text) => CurrentSearchText = text;
     }
 
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
@@ -88,7 +90,7 @@ public partial class ComparerPanelView : INotifyPropertyChanged
         }
 
         selectedItem.Selected = true;
-        var selectedFile = FileHelper.Data.FirstOrDefault(x => x.FileName == selectedItem.FileName);
+        var selectedFile = FileHelper.Data.FirstOrDefault(x => x?.FileName == selectedItem.FileName);
 
         if (selectedFile != null && Selected != null)
         {
@@ -107,8 +109,8 @@ public partial class ComparerPanelView : INotifyPropertyChanged
         Dispatcher.BeginInvoke(new Action(() =>
         {
             var tvi = HierarchicalTreeView.GetTreeViewItem(dataItem);
-            tvi.ExpandExpanderForEntry();
-            tvi.BringIntoView();
+            tvi?.ExpandExpanderForEntry();
+            tvi?.BringIntoView();
         }), DispatcherPriority.Background);
     }
 

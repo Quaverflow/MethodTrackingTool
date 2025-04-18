@@ -2,14 +2,13 @@
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using Newtonsoft.Json;
-using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class DiffViewer : UserControl
+public partial class DiffViewer
 {
     public DiffViewer() => InitializeComponent();
 
@@ -18,7 +17,7 @@ public partial class DiffViewer : UserControl
     /// </summary>
     /// <param name="leftEntry">The LogEntry from the left (previous) test run.</param>
     /// <param name="rightEntry">The LogEntry from the right (current) test run.</param>
-    public void UpdateDiffView(LogEntry leftEntry, LogEntry rightEntry)
+    public void UpdateDiffView(LogEntry? leftEntry, LogEntry? rightEntry)
     {
             var leftText = FormatLogEntry(leftEntry);
             var rightText = FormatLogEntry(rightEntry);
@@ -28,14 +27,14 @@ public partial class DiffViewer : UserControl
         }
 
 
-    private string FormatLogEntry(LogEntry entry)
+    private string FormatLogEntry(LogEntry? entry)
     {
             if (entry == null)
             {
                 return string.Empty;
             }
 
-            var exceptionsText = (entry.Exceptions != null && entry.Exceptions.Length > 0)
+            var exceptionsText = entry.Exceptions.Length > 0
                 ? JsonConvert.SerializeObject(entry.Exceptions)
                 : "None";
             return $"Method: {entry.MethodName}\n" +
