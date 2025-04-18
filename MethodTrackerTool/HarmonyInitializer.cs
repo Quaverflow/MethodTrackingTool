@@ -46,7 +46,6 @@ internal static class HarmonyInitializer
             var postfix = new HarmonyMethod(typeof(MethodPatches).GetMethod(postfixMethodName, CommonHelpers.CommonBindingFlags));
             var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), CommonHelpers.CommonBindingFlags));
 
-            var errors = new List<string>();
             try
             {
                 HarmonyInstance?.Patch(method, prefix: prefix, postfix: postfix, finalizer: finalizer);
