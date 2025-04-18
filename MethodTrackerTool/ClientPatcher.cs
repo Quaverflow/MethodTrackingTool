@@ -29,9 +29,9 @@ internal static class ClientPatcher
     public static void SendAsync_Prefix(HttpRequestMessage request)
     {
         var testId = MethodPatches.CurrentTestId.Value;
-        if (!string.IsNullOrEmpty(testId) && !request.Headers.Contains("X-Test-Id"))
+        if (!string.IsNullOrEmpty(testId) && !request.Headers.Contains("X-MethodLogger-Id"))
         {
-            request.Headers.Add("X-Test-Id", testId);
+            request.Headers.Add("X-MethodLogger-Id", testId);
         }
     }
 }
@@ -48,7 +48,7 @@ public static class TestServerExtensions
             {
                 app.Use(async (ctx, nextMiddleware) =>
                 {
-                    if (ctx.Request.Headers.TryGetValue("X-Test-Id", out var id))
+                    if (ctx.Request.Headers.TryGetValue("X-MethodLogger-Id", out var id))
                     {
                         MethodPatches.Initialize(id!);
                     }
