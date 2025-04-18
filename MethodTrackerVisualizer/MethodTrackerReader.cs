@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace MethodTrackerVisualizer;
+
 /// <summary>
 /// This class implements the tool window exposed by this package and hosts a user control.
 /// </summary>
@@ -21,8 +22,8 @@ public class MethodTrackerReader : ToolWindowPane
     /// </summary>
     public MethodTrackerReader() : base(null)
     {
-        Caption = "MethodTrackerReader";
-        // ReSharper disable once VirtualMemberCallInConstructor
-        Content = new Components.MethodTrackerReader();
-    }
+            Caption = "MethodTrackerReader";
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Content = new Components.MethodTrackerReader();
+        }
 }

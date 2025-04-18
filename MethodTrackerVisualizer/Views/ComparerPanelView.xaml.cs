@@ -7,40 +7,40 @@ using System.Windows.Threading;
 using System.ComponentModel;
 using MethodTrackerVisualizer.Helpers;
 
-namespace MethodTrackerVisualizer.Views
+namespace MethodTrackerVisualizer.Views;
+
+public partial class ComparerPanelView : INotifyPropertyChanged
 {
-    public partial class ComparerPanelView : INotifyPropertyChanged
+    public event EventHandler FileSelectionChanged;
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public EntryFile Selected = FileHelper.Selected;
+    private List<FileItem> _fileItems = new();
+    private string _currentSearchText = string.Empty;
+
+    public string CurrentSearchText
     {
-        public event EventHandler FileSelectionChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public EntryFile Selected = FileHelper.Selected;
-        private List<FileItem> _fileItems = new();
-        private string _currentSearchText = string.Empty;
-
-        public string CurrentSearchText
+        get => _currentSearchText;
+        set
         {
-            get => _currentSearchText;
-            set
-            {
                 if (_currentSearchText != value)
                 {
                     _currentSearchText = value;
                     OnPropertyChanged(nameof(CurrentSearchText));
                 }
             }
-        }
+    }
 
-        public ComparerPanelView()
-        {
+    public ComparerPanelView()
+    {
             InitializeComponent();
             Loaded += Load;
             FileHelper.Refresh += Refresh;
             DataContext = this; // Make sure bindings work properly
         }
 
-        private void Refresh(object sender, EventArgs eventArgs)
-        {
+    private void Refresh(object sender, EventArgs eventArgs)
+    {
             _fileItems = FileHelper.Data
                 .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
                 .OrderByDescending(x => x.Selected)
@@ -53,10 +53,10 @@ namespace MethodTrackerVisualizer.Views
             }
         }
 
-        private void OnFileSelectionChanged() => FileSelectionChanged?.Invoke(this, EventArgs.Empty);
+    private void OnFileSelectionChanged() => FileSelectionChanged?.Invoke(this, EventArgs.Empty);
 
-        public void Load(object sender, RoutedEventArgs e)
-        {
+    public void Load(object sender, RoutedEventArgs e)
+    {
             _fileItems = FileHelper.Data
                 .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
                 .OrderByDescending(x => x.Selected)
@@ -70,16 +70,16 @@ namespace MethodTrackerVisualizer.Views
             FileSystemSearchBar.SearchTextChanged += (s, text) => CurrentSearchText = text;
         }
 
-        private void SearchForText(object _, string searchText)
-        {
+    private void SearchForText(object _, string searchText)
+    {
             CurrentSearchText = searchText.Trim();
             FilesDataGrid.ItemsSource = string.IsNullOrEmpty(CurrentSearchText)
                 ? _fileItems
                 : _fileItems.Where(x => x.FileName.IndexOf(CurrentSearchText, StringComparison.CurrentCultureIgnoreCase) != -1).ToList();
         }
 
-        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
-        {
+    private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+    {
             if (sender is CheckBox { DataContext: FileItem selectedItem } btn)
             {
                 if (btn.IsChecked == true)
@@ -112,8 +112,8 @@ namespace MethodTrackerVisualizer.Views
             }
         }
 
-        public void NavigateToEntry(object dataItem)
-        {
+    public void NavigateToEntry(object dataItem)
+    {
             HierarchicalTreeView.ExpandAllParents(dataItem);
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -123,9 +123,8 @@ namespace MethodTrackerVisualizer.Views
             }), DispatcherPriority.Background);
         }
 
-        private void OnPropertyChanged(string propertyName)
-        {
+    private void OnPropertyChanged(string propertyName)
+    {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    }
 }

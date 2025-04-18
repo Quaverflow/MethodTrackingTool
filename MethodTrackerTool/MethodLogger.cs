@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Models;
 using Newtonsoft.Json;
 
 namespace MethodTrackerTool;
-
 // ReSharper disable InconsistentNaming
-
 public class MethodLogger
 {
     static MethodLogger() => HarmonyInitializer.PatchAssemblies();
@@ -18,7 +15,8 @@ public class MethodLogger
     private MethodLogger(string name)
     {
         _name = name;
-        MethodPatches.InitializeForTest(name);
+        ApiPatcher.Initialize();
+        MethodPatches.Initialize(name);
     }
 
     public static async Task InitializeAsync(string name, Func<Task> run)

@@ -8,9 +8,9 @@ using MethodTrackerTool.Public;
 
 namespace MethodTrackerTool;
 
-public static class HarmonyInitializer
+internal static class HarmonyInitializer
 {
-    private static readonly Harmony _harmonyInstance = new("com.method.logger");
+    public static readonly Harmony HarmonyInstance = new("com.method.logger");
 
     public static void PatchAssemblies()
     {
@@ -31,7 +31,6 @@ public static class HarmonyInitializer
     private static void PatchAssemblyMethods(Assembly targetAssembly)
     {
         var methods = targetAssembly.GetTypes()
-            .Where(type => !TypeHelpers.IsSystemType(type) && !TypeHelpers.IsTestType(type))
             .SelectMany(type => type.GetMethods(CommonHelpers.CommonBindingFlags))
             .Where(MethodHelpers.IsValidMethod);
 
@@ -46,7 +45,7 @@ public static class HarmonyInitializer
             var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), CommonHelpers.CommonBindingFlags));
             try
             {
-                _harmonyInstance?.Patch(method, prefix: prefix, postfix: postfix, finalizer: finalizer);
+                HarmonyInstance?.Patch(method, prefix: prefix, postfix: postfix, finalizer: finalizer);
             }
             catch
             {

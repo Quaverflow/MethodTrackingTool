@@ -15,12 +15,12 @@ public class WeatherForecast
 
 public interface IWeatherForecastService
 {
-    Task Call();
+    Task Call(string name);
 }
 
 public class WeatherForecastService : IWeatherForecastService
 {
-    public async Task Call() => await new OrderService("ApiCall", DateTime.Now).ProcessOrderAsync(new OrderRequest
+    public async Task Call(string name) => await new OrderService(name, DateTime.Now).ProcessOrderAsync(new OrderRequest
     {
         UserId = 13,
         ProductIds = [1, 4, 55, 342, 33, 334, 864, 268, 1042],

@@ -1,4 +1,5 @@
 ﻿namespace MethodTrackerTool.TestApi;
+
 public static class Register
 {
     public static IServiceCollection Something(this IServiceCollection services) => services.AddScoped<IWeatherForecastService, WeatherForecastService>();

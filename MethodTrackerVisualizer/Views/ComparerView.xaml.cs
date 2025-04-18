@@ -3,33 +3,33 @@ using System.Linq;
 using System.Windows;
 using static MethodTrackerVisualizer.Helpers.DiffHelper;
 
-namespace MethodTrackerVisualizer.Views
-{
-    public partial class ComparerView
-    {
-        private readonly List<DiffNode> _diffNodes = [];
-        private int _currentDiffIndex = 0;
+namespace MethodTrackerVisualizer.Views;
 
-        public ComparerView()
-        {
+public partial class ComparerView
+{
+    private readonly List<DiffNode> _diffNodes = [];
+    private int _currentDiffIndex = 0;
+
+    public ComparerView()
+    {
             InitializeComponent();
             Loaded += ComparerView_Loaded;
         }
 
-        private void ComparerView_Loaded(object sender, RoutedEventArgs e)
-        {
+    private void ComparerView_Loaded(object sender, RoutedEventArgs e)
+    {
             LeftPanel.FileSelectionChanged += OnFileSelectionChanged;
             RightPanel.FileSelectionChanged += OnFileSelectionChanged;
             UpdateDiffViewer();
         }
 
-        private void OnFileSelectionChanged(object sender, System.EventArgs e)
-        {
+    private void OnFileSelectionChanged(object sender, System.EventArgs e)
+    {
             UpdateDiffViewer();
         }
 
-        private void UpdateDiffViewer()
-        {
+    private void UpdateDiffViewer()
+    {
             var leftLog = LeftPanel.Selected.Data.FirstOrDefault();
             var rightLog = RightPanel.Selected.Data.FirstOrDefault();
             if (LeftPanel.Selected != null && RightPanel.Selected != null)
@@ -51,8 +51,8 @@ namespace MethodTrackerVisualizer.Views
             }
         }
 
-        private void FlattenDiffTree(DiffNode node, List<DiffNode> list)
-        {
+    private void FlattenDiffTree(DiffNode node, List<DiffNode> list)
+    {
             if (node.DiffType != DiffType.Unchanged)
             {
                 list.Add(node);
@@ -64,8 +64,8 @@ namespace MethodTrackerVisualizer.Views
             }
         }
 
-        private void NextDifference_Click(object sender, RoutedEventArgs e)
-        {
+    private void NextDifference_Click(object sender, RoutedEventArgs e)
+    {
             if (_diffNodes == null || !_diffNodes.Any())
             {
                 MessageBox.Show("No differences found.");
@@ -77,8 +77,8 @@ namespace MethodTrackerVisualizer.Views
             DiffViewerControl.UpdateDiffView(diff.Left, diff.Right);
         }
 
-        private void PreviousDifference_Click(object sender, RoutedEventArgs e)
-        {
+    private void PreviousDifference_Click(object sender, RoutedEventArgs e)
+    {
             if (_diffNodes == null || !_diffNodes.Any())
             {
                 MessageBox.Show("No differences found.");
@@ -90,8 +90,8 @@ namespace MethodTrackerVisualizer.Views
             DiffViewerControl.UpdateDiffView(diff.Left, diff.Right);
         }
 
-        private void NavigateToDifference(DiffNode diffNode)
-        {
+    private void NavigateToDifference(DiffNode diffNode)
+    {
             System.Diagnostics.Debug.WriteLine($"Navigating to diff: DiffType={diffNode.DiffType}, Left Method={diffNode.Left?.MethodName}, Right Method={diffNode.Right?.MethodName}");
 
             if (diffNode.Left != null)
@@ -103,5 +103,4 @@ namespace MethodTrackerVisualizer.Views
                 RightPanel.NavigateToEntry(diffNode.Right);
             }
         }
-    }
 }

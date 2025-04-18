@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Task = System.Threading.Tasks.Task;
 
 namespace MethodTrackerVisualizer;
+
 /// <summary>
 /// Command handler
 /// </summary>

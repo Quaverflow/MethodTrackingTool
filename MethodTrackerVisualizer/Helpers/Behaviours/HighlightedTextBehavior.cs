@@ -7,36 +7,36 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using Match = System.Text.RegularExpressions.Match;
 
-namespace MethodTrackerVisualizer.Helpers.Behaviours
+namespace MethodTrackerVisualizer.Helpers.Behaviours;
+
+public static class HighlightedTextBehavior
 {
-    public static class HighlightedTextBehavior
-    {
-        public static readonly DependencyProperty FormattedTextProperty =
-            DependencyProperty.RegisterAttached(
-                "FormattedText",
-                typeof(string),
-                typeof(HighlightedTextBehavior),
-                new PropertyMetadata(string.Empty, OnPropertiesChanged));
+    public static readonly DependencyProperty FormattedTextProperty =
+        DependencyProperty.RegisterAttached(
+            "FormattedText",
+            typeof(string),
+            typeof(HighlightedTextBehavior),
+            new PropertyMetadata(string.Empty, OnPropertiesChanged));
 
-        public static readonly DependencyProperty SearchTextProperty =
-            DependencyProperty.RegisterAttached(
-                "SearchText",
-                typeof(string),
-                typeof(HighlightedTextBehavior),
-                new PropertyMetadata(string.Empty, OnPropertiesChanged));
+    public static readonly DependencyProperty SearchTextProperty =
+        DependencyProperty.RegisterAttached(
+            "SearchText",
+            typeof(string),
+            typeof(HighlightedTextBehavior),
+            new PropertyMetadata(string.Empty, OnPropertiesChanged));
 
-        public static string GetFormattedText(DependencyObject obj) =>
-            (string)obj.GetValue(FormattedTextProperty);
-        public static void SetFormattedText(DependencyObject obj, string value) =>
-            obj.SetValue(FormattedTextProperty, value);
+    public static string GetFormattedText(DependencyObject obj) =>
+        (string)obj.GetValue(FormattedTextProperty);
+    public static void SetFormattedText(DependencyObject obj, string value) =>
+        obj.SetValue(FormattedTextProperty, value);
 
-        public static string GetSearchText(DependencyObject obj) =>
-            (string)obj.GetValue(SearchTextProperty);
-        public static void SetSearchText(DependencyObject obj, string value) =>
-            obj.SetValue(SearchTextProperty, value);
+    public static string GetSearchText(DependencyObject obj) =>
+        (string)obj.GetValue(SearchTextProperty);
+    public static void SetSearchText(DependencyObject obj, string value) =>
+        obj.SetValue(SearchTextProperty, value);
        
-        private static void OnPropertiesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
+    private static void OnPropertiesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
             if (d is TextBlock tb)
             {
                 var formattedText = GetFormattedText(tb);
@@ -48,11 +48,11 @@ namespace MethodTrackerVisualizer.Helpers.Behaviours
             }
         }
 
-        /// <summary>
-        /// Converts the text into a Span where every occurrence of searchText is highlighted.
-        /// </summary>
-        private static Span ConvertToHighlightedSpan(string text, string searchText)
-        {
+    /// <summary>
+    /// Converts the text into a Span where every occurrence of searchText is highlighted.
+    /// </summary>
+    private static Span ConvertToHighlightedSpan(string text, string searchText)
+    {
             var span = new Span();
 
             if (string.IsNullOrEmpty(searchText))
@@ -103,5 +103,4 @@ namespace MethodTrackerVisualizer.Helpers.Behaviours
 
             return span;
         }
-    }
 }

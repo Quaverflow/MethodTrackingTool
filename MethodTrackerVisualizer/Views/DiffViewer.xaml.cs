@@ -7,22 +7,22 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using MethodTrackerVisualizer.Helpers;
 
-namespace MethodTrackerVisualizer.Views
+namespace MethodTrackerVisualizer.Views;
+
+public partial class DiffViewer : UserControl
 {
-    public partial class DiffViewer : UserControl
+    public DiffViewer()
     {
-        public DiffViewer()
-        {
             InitializeComponent();
         }
 
-        /// <summary>
-        /// Updates the diff view by comparing the details of the two LogEntry objects.
-        /// </summary>
-        /// <param name="leftEntry">The LogEntry from the left (previous) test run.</param>
-        /// <param name="rightEntry">The LogEntry from the right (current) test run.</param>
-        public void UpdateDiffView(LogEntry leftEntry, LogEntry rightEntry)
-        {
+    /// <summary>
+    /// Updates the diff view by comparing the details of the two LogEntry objects.
+    /// </summary>
+    /// <param name="leftEntry">The LogEntry from the left (previous) test run.</param>
+    /// <param name="rightEntry">The LogEntry from the right (current) test run.</param>
+    public void UpdateDiffView(LogEntry leftEntry, LogEntry rightEntry)
+    {
             var leftText = FormatLogEntry(leftEntry);
             var rightText = FormatLogEntry(rightEntry);
 
@@ -31,8 +31,8 @@ namespace MethodTrackerVisualizer.Views
         }
 
 
-        private string FormatLogEntry(LogEntry entry)
-        {
+    private string FormatLogEntry(LogEntry entry)
+    {
             if (entry == null)
             {
                 return string.Empty;
@@ -48,15 +48,15 @@ namespace MethodTrackerVisualizer.Views
                    $"Exceptions: {exceptionsText}\n";
         }
 
-        /// <summary>
-        /// Uses DiffPlex to build a FlowDocument that highlights differences between two text blocks.
-        /// Inserted lines are highlighted in LightGreen, deleted lines in LightCoral, and modified lines in LightBlue.
-        /// </summary>
-        /// <param name="leftText">The text from the left (previous) run.</param>
-        /// <param name="rightText">The text from the right (current) run.</param>
-        /// <returns>A FlowDocument with highlighted differences.</returns>
-        private FlowDocument BuildDiffDocument(string leftText, string rightText)
-        {
+    /// <summary>
+    /// Uses DiffPlex to build a FlowDocument that highlights differences between two text blocks.
+    /// Inserted lines are highlighted in LightGreen, deleted lines in LightCoral, and modified lines in LightBlue.
+    /// </summary>
+    /// <param name="leftText">The text from the left (previous) run.</param>
+    /// <param name="rightText">The text from the right (current) run.</param>
+    /// <returns>A FlowDocument with highlighted differences.</returns>
+    private FlowDocument BuildDiffDocument(string leftText, string rightText)
+    {
             // Create a diff builder and compute the diff.
             var diffBuilder = new InlineDiffBuilder(new Differ());
             var diffModel = diffBuilder.BuildDiffModel(leftText, rightText);
@@ -93,5 +93,4 @@ namespace MethodTrackerVisualizer.Views
             doc.Blocks.Add(paragraph);
             return doc;
         }
-    }
 }
