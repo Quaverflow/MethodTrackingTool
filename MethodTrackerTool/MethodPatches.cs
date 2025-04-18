@@ -18,9 +18,6 @@ internal static class MethodPatches
     public static readonly AsyncLocal<string?> CurrentTestId = new();
     private static readonly ConcurrentDictionary<string, Stack<LogEntry>> CallStacks = new();
 
-    /// <summary>
-    /// Must be called at test setup. Assigns a unique ID for this test and initializes its TestResults and call stack.
-    /// </summary>
     public static void Initialize(string testId)
     {
         CurrentTestId.Value = testId;
@@ -28,9 +25,6 @@ internal static class MethodPatches
         CallStacks[testId] = new Stack<LogEntry>();
     }
 
-    /// <summary>
-    /// Retrieves the TestResults for the current test.
-    /// </summary>
     public static TestResults GetResultsForCurrentTest() =>
         CurrentTestId.Value is not { } id || !ResultsByTest.TryGetValue(id, out var results)
             ? throw new InvalidOperationException("TestResults not initialized for current test.")
