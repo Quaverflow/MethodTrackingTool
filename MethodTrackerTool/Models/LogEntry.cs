@@ -30,14 +30,14 @@ public class LogEntry
     }
 
     public string MethodName { get; set; } = "";
-    public Dictionary<string, object> Parameters { get; set; } = [];
+    public Dictionary<string, object?> Parameters { get; set; } = [];
     public string? ReturnType { get; set; }
     public object? ReturnValue { get; set; }
 
     public string? StartTime { get; set; }
     public string? EndTime { get; set; }
     public string? ElapsedTime { get; set; }
-    public string? ExclusiveElapsedTime => GetExclusiveElapsedMilliseconds();
+    public string ExclusiveElapsedTime => GetExclusiveElapsedMilliseconds();
 
     public long MemoryBefore { get; set; }
     public long MemoryAfter { get; set; }

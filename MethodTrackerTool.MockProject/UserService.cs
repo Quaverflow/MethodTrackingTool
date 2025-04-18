@@ -1,9 +1,6 @@
-﻿using MethodTracker.MockProject;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 
+#pragma warning disable IDE0060
 namespace MethodTracker.MockProject
 {
     public class User

@@ -26,21 +26,4 @@ internal static class CommonHelpers
         return null;
 
     }
-
-    //public static object ConvertToSerializableValue(object? result)
-    //{
-    //    if (result is null)
-    //    {
-    //        return "null";
-    //    }
-
-    //    try
-    //    {
-    //        return result;
-    //    }
-    //    catch (Exception)
-    //    {
-    //        return $"Unserializable type: {result.GetType().FullName}";
-    //    }
-    //}
 }

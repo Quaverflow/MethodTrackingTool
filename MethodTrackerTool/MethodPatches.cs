@@ -75,7 +75,7 @@ internal static class MethodPatches
     public static void VoidPostfix(MethodInfo __originalMethod, LogEntry __state)
         => FinishInternal(__originalMethod, "void", __state);
 
-    public static void Finalizer(MethodInfo __originalMethod, Exception __exception, LogEntry __state)
+    public static void Finalizer(MethodInfo __originalMethod, Exception? __exception, LogEntry __state)
     {
         if (__exception == null)
         {
