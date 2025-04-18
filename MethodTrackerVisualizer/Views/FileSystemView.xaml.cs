@@ -16,8 +16,8 @@ public partial class FileSystemView
             .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
             .ToList();
 
+        FileHelper.Refresh += (_, __) => Dispatcher.Invoke(Refresh);
         FileSystemSearchBar.SearchTextChanged += SearchForText;
-        FileHelper.Refresh += Refresh;
     }
 
     private void SearchForText(object _, string searchText)
