@@ -9,7 +9,7 @@ public static class JsonPrinter
     {
         var timestamp = DateTime.Now.ToString("_yyyyMMdd_HHmmss");
 
-        var path = CreateFile(testName + timestamp);
+        var path = CreateFile($"{testName}_{timestamp}");
         File.WriteAllText(path, output);
     }
 

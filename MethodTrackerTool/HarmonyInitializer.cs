@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using HarmonyLib;
 using MethodTrackerTool.Helpers;
 using MethodTrackerTool.Public;
@@ -43,13 +45,15 @@ internal static class HarmonyInitializer
             var prefix = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Prefix), CommonHelpers.CommonBindingFlags));
             var postfix = new HarmonyMethod(typeof(MethodPatches).GetMethod(postfixMethodName, CommonHelpers.CommonBindingFlags));
             var finalizer = new HarmonyMethod(typeof(MethodPatches).GetMethod(nameof(MethodPatches.Finalizer), CommonHelpers.CommonBindingFlags));
+
+            var errors = new List<string>();
             try
             {
                 HarmonyInstance?.Patch(method, prefix: prefix, postfix: postfix, finalizer: finalizer);
             }
             catch
             {
-                // ignore unpatched methods
+                // A patch failing shouldn't block the flow.
             }
         }
     }

@@ -1,12 +1,14 @@
 ﻿using System.Linq;
 using System.Reflection;
+using HarmonyLib;
 
 namespace MethodTrackerTool.Helpers;
 
 public static class MethodHelpers
 {
     public static bool IsValidMethod(MethodInfo method) =>
-        method is { IsSpecialName: false, IsAbstract: false, DeclaringType: not null } &&
+        method.IsDeclaredMember() &&
+        method is { IsSpecialName: false, DeclaringType: not null, IsAbstract: false } &&
         !IsLambdaOrStateMachine(method);
 
     private static bool IsLambdaOrStateMachine(MethodInfo method) =>
