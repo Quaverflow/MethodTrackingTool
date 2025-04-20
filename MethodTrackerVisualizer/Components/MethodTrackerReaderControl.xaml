@@ -62,9 +62,6 @@
                     <Setter Property="Padding" Value="10"/>
                 </Style>
             </TabControl.Resources>
-            <TabItem Header="File System">
-                <views:FileSystemView x:Name="FileSystemView" DockPanel.Dock="Bottom"/>
-            </TabItem>   
             <TabItem Header="Hierarchical">
                 <views:HierarchicalView x:Name="HierarchicalView" DockPanel.Dock="Bottom"/>
             </TabItem>       
