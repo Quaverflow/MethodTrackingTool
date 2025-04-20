@@ -1,41 +1,109 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace MethodTrackerVisualizer.Helpers;
 
 public static class LogEntryHelpers
 {
-
-    public static List<LogEntry> FindMatchingText(this List<LogEntry> entries, string searchText)
+    public static List<LogEntry> FindMatchingText(
+           this IReadOnlyList<LogEntry> roots,
+        string searchText)
     {
-        var result = new List<LogEntry>();
-        foreach (var entry in entries)
+        if (string.IsNullOrEmpty(searchText))
         {
-            var data = JsonConvert.SerializeObject(new
-            {
-                entry.Parameters,
-                entry.ReturnValue,
-                entry.MethodName,
-                entry.ReturnType,
-                entry.Exceptions,
-            });
-            var found = data.IsMatchingValue(searchText);
-
-            if (found)
-            {
-                result.Add(entry);
-            }
-
-            if (entry.Children.Any())
-            {
-                var childMatches = FindMatchingText(entry.Children, searchText);
-                result.AddRange(childMatches);
-            }
+            return [];
         }
-        return result;
+
+        var comparison = StringComparison.OrdinalIgnoreCase;
+        var results = new ConcurrentBag<LogEntry>();
+
+        Parallel.ForEach(
+            Partitioner.Create(0, roots.Count),
+            range =>
+            {
+                for (var i = range.Item1; i < range.Item2; i++)
+                {
+                    var stack = new Stack<LogEntry>();
+                    stack.Push(roots[i]);
+
+                    while (stack.Count > 0)
+                    {
+                        var e = stack.Pop();
+
+                        if (EntryMatchesSpan(e, searchText.AsSpan(), comparison))
+                        {
+                            results.Add(e);
+                        }
+
+                        foreach (var c in e.Children)
+                        {
+                            stack.Push(c);
+                        }
+                    }
+                }
+            });
+
+        return results.ToList();
     }
 
+    private static bool EntryMatchesSpan(
+        LogEntry entry,
+        ReadOnlySpan<char> needle,
+        StringComparison comparison)
+    {
+        if (entry.MethodName.AsSpan().IndexOf(needle, comparison) >= 0)
+        {
+            return true;
+        }
+
+        if (entry.ReturnType.AsSpan().IndexOf(needle, comparison) >= 0)
+        {
+            return true;
+        }
+
+        foreach (var exObj in entry.Exceptions)
+        {
+            if (exObj is Exception ex &&
+                ex.Message.AsSpan().IndexOf(needle, comparison) >= 0)
+            {
+                return true;
+            }
+        }
+
+        if (entry.ReturnValue is not null)
+        {
+            var rv = entry.ReturnValue.ToString();
+            if (!string.IsNullOrEmpty(rv) &&
+                rv.AsSpan().IndexOf(needle, comparison) >= 0)
+            {
+                return true;
+            }
+        }
+
+        foreach (var kv in entry.Parameters)
+        {
+            if (kv.Key.AsSpan().IndexOf(needle, comparison) >= 0)
+            {
+                return true;
+            }
+
+            if (kv.Value is not { } vo)
+            {
+                continue;
+            }
+
+            var vs = vo.ToString();
+            if (!string.IsNullOrEmpty(vs) && vs.AsSpan().IndexOf(needle, comparison) >= 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     private static bool ContainsExceptionDeep(LogEntry entry) 
         => entry.Exceptions.Any() || entry.Children.Any(ContainsExceptionDeep);
 
