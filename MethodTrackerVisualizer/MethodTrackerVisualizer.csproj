@@ -97,9 +97,6 @@
     <Compile Include="Views\HierarchicalView.xaml.cs">
       <DependentUpon>HierarchicalView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ByExclusiveElapsedTimeView.xaml.cs">
-      <DependentUpon>ByExclusiveElapsedTimeView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\FileSystemView.xaml.cs">
       <DependentUpon>FileSystemView.xaml</DependentUpon>
     </Compile>
@@ -190,9 +187,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SearchBar.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </Page>
-    <Page Include="Views\ByExclusiveElapsedTimeView.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </Page>
     <Page Include="Views\HierarchicalView.xaml">

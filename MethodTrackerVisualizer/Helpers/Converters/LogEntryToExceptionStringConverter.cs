@@ -17,7 +17,6 @@ public class LogEntryToExceptionStringConverter : IValueConverter
 
         if (ContainsExceptions(entry))
         {
-            sb.AppendLine($"Method: {entry.MethodName} at {entry.StartTime}");
             sb.AppendLine($"Exceptions: {string.Join(" | ", entry.Exceptions.Select(e => e.ToString()))}");
         }
         else if (entry.Children.Any(ContainsExceptions))

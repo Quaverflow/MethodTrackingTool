@@ -12,13 +12,6 @@ public class LogEntry
     public Dictionary<string, object> Parameters { get; set; } = [];
     public string ReturnType { get; set; } = string.Empty;
     public object? ReturnValue { get; set; }
-    public string StartTime { get; set; } = string.Empty;
-    public string EndTime { get; set; } = string.Empty;
-    public string ElapsedTime { get; set; } = string.Empty;
-    public string ExclusiveElapsedTime { get; set; } = string.Empty;
-    public string MemoryBefore { get; set; } = string.Empty;
-    public string MemoryAfter { get; set; } = string.Empty;
-    public string MemoryIncrease { get; set; } = string.Empty;
     public object[] Exceptions { get; set; } = [];
     public List<LogEntry> Children { get; set; } = new();
 
@@ -26,15 +19,8 @@ public class LogEntry
     internal void OnDeserializedMethod(StreamingContext context)
     {
         MethodName ??= string.Empty;
-        Parameters ??= new();
+        Parameters ??= [];
         ReturnType ??= string.Empty;
-        StartTime ??= string.Empty;
-        EndTime ??= string.Empty;
-        ElapsedTime ??= string.Empty;
-        ExclusiveElapsedTime ??= string.Empty;
-        MemoryBefore ??= string.Empty;
-        MemoryAfter ??= string.Empty;
-        MemoryIncrease ??= string.Empty;
         Exceptions ??= [];
         Children ??= [];
     }

@@ -71,9 +71,6 @@
             <TabItem Header="Comparer">
                 <views:ComparerView x:Name="Comparer" DockPanel.Dock="Bottom"/>
             </TabItem>
-            <TabItem Header="By Elapsed Time">
-                <views:ByExclusiveElapsedTimeView x:Name="ByExclusiveElapsedTimeView"/>
-            </TabItem>  
             <TabItem Header="Exceptions">
                 <views:ExceptionsView x:Name="Exceptions"/>
             </TabItem>
