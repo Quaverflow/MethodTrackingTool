@@ -42,9 +42,36 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
 
-            <views:SearchBar Grid.Row="0" x:Name="HierarchicalSearchBar"/>
-            <TreeView Grid.Row="1" x:Name="HierarchicalTreeView" Background="Black" Foreground="White"/>
+            <views:SearchBar
+                Grid.Row="0" Grid.Column="0"
+                x:Name="HierarchicalSearchBar"/>
+            <TreeView
+                Grid.Row="1" Grid.Column="0"
+                x:Name="HierarchicalTreeView"
+                Background="Black"
+                Foreground="White"/>
+            <Border
+                Grid.Row="1" Grid.Column="1"
+                Margin="5"
+                Background="#FF1E1E1E"
+                CornerRadius="5"
+                Padding="8">
+                <TextBlock
+                    FontFamily="Consolas"
+                    Foreground="White"
+                    TextWrapping="Wrap"
+                    Text="{Binding CurrentMatch,
+                       RelativeSource={RelativeSource AncestorType=UserControl},
+                       Converter={StaticResource LogEntryToFormattedStringConverter}}"
+                    behaviours:HighlightedTextBehavior.SearchText="{Binding CurrentSearchText,
+                       RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+            </Border>
         </Grid>
     </Grid>
+
 </UserControl>

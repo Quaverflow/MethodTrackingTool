@@ -10,7 +10,20 @@ namespace MethodTrackerVisualizer.Helpers;
 public static class FileHelper
 {
     public static List<EntryFile?> Data = LoadLogData();
-    public static EntryFile? Selected = Data.FirstOrDefault();
+
+    private static EntryFile? _selected = Data.FirstOrDefault();
+    public static EntryFile? Selected
+    {
+        get => _selected;
+        set
+        {
+            if (!ReferenceEquals(_selected, value))
+            {
+                _selected = value;
+                Refresh?.Invoke(null, EventArgs.Empty);
+            }
+        }
+    }
     private static FileSystemWatcher? _watcher;
     public static event EventHandler? Refresh;
 
