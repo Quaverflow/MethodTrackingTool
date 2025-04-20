@@ -150,7 +150,7 @@ namespace MethodTracker.MockProject
         public List<string> GetRecommendations(int userId)
         {
             var recs = new List<string>();
-            for (int i = 0; i < 14000; i++)
+            for (int i = 0; i < 5; i++)
             {
                 recs.Add($"Rec-{userId}-{i}");
             }
