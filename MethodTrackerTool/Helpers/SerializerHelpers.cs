@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Text;
 using MethodTrackerTool.Models;
 using Newtonsoft.Json;
 
@@ -21,6 +24,31 @@ internal static class SerializerHelpers
         },
         Error = (_, args) => args.ErrorContext.Handled = true
     };
+
+    public static void StreamSerialize(
+        IEnumerable<LogEntry> entries,
+        Stream outputStream)
+    {
+        using var sw = new StreamWriter(
+            outputStream,
+            Encoding.UTF8,
+            bufferSize: 8192,
+            leaveOpen: true);
+        using var jw = new JsonTextWriter(sw);
+        jw.Formatting = SerializerSettings.Formatting;
+
+        var serializer = JsonSerializer.Create(SerializerSettings);
+
+        jw.WriteStartArray();
+
+        foreach (var entry in entries)
+        {
+            serializer.Serialize(jw, entry);
+        }
+
+        jw.WriteEndArray();
+        jw.Flush();
+    }
 
     private class LogEntryConverter : JsonConverter<LogEntry>
     {
@@ -138,5 +166,4 @@ internal static class SerializerHelpers
             writer.WriteEndObject();
         }
     }
-
 }

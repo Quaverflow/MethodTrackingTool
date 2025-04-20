@@ -46,8 +46,7 @@ public class MethodLogger
     private void PrintJson()
     {
         var data = MethodPatches.ResultsByTest[_name];
-        var output = JsonConvert.SerializeObject(data.TopLevelCalls, SerializerHelpers.SerializerSettings);
-        JsonPrinter.WriteLogFile(output, data.Name);
+        JsonPrinter.WriteLogFile(data.TopLevelCalls, data.Name);
         if (data.UnexpectedIssues.Any())
         {
             throw new UnexpectedMethodTrackerException(_name);
