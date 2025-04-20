@@ -13,10 +13,14 @@ namespace MethodTrackerTool;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class MethodPatches
 {
+    private static volatile bool _accepting = true;
     public static readonly ConcurrentDictionary<string, TestResults> ResultsByTest = new();
 
     public static readonly AsyncLocal<string?> CurrentTestId = new();
     private static readonly ConcurrentDictionary<string, Stack<LogEntry>> CallStacks = new();
+    
+    // This avoids pending tasks to modify the entries once we begin serializing.
+    public static void DisableLogging() => _accepting = false;
 
     public static void Initialize(string testId)
     {
@@ -32,6 +36,12 @@ internal static class MethodPatches
 
     public static void Prefix(MethodInfo __originalMethod, object?[]? __args, out LogEntry __state)
     {
+        if (!_accepting)
+        {
+            __state = new LogEntry { MethodName = __originalMethod.Name };
+            return;
+        }
+
         try
         {
             var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
@@ -77,6 +87,10 @@ internal static class MethodPatches
 
     public static void Finalizer(MethodInfo __originalMethod, Exception? __exception, LogEntry __state)
     {
+        if (!_accepting)
+        {
+            return;
+        }
         if (__exception == null)
         {
             return;
@@ -87,6 +101,10 @@ internal static class MethodPatches
 
     private static void FinishInternal(MethodInfo __originalMethod, object? __result, LogEntry __state)
     {
+        if (!_accepting)
+        {
+            return;
+        }
         try
         {
             var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
