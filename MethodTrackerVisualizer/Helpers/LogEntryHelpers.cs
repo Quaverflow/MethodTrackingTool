@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace MethodTrackerVisualizer.Helpers;
@@ -14,7 +12,9 @@ public static class LogEntryHelpers
         string searchText)
     {
         if (string.IsNullOrEmpty(searchText))
+        {
             return new List<LogEntry>();
+        }
 
         var comparison = StringComparison.OrdinalIgnoreCase;
         var results = new List<LogEntry>(capacity: 128);
@@ -38,7 +38,9 @@ public static class LogEntryHelpers
                 }
 
                 for (int i = e.Children.Count - 1; i >= 0; i--)
+                {
                     stack.Push(e.Children[i]);
+                }
             }
         }
 
@@ -68,8 +70,7 @@ public static class LogEntryHelpers
         if (entry.ReturnValue is not null)
         {
             var rv = entry.ReturnValue.ToString();
-            if (!string.IsNullOrEmpty(rv) &&
-                rv.AsSpan().IndexOf(needle, comparison) >= 0)
+            if (!string.IsNullOrEmpty(rv) && rv.AsSpan().IndexOf(needle, comparison) >= 0)
             {
                 return true;
             }
