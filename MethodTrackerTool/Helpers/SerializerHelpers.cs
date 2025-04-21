@@ -80,27 +80,6 @@ internal static class SerializerHelpers
             writer.WritePropertyName(nameof(LogEntry.Exception));
             serializer.Serialize(writer, value.Exception);
 
-            writer.WritePropertyName(nameof(LogEntry.StartTime));
-            writer.WriteValue(value.StartTime);
-
-            writer.WritePropertyName(nameof(LogEntry.EndTime));
-            writer.WriteValue(value.EndTime);
-
-            writer.WritePropertyName(nameof(LogEntry.ElapsedTime));
-            writer.WriteValue(value.ElapsedTime);
-
-            writer.WritePropertyName(nameof(LogEntry.ExclusiveElapsedTime));
-            writer.WriteValue(value.ExclusiveElapsedTime);
-
-            writer.WritePropertyName(nameof(LogEntry.MemoryBefore));
-            serializer.Serialize(writer, value.MemoryBefore);
-
-            writer.WritePropertyName(nameof(LogEntry.MemoryAfter));
-            serializer.Serialize(writer, value.MemoryAfter);
-
-            writer.WritePropertyName(nameof(LogEntry.MemoryIncrease));
-            serializer.Serialize(writer, value.MemoryIncrease);
-
             writer.WritePropertyName(nameof(LogEntry.Children));
             serializer.Serialize(writer, value.Children);
 

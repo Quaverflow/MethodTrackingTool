@@ -78,11 +78,8 @@ internal static class MethodPatches
 
             var entry = new LogEntry
             {
-                MemoryBefore = GC.GetTotalMemory(false),
                 MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
                 Parameters = argsDictionary,
-                RawStartTime = DateTime.UtcNow,
-                StartTime = DateTime.UtcNow.ToString("HH:mm:ss:ff d/M/yyyy"),
                 Parent = parent
             };
 
@@ -120,12 +117,6 @@ internal static class MethodPatches
             var results = ResultsByTest[testId];
             var stack = GetStackForTest(testId);
 
-            __state.RawEndTime = DateTime.UtcNow;
-            __state.MemoryAfter = GC.GetTotalMemory(false);
-            __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
-            var elapsed = __state.RawEndTime - __state.RawStartTime;
-            __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F3} ms";
-
             __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
 
             __state.ReturnValue = CommonHelpers.UnwrapTaskResult(__result);
@@ -159,11 +150,6 @@ internal static class MethodPatches
             var results = ResultsByTest[testId];
             var stack = GetStackForTest(testId);
 
-            __state.RawEndTime = DateTime.UtcNow;
-            __state.MemoryAfter = GC.GetTotalMemory(false);
-            __state.EndTime = __state.RawEndTime.ToString("HH:mm:ss:ff d/M/yyyy");
-            var elapsed = __state.RawEndTime - __state.RawStartTime;
-            __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F003} ms";
             __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
             __state.Exception = MapException(exception);
 

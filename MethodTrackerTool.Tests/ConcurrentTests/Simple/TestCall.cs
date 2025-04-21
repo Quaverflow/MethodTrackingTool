@@ -19,7 +19,7 @@ public static class TestCall
                 }));
 
         var matching = Directory
-            .GetFiles(OutputDirectory, $"{name}*")
+            .GetFiles(OutputDirectory, $"{name}_*")
             .Where(f => Path.GetFileName(f).StartsWith(name, StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
