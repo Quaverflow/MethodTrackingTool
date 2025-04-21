@@ -45,7 +45,7 @@ public class MethodLogger
 
     private void PrintJson()
     {
-        MethodPatches.DisableLogging();
+        MethodPatches.WaitForLogBuild();
         var data = MethodPatches.ResultsByTest[_name];
         JsonPrinter.WriteLogFile(data.TopLevelCalls, data.Name);
         if (data.UnexpectedIssues.Any())
