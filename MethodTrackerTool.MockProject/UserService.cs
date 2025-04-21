@@ -173,25 +173,37 @@ internal class BulkProcessingService : IBulkProcessingService
     public void Process(List<int> items)
     {
         foreach (var item in items)
+        {
             Level1(item);
+        }
     }
     private void Level1(int item) { Level2(item); }
     private void Level2(int item)
     {
         for (int i = 0; i < 10; i++)
+        {
             Level3(item, i);
+        }
     }
     private void Level3(int item, int i)
     {
-        if (i % 2 == 0) Level4(item, i);
-        else Level5(item, i);
+        if (i % 2 == 0)
+        {
+            Level4(item, i);
+        }
+        else
+        {
+            Level5(item, i);
+        }
     }
     private void Level4(int item, int i) { Level6(item, i); }
     private void Level5(int item, int i) { Level6(item, i); }
     private void Level6(int item, int i)
     {
         for (int j = 0; j < 10; j++)
+        {
             Level7(item, i, j);
+        }
     }
     private void Level7(int item, int i, int j) { }
 }

@@ -90,7 +90,11 @@ public partial class HierarchicalView : UserControl
         HierarchicalTreeView.UpdateLayout();
         Dispatcher.Invoke(() => { }, DispatcherPriority.Background);
         var tvi = HierarchicalTreeView.GetTreeViewItem(dataItem);
-        if (tvi == null) return;
+        if (tvi == null)
+        {
+            return;
+        }
+
         tvi.IsSelected = true;
         tvi.ExpandExpanderForEntry();
         tvi.BringIntoView();

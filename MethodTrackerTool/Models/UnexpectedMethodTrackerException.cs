@@ -8,8 +8,17 @@ internal class UnexpectedMethodTrackerException(string testId) : Exception(Forma
     private static string Format(string s)
     {
         var message = "An unexpected issue has occured. Please raise an issue here: https://github.com/Quaverflow/MethodTrackingTool/issues with the message content of this exception";
-        var errors = JsonSerializer.Serialize(MethodPatches.ResultsByTest[s].UnexpectedIssues);
+        try
+        {
+            var errors = JsonSerializer.Serialize(MethodPatches.ResultsByTest[s].UnexpectedIssues);
+            return $"{message}{Environment.NewLine}{errors}";
 
-        return $"{message}{Environment.NewLine}{errors}";
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+
+        }
     }
 }

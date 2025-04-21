@@ -16,29 +16,41 @@ internal static class MethodPatches
     public static readonly ConcurrentDictionary<string, TestResults> ResultsByTest = new();
 
     public static readonly AsyncLocal<string?> CurrentTestId = new();
-    private static readonly ConcurrentDictionary<string, Stack<LogEntry>> CallStacks = new();
+    private static readonly ConcurrentDictionary<string, ConcurrentDictionary<int, Stack<LogEntry>>> CallStacks = new();
 
-    // This avoids pending tasks to modify the entries once we begin serializing.
-    public static void WaitForLogBuild()
+    public static void Teardown()
     {
-        // grab the right stack for this test
         var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
-        if (!CallStacks.TryGetValue(testId, out var stack))
+        if (CallStacks.TryGetValue(testId, out var threadStacks))
+        {
+            foreach (var kv in threadStacks)
+            {
+                kv.Value.Clear();
+            }
+        }
+        if (!CallStacks.TryGetValue(testId, out var map))
         {
             return;
         }
 
-        // spin‑wait until it's empty
-        while (stack.Count > 0)
+        while (map.Values.Any(st => st.Count > 0))
         {
             Thread.Sleep(5);
         }
     }
+
     public static void Initialize(string testId)
     {
         CurrentTestId.Value = testId;
         ResultsByTest[testId] = new TestResults(testId);
-        CallStacks[testId] = new Stack<LogEntry>();
+        CallStacks[testId] = new ConcurrentDictionary<int, Stack<LogEntry>>();
+    }
+
+    private static Stack<LogEntry> GetStackForTest(string testId)
+    {
+        var map = CallStacks[testId];
+        var tid = Thread.CurrentThread.ManagedThreadId;
+        return map.GetOrAdd(tid, _ => new Stack<LogEntry>());
     }
 
     public static TestResults GetResultsForCurrentTest() =>
@@ -50,11 +62,10 @@ internal static class MethodPatches
     {
         try
         {
-            var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
-            var stack = CallStacks[testId];
+            var testId = CurrentTestId.Value!;
+            var stack = GetStackForTest(testId);
 
             var parent = stack.Count > 0 ? stack.Peek() : null;
-
             var parameters = __originalMethod.GetParameters();
             var argsDictionary = __args?
                                      .Select((arg, i) => new
@@ -107,7 +118,7 @@ internal static class MethodPatches
         {
             var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
             var results = ResultsByTest[testId];
-            var stack = CallStacks[testId];
+            var stack = GetStackForTest(testId);
 
             __state.RawEndTime = DateTime.UtcNow;
             __state.MemoryAfter = GC.GetTotalMemory(false);
@@ -119,7 +130,8 @@ internal static class MethodPatches
 
             __state.ReturnValue = CommonHelpers.UnwrapTaskResult(__result);
 
-            if (stack.Pop() != __state)
+            var popped = stack.Pop();
+            if (popped != __state)
             {
                 throw new InvalidOperationException("Call stack mismatch in FinishInternal");
             }
@@ -145,7 +157,7 @@ internal static class MethodPatches
         {
             var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
             var results = ResultsByTest[testId];
-            var stack = CallStacks[testId];
+            var stack = GetStackForTest(testId);
 
             __state.RawEndTime = DateTime.UtcNow;
             __state.MemoryAfter = GC.GetTotalMemory(false);
