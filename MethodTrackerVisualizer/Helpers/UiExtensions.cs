@@ -35,18 +35,26 @@ public static class UiExtensions
             container.UpdateLayout();
         }
 
-        if (container.ItemContainerGenerator.ContainerFromItem(dataItem) is TreeViewItem tvi)
+        if (container.ItemContainerGenerator.ContainerFromItem(dataItem) is TreeViewItem directTvi)
         {
-            return tvi;
+            return directTvi;
         }
+
         foreach (var item in container.Items)
         {
-            if (container.ItemContainerGenerator.ContainerFromItem(item) is TreeViewItem parentContainer)
+            if (container.ItemContainerGenerator.ContainerFromItem(item) is TreeViewItem parentTvi)
             {
-                parentContainer.IsExpanded = true; // Ensure children are generated.
-                var childTvi = parentContainer.GetTreeViewItem(dataItem);
+                if (!parentTvi.IsExpanded)
+                {
+                    parentTvi.IsExpanded = true;
+                    parentTvi.UpdateLayout();
+                }
 
-                return childTvi;
+                var childTvi = parentTvi.GetTreeViewItem(dataItem);
+                if (childTvi != null)
+                {
+                    return childTvi;
+                }
             }
         }
 

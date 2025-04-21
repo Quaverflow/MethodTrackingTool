@@ -11,13 +11,10 @@ public static class LogEntryHelpers
         this IReadOnlyList<LogEntry> roots,
         string searchText)
     {
-        if (string.IsNullOrEmpty(searchText))
-        {
-            return new List<LogEntry>();
-        }
+        if (string.IsNullOrEmpty(searchText)) { return []; }
 
         var comparison = StringComparison.OrdinalIgnoreCase;
-        var results = new List<LogEntry>(capacity: 128);
+        var results = new List<LogEntry>();
         var seen = new HashSet<LogEntry>();
 
         foreach (var root in roots)
@@ -37,7 +34,7 @@ public static class LogEntryHelpers
                     }
                 }
 
-                for (int i = e.Children.Count - 1; i >= 0; i--)
+                for (var i = e.Children.Count - 1; i >= 0; i--)
                 {
                     stack.Push(e.Children[i]);
                 }
@@ -111,5 +108,5 @@ public static class LogEntryHelpers
             })
             .ToList();
 
-    public static LogEntry Clone(LogEntry entry) => JsonConvert.DeserializeObject<LogEntry>(JsonConvert.SerializeObject(entry));
+    public static LogEntry Clone(LogEntry entry) => JsonConvert.DeserializeObject<LogEntry>(JsonConvert.SerializeObject(entry))!;
 }

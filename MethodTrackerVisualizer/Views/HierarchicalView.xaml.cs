@@ -84,7 +84,7 @@ public partial class HierarchicalView : UserControl
         }
     }
 
-    private void NavigateToEntry(object dataItem)
+    private void NavigateToEntry(LogEntry dataItem)
     {
         HierarchicalTreeView.ExpandAllParents(dataItem);
         HierarchicalTreeView.UpdateLayout();
