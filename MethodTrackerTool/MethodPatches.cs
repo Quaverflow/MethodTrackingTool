@@ -155,7 +155,7 @@ internal static class MethodPatches
             var elapsed = __state.RawEndTime - __state.RawStartTime;
             __state.ElapsedTime = $"{elapsed.TotalMilliseconds:F003} ms";
             __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
-            __state.Exceptions = [exception];
+            __state.Exception = MapException(exception);
 
             if (stack.Pop() != __state)
             {
@@ -175,5 +175,18 @@ internal static class MethodPatches
         {
             GetResultsForCurrentTest().UnexpectedIssues.Add(e);
         }
+    }
+
+    private static ExceptionEntry? MapException(Exception? ex)
+    {
+        if (ex == null)
+        {
+            return null;
+        }
+        var message = ex.Message;
+        var stackTrace = ex.StackTrace.Split(["\r\n", "\n"], StringSplitOptions.None).ToArray();
+        var innerExceptions = MapException(ex.InnerException);
+
+        return new ExceptionEntry(message, stackTrace, innerExceptions);
     }
 }

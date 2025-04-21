@@ -6,13 +6,31 @@ using System.Runtime.Serialization;
 
 namespace MethodTrackerVisualizer.Helpers;
 
+public class ExceptionEntry(string message, string[] stackTrace, ExceptionEntry? innerException)
+{
+    public string Message { get; } = message;
+    public string[] StackTrace { get; } = stackTrace;
+    public ExceptionEntry? InnerException { get; } = innerException;
+
+    public override string ToString() => ToString(0);
+
+    public string ToString(int indentLevel)
+    {
+        var indent = new string('\t', indentLevel);
+        return $"""
+                {indent}{Message}
+                {indent}{string.Join(Environment.NewLine, StackTrace)}
+                {indent}InnerException: {innerException?.ToString(indentLevel + 1)}
+                """;
+    }
+}
 public class LogEntry
 {
     public string MethodName { get; set; } = string.Empty;
     public Dictionary<string, object> Parameters { get; set; } = [];
     public string ReturnType { get; set; } = string.Empty;
     public object? ReturnValue { get; set; }
-    public object[] Exceptions { get; set; } = [];
+    public ExceptionEntry? Exception { get; set; }
     public List<LogEntry> Children { get; set; } = new();
 
     [OnDeserialized]
@@ -21,7 +39,6 @@ public class LogEntry
         MethodName ??= string.Empty;
         Parameters ??= [];
         ReturnType ??= string.Empty;
-        Exceptions ??= [];
         Children ??= [];
     }
 }

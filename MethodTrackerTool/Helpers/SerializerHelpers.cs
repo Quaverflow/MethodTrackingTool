@@ -22,7 +22,6 @@ internal static class SerializerHelpers
             new CultureInfoConverter(),
             new TypeConverter(),
             new DelegateConverter(),
-            new ExceptionConverter()
         },
         ContractResolver = new ReflectionFilteringContractResolver(),
         Error = (_, args) => args.ErrorContext.Handled = true
@@ -78,8 +77,8 @@ internal static class SerializerHelpers
             writer.WritePropertyName(nameof(LogEntry.ReturnType));
             writer.WriteValue(value.ReturnType);
 
-            writer.WritePropertyName(nameof(LogEntry.Exceptions));
-            serializer.Serialize(writer, value.Exceptions);
+            writer.WritePropertyName(nameof(LogEntry.Exception));
+            serializer.Serialize(writer, value.Exception);
 
             writer.WritePropertyName(nameof(LogEntry.StartTime));
             writer.WriteValue(value.StartTime);
@@ -132,43 +131,6 @@ internal static class SerializerHelpers
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => writer.WriteValue($"{value?.GetType().FullName} delegate is not serializable.");
     }
 
-    private class ExceptionConverter : JsonConverter<Exception>
-    {
-        public override Exception ReadJson(JsonReader reader, Type objectType, Exception? existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
-
-        public override void WriteJson(JsonWriter writer, Exception? value, JsonSerializer serializer)
-        {
-            if (value is null)
-            {
-                return;
-            }
-
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("Message");
-            writer.WriteValue(value.Message);
-
-            writer.WritePropertyName("StackTrace");
-            if (value.StackTrace is not null)
-            {
-                writer.WriteStartArray();
-                foreach (var line in value.StackTrace.Split(["\r\n", "\n"], StringSplitOptions.None))
-                {
-                    writer.WriteValue(line);
-                }
-                writer.WriteEndArray();
-            }
-            else
-            {
-                writer.WriteNull();
-            }
-
-            writer.WritePropertyName("InnerException");
-            serializer.Serialize(writer, value.InnerException);
-
-            writer.WriteEndObject();
-        }
-    }
 
     public class ReflectionFilteringContractResolver : DefaultContractResolver
     {

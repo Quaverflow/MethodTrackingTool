@@ -43,7 +43,7 @@ public class LogEntry
     public long MemoryAfter { get; set; }
     public long MemoryIncrease => MemoryAfter - MemoryBefore;
 
-    public Exception[]? Exceptions { get; set; }
+    public ExceptionEntry? Exception { get; set; }
 
     public List<LogEntry> Children { get; set; } = [];
 
@@ -60,7 +60,7 @@ public class LogEntry
             ElapsedTime = ElapsedTime,
             MemoryBefore = MemoryBefore,
             MemoryAfter = MemoryAfter,
-            Exceptions = Exceptions?.ToArray(),
+            Exception = Exception,
             IsEntryMethod = IsEntryMethod,
             RawStartTime = RawStartTime,
             RawEndTime = RawEndTime,
@@ -69,4 +69,11 @@ public class LogEntry
 
         return clone;
     }
+}
+
+public class ExceptionEntry(string message, string[] stackTrace, ExceptionEntry? innerException)
+{
+    public string Message { get; } = message;
+    public string[] StackTrace { get; } = stackTrace;
+    public ExceptionEntry? InnerException { get; } = innerException;
 }

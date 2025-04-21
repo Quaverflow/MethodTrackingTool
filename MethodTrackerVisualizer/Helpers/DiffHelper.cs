@@ -42,7 +42,7 @@ public static class DiffHelper
             var parametersChanged = !DeepEquals(left.Parameters, right.Parameters);
             var returnTypeChanged = left.ReturnType != right.ReturnType;
             var returnValueChanged = !DeepEquals(left.ReturnValue, right.ReturnValue);
-            var exceptionsChanged = !DeepEquals(left.Exceptions, right.Exceptions);
+            var exceptionsChanged = !DeepEquals(left.Exception, right.Exception);
             var hasChanged = methodChanged || parametersChanged || returnTypeChanged || returnValueChanged || exceptionsChanged;
             diff.DiffType = hasChanged ? DiffType.Modified : DiffType.Unchanged;
         }

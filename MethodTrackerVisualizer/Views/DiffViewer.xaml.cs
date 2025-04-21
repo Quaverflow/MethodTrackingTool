@@ -34,8 +34,8 @@ public partial class DiffViewer
                 return string.Empty;
             }
 
-            var exceptionsText = entry.Exceptions.Length > 0
-                ? JsonConvert.SerializeObject(entry.Exceptions)
+            var exceptionsText = entry.Exception != null
+                ? JsonConvert.SerializeObject(entry.Exception)
                 : "None";
             return $"Method: {entry.MethodName}\n" +
                    $"Parameters: {JsonConvert.SerializeObject(entry.Parameters)}\n" +

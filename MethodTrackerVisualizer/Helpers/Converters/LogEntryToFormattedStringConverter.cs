@@ -20,7 +20,7 @@ public class LogEntryToFormattedStringConverter : IValueConverter
         sb.AppendLine($"Parameters: {string.Join(", ", entry.Parameters.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}");
         sb.AppendLine($"Return Type: {entry.ReturnType}");
         sb.AppendLine($"Return Value: {entry.ReturnValue}");
-        sb.AppendLine($"Exceptions: {string.Join(", ", entry.Exceptions)}");
+        sb.AppendLine($"Exceptions: {string.Join(", ", entry.Exception)}");
         return sb.ToString();
     }
 

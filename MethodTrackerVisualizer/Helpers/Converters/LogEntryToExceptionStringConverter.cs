@@ -17,7 +17,7 @@ public class LogEntryToExceptionStringConverter : IValueConverter
 
         if (ContainsExceptions(entry))
         {
-            sb.AppendLine($"Exceptions: {string.Join(" | ", entry.Exceptions.Select(e => e.ToString()))}");
+            sb.AppendLine($"Exception: {entry.Exception}");
         }
         else if (entry.Children.Any(ContainsExceptions))
         {
@@ -39,6 +39,6 @@ public class LogEntryToExceptionStringConverter : IValueConverter
         => throw new NotImplementedException();
 
     private static bool ContainsExceptions(LogEntry entry) 
-        => entry.Exceptions.Any();
+        => entry.Exception != null;
 
 }

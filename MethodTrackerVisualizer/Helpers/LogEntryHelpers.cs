@@ -3,50 +3,46 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace MethodTrackerVisualizer.Helpers;
 
 public static class LogEntryHelpers
 {
     public static List<LogEntry> FindMatchingText(
-           this IReadOnlyList<LogEntry> roots,
+        this IReadOnlyList<LogEntry> roots,
         string searchText)
     {
         if (string.IsNullOrEmpty(searchText))
-        {
-            return [];
-        }
+            return new List<LogEntry>();
 
         var comparison = StringComparison.OrdinalIgnoreCase;
-        var results = new ConcurrentBag<LogEntry>();
+        var results = new List<LogEntry>(capacity: 128);
+        var seen = new HashSet<LogEntry>();
 
-        Parallel.ForEach(
-            Partitioner.Create(0, roots.Count),
-            range =>
+        foreach (var root in roots)
+        {
+            var stack = new Stack<LogEntry>();
+            stack.Push(root);
+
+            while (stack.Count > 0)
             {
-                for (var i = range.Item1; i < range.Item2; i++)
+                var e = stack.Pop();
+
+                if (EntryMatchesSpan(e, searchText.AsSpan(), comparison))
                 {
-                    var stack = new Stack<LogEntry>();
-                    stack.Push(roots[i]);
-
-                    while (stack.Count > 0)
+                    if (seen.Add(e))
                     {
-                        var e = stack.Pop();
-
-                        if (EntryMatchesSpan(e, searchText.AsSpan(), comparison))
-                        {
-                            results.Add(e);
-                        }
-
-                        foreach (var c in e.Children)
-                        {
-                            stack.Push(c);
-                        }
+                        results.Add(e);
                     }
                 }
-            });
 
-        return results.ToList();
+                for (int i = e.Children.Count - 1; i >= 0; i--)
+                    stack.Push(e.Children[i]);
+            }
+        }
+
+        return results;
     }
 
     private static bool EntryMatchesSpan(
@@ -64,13 +60,9 @@ public static class LogEntryHelpers
             return true;
         }
 
-        foreach (var exObj in entry.Exceptions)
+        if (entry.Exception is { } ex && ex.Message.AsSpan().IndexOf(needle, comparison) >= 0)
         {
-            if (exObj is Exception ex &&
-                ex.Message.AsSpan().IndexOf(needle, comparison) >= 0)
-            {
-                return true;
-            }
+            return true;
         }
 
         if (entry.ReturnValue is not null)
@@ -104,8 +96,8 @@ public static class LogEntryHelpers
 
         return false;
     }
-    private static bool ContainsExceptionDeep(LogEntry entry) 
-        => entry.Exceptions.Any() || entry.Children.Any(ContainsExceptionDeep);
+    private static bool ContainsExceptionDeep(LogEntry entry)
+        => entry.Exception != null || entry.Children.Any(ContainsExceptionDeep);
 
     public static List<LogEntry> FilterByDeepExceptions(this IEnumerable<LogEntry> data) =>
         data
@@ -118,11 +110,5 @@ public static class LogEntryHelpers
             })
             .ToList();
 
-    public static LogEntry Clone(LogEntry entry) =>
-        new()
-        {
-            MethodName = entry.MethodName,
-            Exceptions = entry.Exceptions.ToArray(),
-            Children = entry.Children.Select(Clone).ToList()
-        };
+    public static LogEntry Clone(LogEntry entry) => JsonConvert.DeserializeObject<LogEntry>(JsonConvert.SerializeObject(entry));
 }

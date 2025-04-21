@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
@@ -10,19 +12,6 @@ public partial class HierarchicalView : UserControl
 {
     private List<LogEntry> _matchedTextEntries = new();
     private int _currentMatchTextEntriesIndex = -1;
-
-    // Expose the currently selected match for binding:
-    public LogEntry? CurrentMatch
-    {
-        get => (LogEntry?)GetValue(CurrentMatchProperty);
-        set => SetValue(CurrentMatchProperty, value);
-    }
-    public static readonly DependencyProperty CurrentMatchProperty =
-        DependencyProperty.Register(
-            nameof(CurrentMatch),
-            typeof(LogEntry),
-            typeof(HierarchicalView),
-            new PropertyMetadata(null));
 
     public string CurrentSearchText
     {
@@ -57,45 +46,54 @@ public partial class HierarchicalView : UserControl
             FileHelper.Selected?.Data ?? new List<LogEntry>();
         _matchedTextEntries.Clear();
         _currentMatchTextEntriesIndex = -1;
-        CurrentMatch = null;
     }
 
-    private void SearchForText(object _, string raw)
+    private void SearchForText(object _, string searchText)
     {
-        CurrentSearchText = raw.Trim();
+        CurrentSearchText = searchText.Trim();
         if (string.IsNullOrEmpty(CurrentSearchText))
         {
             _matchedTextEntries.Clear();
-            CurrentMatch = null;
+            _currentMatchTextEntriesIndex = -1;
             return;
         }
 
-        var data = FileHelper.Selected?.Data;
-        if (data == null) return;
-
-        _matchedTextEntries = data.FindMatchingText(CurrentSearchText);
-        if (_matchedTextEntries.Count > 0)
+        _matchedTextEntries = FileHelper.Selected?.Data.FindMatchingText(CurrentSearchText) ?? [];
+        if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;
-            CurrentMatch = _matchedTextEntries[0];
+            NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
         }
     }
 
-    private void PreviousText(object _, EventArgs __)
+    private void PreviousText(object sender, EventArgs _)
     {
-        if (_matchedTextEntries.Count == 0) return;
-        _currentMatchTextEntriesIndex =
-            (_currentMatchTextEntriesIndex - 1 + _matchedTextEntries.Count)
-            % _matchedTextEntries.Count;
-        CurrentMatch = _matchedTextEntries[_currentMatchTextEntriesIndex];
+        if (_matchedTextEntries.Any())
+        {
+            _currentMatchTextEntriesIndex = (_currentMatchTextEntriesIndex - 1 + _matchedTextEntries.Count) % _matchedTextEntries.Count;
+            NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
+        }
     }
 
-    private void NextText(object _, EventArgs __)
+    private void NextText(object sender, EventArgs _)
     {
-        if (_matchedTextEntries.Count == 0) return;
-        _currentMatchTextEntriesIndex =
-            (_currentMatchTextEntriesIndex + 1)
-            % _matchedTextEntries.Count;
-        CurrentMatch = _matchedTextEntries[_currentMatchTextEntriesIndex];
+        if (_matchedTextEntries.Any())
+        {
+            _currentMatchTextEntriesIndex = (_currentMatchTextEntriesIndex + 1) % _matchedTextEntries.Count;
+            NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
+        }
+    }
+
+    private void NavigateToEntry(object dataItem)
+    {
+        HierarchicalTreeView.ExpandAllParents(dataItem);
+        HierarchicalTreeView.UpdateLayout();
+        Dispatcher.Invoke(() => { }, DispatcherPriority.Background);
+        var tvi = HierarchicalTreeView.GetTreeViewItem(dataItem);
+        if (tvi == null) return;
+        tvi.IsSelected = true;
+        tvi.ExpandExpanderForEntry();
+        tvi.BringIntoView();
+        tvi.Focus();
     }
 }
