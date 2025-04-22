@@ -64,6 +64,8 @@ public partial class HierarchicalView : UserControl
         }
 
         _matchedTextEntries = Selected?.Data.FindMatchingText(CurrentSearchText) ?? [];
+       
+        UpdateNavButtons();
         if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;
@@ -73,20 +75,31 @@ public partial class HierarchicalView : UserControl
 
     private void PreviousText(object sender, EventArgs _)
     {
-        if (_matchedTextEntries.Any())
+        if (_currentMatchTextEntriesIndex > 0)
         {
-            _currentMatchTextEntriesIndex = (_currentMatchTextEntriesIndex - 1 + _matchedTextEntries.Count) % _matchedTextEntries.Count;
+            _currentMatchTextEntriesIndex--;
             NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
         }
+        UpdateNavButtons();
     }
 
     private void NextText(object sender, EventArgs _)
     {
-        if (_matchedTextEntries.Any())
+        if (_currentMatchTextEntriesIndex < _matchedTextEntries.Count - 1)
         {
-            _currentMatchTextEntriesIndex = (_currentMatchTextEntriesIndex + 1) % _matchedTextEntries.Count;
+            _currentMatchTextEntriesIndex++;
             NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
         }
+        UpdateNavButtons();
+    }
+    private void UpdateNavButtons()
+    {
+        var hasAny = _matchedTextEntries.Count > 0;
+        var atFirst = _currentMatchTextEntriesIndex <= 0;
+        var atLast = _currentMatchTextEntriesIndex >= _matchedTextEntries.Count - 1;
+
+        HierarchicalSearchBar.PreviousButton.IsEnabled = hasAny && !atFirst;
+        HierarchicalSearchBar.NextButton.IsEnabled = hasAny && !atLast;
     }
 
     public async void NavigateToEntry(LogEntry target)
