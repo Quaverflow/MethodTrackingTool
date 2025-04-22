@@ -9,10 +9,27 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <views:SimpleSearchBar
-            Grid.Row="0"
-            x:Name="FileSystemSearchBar"
-            Margin="0,0,0,10"/>
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <views:SimpleSearchBar
+                Grid.Column="0"
+                x:Name="FileSystemSearchBar"/>
+
+            <Button Grid.Column="1"
+                    x:Name="DeleteAllButton"
+                    Content="🗑 Delete All"
+                    Foreground="White"
+                    Background="Transparent"
+                    BorderBrush="White"
+                    BorderThickness="1"
+                    Padding="5,2"
+                    Margin="10,0,0,0"
+                    Click="DeleteAllButton_Click"/>
+        </Grid>
 
         <DataGrid x:Name="FilesDataGrid"
                   Grid.Row="1"
@@ -26,7 +43,6 @@
                   HeadersVisibility="Column"
                   GridLinesVisibility="None"
                   SelectionChanged="FilesDataGrid_SelectionChanged">
-
             <DataGrid.Resources>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background">
@@ -98,6 +114,20 @@
                                     Binding="{Binding Updated, StringFormat={}{0:G}}"
                                     SortMemberPath="Updated"
                                     Width="150"/>
+                <DataGridTemplateColumn Header="" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="🗑"
+                                    ToolTip="Delete this file"
+                                    Tag="{Binding FileName}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Foreground="White"
+                                    Padding="5"
+                                    PreviewMouseLeftButtonDown="DeleteFileButton_PreviewMouseLeftButtonDown"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

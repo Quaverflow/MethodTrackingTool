@@ -2,17 +2,24 @@
 using System.Linq;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Windows;
 using MethodTrackerVisualizer.Helpers;
+using System.Windows.Input;
 
 namespace MethodTrackerVisualizer.Views;
 
 public partial class FileSystemView : UserControl
 {
     private readonly ObservableCollection<FileItem> _items = [];
+    private EntryFile? _selected;
 
-    public event EventHandler<EntryFile>? FileSelectionChanged;
-    private void OnFileSelectionChanged(EntryFile file)
-        => FileSelectionChanged?.Invoke(this, file);
+    public event EventHandler<EntryFile?>? FileSelectionChanged;
+    private void OnFileSelectionChanged(EntryFile? file)
+    {
+        _selected = file;
+        FileSelectionChanged?.Invoke(this, file);
+    }
 
     public FileSystemView()
     {
@@ -35,6 +42,18 @@ public partial class FileSystemView : UserControl
                 Selected = false
             });
         }
+
+        if (_selected != null)
+        {
+            var match = _items.FirstOrDefault(fi => fi.FileName == _selected.FileName);
+            if (match != null)
+            {
+                FilesDataGrid.SelectedItem = match;
+                return;
+            }
+        }
+
+        FilesDataGrid.SelectedItem = null;
     }
 
     private void ApplyFilter(string raw)
@@ -74,6 +93,54 @@ public partial class FileSystemView : UserControl
             if (entry != null)
             {
                 OnFileSelectionChanged(entry);
+            }
+        }
+    }
+
+    private void DeleteAllButton_Click(object sender, RoutedEventArgs e)
+    {
+        var folder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "MethodLogger");
+        try
+        {
+            foreach (var file in Directory.GetFiles(folder))
+            {
+                File.Delete(file);
+            }
+            OnFileSelectionChanged(null);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error deleting all files: {ex.Message}",
+                "Delete All Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void DeleteFileButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        if (sender is Button { Tag: string fileName })
+        {
+            var folder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "MethodLogger");
+            var path = Path.Combine(folder, fileName);
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                    if (_selected?.FileName == fileName)
+                    {
+                        OnFileSelectionChanged(null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error deleting file '{fileName}': {ex.Message}",
+                    "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
