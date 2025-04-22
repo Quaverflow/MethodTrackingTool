@@ -16,10 +16,11 @@
           1042
         ],
         "TotalAmount": 20.0,
-        "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+        "X": {}
       }
     },
     "ReturnValue": {
+      "PrivateProperty": "hello",
       "OrderId": "SAMPLETEST",
       "Customer": {
         "Id": 13,
@@ -43,7 +44,9 @@
       "ShippingFee": 19.91,
       "Total": 7902.065,
       "OrderDate": "2025-04-17T00:00:00",
-      "Culture": "System.CultureInfo is removed."
+      "Culture": "System.CultureInfo is removed.",
+      "publicField": "hello",
+      "PrivateField": "hello"
     },
     "ReturnType": "System.Threading.Tasks.Task<MethodTracker.MockProject.Order>",
     "Exception": null,
@@ -75,7 +78,7 @@
               1042
             ],
             "TotalAmount": 20.0,
-            "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+            "X": {}
           }
         },
         "ReturnValue": "void",
@@ -99,7 +102,7 @@
                   1042
                 ],
                 "TotalAmount": 20.0,
-                "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+                "X": {}
               }
             },
             "ReturnValue": "void",
@@ -123,7 +126,7 @@
                       1042
                     ],
                     "TotalAmount": 20.0,
-                    "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+                    "X": {}
                   }
                 },
                 "ReturnValue": "void",
@@ -147,7 +150,7 @@
                           1042
                         ],
                         "TotalAmount": 20.0,
-                        "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+                        "X": {}
                       }
                     },
                     "ReturnValue": "void",
@@ -423,7 +426,7 @@
               1042
             ],
             "TotalAmount": 20.0,
-            "X": "System.Func`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] delegate is not serializable."
+            "X": {}
           },
           "MethodTracker.MockProject.User user": {
             "Id": 13,
@@ -435,6 +438,7 @@
           "System.Decimal taxed": 515.655
         },
         "ReturnValue": {
+          "PrivateProperty": "hello",
           "OrderId": "SAMPLETEST",
           "Customer": {
             "Id": 13,
@@ -458,7 +462,9 @@
           "ShippingFee": 19.91,
           "Total": 7902.065,
           "OrderDate": "2025-04-17T00:00:00",
-          "Culture": "System.CultureInfo is removed."
+          "Culture": "System.CultureInfo is removed.",
+          "publicField": "hello",
+          "PrivateField": "hello"
         },
         "ReturnType": "MethodTracker.MockProject.Order",
         "Exception": null,
@@ -598,6 +604,7 @@
         "MethodName": "ShippingService.ScheduleAsync",
         "Parameters": {
           "MethodTracker.MockProject.Order order": {
+            "PrivateProperty": "hello",
             "OrderId": "SAMPLETEST",
             "Customer": {
               "Id": 13,
@@ -621,7 +628,9 @@
             "ShippingFee": 19.91,
             "Total": 7902.065,
             "OrderDate": "2025-04-17T00:00:00",
-            "Culture": "System.CultureInfo is removed."
+            "Culture": "System.CultureInfo is removed.",
+            "publicField": "hello",
+            "PrivateField": "hello"
           }
         },
         "ReturnValue": null,
@@ -649,6 +658,7 @@
         "MethodName": "AnalyticsService.TrackOrder",
         "Parameters": {
           "MethodTracker.MockProject.Order o": {
+            "PrivateProperty": "hello",
             "OrderId": "SAMPLETEST",
             "Customer": {
               "Id": 13,
@@ -672,7 +682,9 @@
             "ShippingFee": 19.91,
             "Total": 7902.065,
             "OrderDate": "2025-04-17T00:00:00",
-            "Culture": "System.CultureInfo is removed."
+            "Culture": "System.CultureInfo is removed.",
+            "publicField": "hello",
+            "PrivateField": "hello"
           },
           "MethodTracker.MockProject.PaymentResult p": {
             "Success": true,
@@ -695,6 +707,7 @@
             "MethodName": "AnalyticsDetail.Log",
             "Parameters": {
               "MethodTracker.MockProject.Order o": {
+                "PrivateProperty": "hello",
                 "OrderId": "SAMPLETEST",
                 "Customer": {
                   "Id": 13,
@@ -718,7 +731,9 @@
                 "ShippingFee": 19.91,
                 "Total": 7902.065,
                 "OrderDate": "2025-04-17T00:00:00",
-                "Culture": "System.CultureInfo is removed."
+                "Culture": "System.CultureInfo is removed.",
+                "publicField": "hello",
+                "PrivateField": "hello"
               },
               "MethodTracker.MockProject.PaymentResult p": {
                 "Success": true,
@@ -744,6 +759,7 @@
         "MethodName": "AuditService.Record",
         "Parameters": {
           "MethodTracker.MockProject.Order o": {
+            "PrivateProperty": "hello",
             "OrderId": "SAMPLETEST",
             "Customer": {
               "Id": 13,
@@ -767,7 +783,9 @@
             "ShippingFee": 19.91,
             "Total": 7902.065,
             "OrderDate": "2025-04-17T00:00:00",
-            "Culture": "System.CultureInfo is removed."
+            "Culture": "System.CultureInfo is removed.",
+            "publicField": "hello",
+            "PrivateField": "hello"
           },
           "MethodTracker.MockProject.User u": {
             "Id": 13,
@@ -788,6 +806,7 @@
             "MethodName": "AuditDetailService.Log",
             "Parameters": {
               "MethodTracker.MockProject.Order o": {
+                "PrivateProperty": "hello",
                 "OrderId": "SAMPLETEST",
                 "Customer": {
                   "Id": 13,
@@ -811,7 +830,9 @@
                 "ShippingFee": 19.91,
                 "Total": 7902.065,
                 "OrderDate": "2025-04-17T00:00:00",
-                "Culture": "System.CultureInfo is removed."
+                "Culture": "System.CultureInfo is removed.",
+                "publicField": "hello",
+                "PrivateField": "hello"
               },
               "MethodTracker.MockProject.User u": {
                 "Id": 13,
@@ -835,6 +856,7 @@
         "MethodName": "NotificationService.Confirm",
         "Parameters": {
           "MethodTracker.MockProject.Order o": {
+            "PrivateProperty": "hello",
             "OrderId": "SAMPLETEST",
             "Customer": {
               "Id": 13,
@@ -858,7 +880,9 @@
             "ShippingFee": 19.91,
             "Total": 7902.065,
             "OrderDate": "2025-04-17T00:00:00",
-            "Culture": "System.CultureInfo is removed."
+            "Culture": "System.CultureInfo is removed.",
+            "publicField": "hello",
+            "PrivateField": "hello"
           },
           "MethodTracker.MockProject.User u": {
             "Id": 13,

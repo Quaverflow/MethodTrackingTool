@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using MethodTrackerTool.Models;
@@ -16,14 +18,7 @@ internal static class SerializerHelpers
     {
         Formatting = Formatting.Indented,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-        Converters =
-        {
-            new LogEntryConverter(),
-            new CultureInfoConverter(),
-            new TypeConverter(),
-            new DelegateConverter(),
-        },
-        ContractResolver = new ReflectionFilteringContractResolver(),
+        ContractResolver = new CustomContractResolver(),
         Error = (_, args) => args.ErrorContext.Handled = true
     };
 
@@ -31,18 +26,12 @@ internal static class SerializerHelpers
         IEnumerable<LogEntry> entries,
         Stream outputStream)
     {
-        using var sw = new StreamWriter(
-            outputStream,
-            Encoding.UTF8,
-            bufferSize: 8192,
-            leaveOpen: true);
+        using var sw = new StreamWriter(outputStream, Encoding.UTF8, 8192, leaveOpen: true);
         using var jw = new JsonTextWriter(sw);
         jw.Formatting = SerializerSettings.Formatting;
-
         var serializer = JsonSerializer.Create(SerializerSettings);
 
         jw.WriteStartArray();
-
         foreach (var entry in entries)
         {
             serializer.Serialize(jw, entry);
@@ -52,123 +41,138 @@ internal static class SerializerHelpers
         jw.Flush();
     }
 
-    private class LogEntryConverter : JsonConverter<LogEntry>
+    private class CustomContractResolver : DefaultContractResolver
     {
-        public override LogEntry ReadJson(JsonReader reader, Type objectType, LogEntry? existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
+        private static readonly Type[] ExcludeList =
+        [
+            typeof(MemberInfo),
+            typeof(ParameterInfo),
+            typeof(ConstructorInfo),
+            typeof(PropertyInfo)
+        ];
 
-        public override void WriteJson(JsonWriter writer, LogEntry? value, JsonSerializer serializer)
+        protected override List<MemberInfo> GetSerializableMembers(Type objectType)
         {
-            if (value == null)
-            {
-                return;
-            }
-
-            writer.WriteStartObject();
-
-            writer.WritePropertyName(nameof(LogEntry.MethodName));
-            writer.WriteValue(value.MethodName);
-
-            writer.WritePropertyName(nameof(LogEntry.Parameters));
-            serializer.Serialize(writer, value.Parameters);
-
-            writer.WritePropertyName(nameof(LogEntry.ReturnValue));
-            serializer.Serialize(writer, value.ReturnValue);
-
-            writer.WritePropertyName(nameof(LogEntry.ReturnType));
-            writer.WriteValue(value.ReturnType);
-
-            writer.WritePropertyName(nameof(LogEntry.Exception));
-            serializer.Serialize(writer, value.Exception);
-
-            writer.WritePropertyName(nameof(LogEntry.Children));
-            serializer.Serialize(writer, value.Children);
-
-            writer.WriteEndObject();
-        }
-    }
-
-    private class CultureInfoConverter : JsonConverter<CultureInfo>
-    {
-        public override CultureInfo ReadJson(JsonReader reader, Type objectType, CultureInfo? existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
-
-        public override void WriteJson(JsonWriter writer, CultureInfo? value, JsonSerializer serializer) => writer.WriteValue("System.CultureInfo is removed.");
-    }
-
-    private class TypeConverter : JsonConverter<Type>
-    {
-        public override Type ReadJson(JsonReader reader, Type objectType, Type? existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException("Deserialization is not supported.");
-
-        public override void WriteJson(JsonWriter writer, Type? value, JsonSerializer serializer) => writer.WriteValue("System.Type object is not serializable.");
-    }
-
-    private class DelegateConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType) => typeof(Delegate).IsAssignableFrom(objectType);
-
-        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) => throw new NotSupportedException("Deserializing delegates is not supported.");
-
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => writer.WriteValue($"{value?.GetType().FullName} delegate is not serializable.");
-    }
-
-
-    public class ReflectionFilteringContractResolver : DefaultContractResolver
-    {
-        protected override JsonProperty CreateProperty(
-            MemberInfo member,
-            MemberSerialization memberSerialization)
-        {
-            var prop = base.CreateProperty(member, memberSerialization);
-
-            var t = prop.PropertyType;
-            if (t == null)
-            {
-                prop.Ignored = true;
-                return prop;
-            }
-
-            if (t.Namespace?.StartsWith("System.Reflection", StringComparison.Ordinal) == true
-                || typeof(MemberInfo).IsAssignableFrom(t))
-            {
-                prop.Ignored = true;
-            }
-
-            if (typeof(System.Collections.IDictionary).IsAssignableFrom(t)
-                || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
-            {
-                prop.ValueProvider = new ReflectionFilteringValueProvider(prop.ValueProvider);
-            }
-
-            return prop;
+            const BindingFlags flags = CommonHelpers.CommonBindingFlags;
+            var props = objectType
+                .GetProperties(flags)
+                .Cast<MemberInfo>();
+            var fields = objectType
+                .GetFields(flags)
+                .Where(f => !f.Name.Contains("BackingField"))
+                .Cast<MemberInfo>();
+            return props.Concat(fields).ToList();
         }
 
-        class ReflectionFilteringValueProvider(IValueProvider? inner) : IValueProvider
+        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        {
+            if (type == typeof(LogEntry))
+            {
+                var names = new[]
+                {
+                    nameof(LogEntry.MethodName),
+                    nameof(LogEntry.Parameters),
+                    nameof(LogEntry.ReturnValue),
+                    nameof(LogEntry.ReturnType),
+                    nameof(LogEntry.Exception),
+                    nameof(LogEntry.Children)
+                };
+
+                return names
+                    .Where(n => GetProperty(type, n) != null)
+                    .Select(n => base.CreateProperty(GetProperty(type, n)! /*checked above*/, memberSerialization))
+                    .Where(p => p != null)
+                    .Select(p =>
+                    {
+                        p.Readable = p.Writable = true;
+                        return p;
+                    })
+                    .ToList();
+            }
+
+            var props = base.CreateProperties(type, memberSerialization);
+            foreach (var prop in props)
+            {
+                prop.Readable = prop.Writable = true;
+
+                if (ExcludeList.Any(t => t.IsAssignableFrom(prop.PropertyType))
+                    || (prop.PropertyType?.Namespace?.StartsWith("System.Reflection") ?? false))
+                {
+                    prop.Ignored = true;
+                    continue;
+                }
+
+                if (prop.PropertyType == typeof(CultureInfo))
+                {
+                    prop.ValueProvider = new ConstantValueProvider("System.CultureInfo is removed.");
+                    continue;
+                }
+
+                if (prop.PropertyType == typeof(Type))
+                {
+                    prop.ValueProvider = new ConstantValueProvider("System.Type object is not serializable.");
+                    continue;
+                }
+
+                if (typeof(Delegate).IsAssignableFrom(prop.PropertyType))
+                {
+                    prop.ValueProvider = new DelegateStringValueProvider(prop.ValueProvider);
+                    continue;
+                }
+
+                if (typeof(IDictionary).IsAssignableFrom(prop.PropertyType))
+                {
+                    prop.ValueProvider = new ReflectionFilteringValueProvider(prop.ValueProvider);
+                }
+            }
+
+            return props;
+        }
+
+        private static MemberInfo? GetProperty(Type type, string n) =>
+            type.GetProperty(n, CommonHelpers.CommonBindingFlags) as MemberInfo ??
+            type.GetField(n, CommonHelpers.CommonBindingFlags);
+
+        private class ConstantValueProvider(object constant) : IValueProvider
+        {
+            public object GetValue(object target) => constant;
+            public void SetValue(object target, object? value) { }
+        }
+
+        private class DelegateStringValueProvider(IValueProvider? inner) : IValueProvider
+        {
+            public object? GetValue(object target) =>
+                inner?.GetValue(target) is not Delegate del
+                    ? null
+                    : $"{del.GetType().FullName} delegate is not serializable.";
+            public void SetValue(object target, object? value) => inner?.SetValue(target, value);
+        }
+
+        private class ReflectionFilteringValueProvider(IValueProvider? inner) : IValueProvider
         {
             public object? GetValue(object target)
             {
-                var value = inner?.GetValue(target);
-                if (value is not System.Collections.IDictionary dict)
+                if (inner?.GetValue(target) is not IDictionary dict)
                 {
-                    return value;
+                    return null;
                 }
 
-                var newDict = (System.Collections.IDictionary)Activator.CreateInstance(dict.GetType())!;
-                foreach (System.Collections.DictionaryEntry kv in dict)
+                var copy = (IDictionary)Activator.CreateInstance(dict.GetType())!;
+                foreach (DictionaryEntry kv in dict)
                 {
-                    var val = kv.Value;
-                    var t = val?.GetType();
-                    if (t != null && t.Namespace?.StartsWith("System.Reflection", StringComparison.Ordinal) == true)
+                    var v = kv.Value;
+                    if (v != null)
                     {
-                        continue;
+                        var t = v.GetType();
+                        if (t.Namespace?.StartsWith("System.Reflection") == true
+                            || typeof(MemberInfo).IsAssignableFrom(t))
+                        {
+                            continue;
+                        }
                     }
-
-                    if (val is MemberInfo)
-                    {
-                        continue;
-                    }
-
-                    newDict[kv.Key] = val;
+                    copy[kv.Key] = kv.Value;
                 }
-                return newDict;
+                return copy;
             }
 
             public void SetValue(object target, object? value) => inner?.SetValue(target, value);
