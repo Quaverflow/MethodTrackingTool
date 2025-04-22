@@ -88,9 +88,6 @@
     <Compile Include="Views\DiffViewer.xaml.cs">
       <DependentUpon>DiffViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ExceptionsView.xaml.cs">
-      <DependentUpon>ExceptionsView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\ComparerView.xaml.cs">
       <DependentUpon>ComparerView.xaml</DependentUpon>
     </Compile>
@@ -167,10 +164,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\DiffViewer.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\ExceptionsView.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </Page>

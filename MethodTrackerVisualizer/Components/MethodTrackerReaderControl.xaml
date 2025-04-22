@@ -68,9 +68,6 @@
             <TabItem Header="Comparer">
                 <views:ComparerView x:Name="Comparer" DockPanel.Dock="Bottom"/>
             </TabItem>
-            <TabItem Header="Exceptions">
-                <views:ExceptionsView x:Name="Exceptions"/>
-            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>
