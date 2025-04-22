@@ -15,12 +15,14 @@ public partial class FileSystemView : UserControl
     private EntryFile? _selected;
 
     public event EventHandler<EntryFile?>? FileSelectionChanged;
+    public event EventHandler AllFiledDeleted;
     private void OnFileSelectionChanged(EntryFile? file)
     {
         _selected = file;
         FileSelectionChanged?.Invoke(this, file);
     }
 
+    private void OnAllFilesDeleted() => AllFiledDeleted.Invoke(this, EventArgs.Empty);
     public FileSystemView()
     {
         InitializeComponent();
@@ -108,7 +110,7 @@ public partial class FileSystemView : UserControl
             {
                 File.Delete(file);
             }
-            OnFileSelectionChanged(null);
+            OnAllFilesDeleted();
         }
         catch (Exception ex)
         {

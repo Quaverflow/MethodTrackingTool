@@ -21,11 +21,20 @@ public partial class ComparerView
     private void ComparerView_Loaded(object sender, RoutedEventArgs e)
     {
         LeftPanel.FileSystem.FileSelectionChanged += OnFileSelectionChanged;
+        LeftPanel.FileSystem.AllFiledDeleted += OnAllDeleted;
+      
         RightPanel.FileSystem.FileSelectionChanged += OnFileSelectionChanged;
+        RightPanel.FileSystem.AllFiledDeleted += OnAllDeleted;
         UpdateDiffViewer();
     }
 
-    private void OnFileSelectionChanged(object sender, EntryFile e) => UpdateDiffViewer();
+    private void OnFileSelectionChanged(object sender, EntryFile? e) => UpdateDiffViewer();
+
+    private void OnAllDeleted(object sender, EventArgs e)
+    {
+        LeftPanel.Selected = null;
+        RightPanel.Selected = null;
+    }
 
     private void UpdateDiffViewer()
     {

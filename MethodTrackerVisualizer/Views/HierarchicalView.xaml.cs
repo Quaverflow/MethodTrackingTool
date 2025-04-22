@@ -35,6 +35,11 @@ public partial class HierarchicalView : UserControl
             Selected = value;
             RefreshTree();
         };
+        FileSystem.AllFiledDeleted += (_, _) =>
+        {
+            Selected = null;
+            RefreshTree();
+        };
         FileHelper.Refresh += (_, __) => RefreshTree();
     }
 
