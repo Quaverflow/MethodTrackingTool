@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace MethodTrackerVisualizer.Helpers;
 
@@ -11,7 +10,16 @@ public static class LogEntryHelpers
         this IReadOnlyList<LogEntry> roots,
         string searchText)
     {
-        if (string.IsNullOrEmpty(searchText)) { return []; }
+        if (string.IsNullOrEmpty(searchText))
+        {
+            return [];
+        }
+
+        var terms = searchText
+            .Split('&')
+            .Select(t => t.Trim())
+            .Where(t => !string.IsNullOrEmpty(t))
+            .ToList();
 
         var comparison = StringComparison.OrdinalIgnoreCase;
         var results = new List<LogEntry>();
@@ -26,12 +34,13 @@ public static class LogEntryHelpers
             {
                 var e = stack.Pop();
 
-                if (EntryMatchesSpan(e, searchText.AsSpan(), comparison))
+                var isMatch = terms.Count == 1
+                    ? EntryMatchesSpan(e, terms[0].AsSpan(), comparison)
+                    : terms.All(term => EntryMatchesSpan(e, term.AsSpan(), comparison));
+
+                if (isMatch && seen.Add(e))
                 {
-                    if (seen.Add(e))
-                    {
-                        results.Add(e);
-                    }
+                    results.Add(e);
                 }
 
                 for (var i = e.Children.Count - 1; i >= 0; i--)
@@ -59,7 +68,8 @@ public static class LogEntryHelpers
             return true;
         }
 
-        if (entry.Exception is { } ex && ex.Message.AsSpan().IndexOf(needle, comparison) >= 0)
+        if (entry.Exception is { } ex &&
+            ex.Message.AsSpan().IndexOf(needle, comparison) >= 0)
         {
             return true;
         }
@@ -67,7 +77,8 @@ public static class LogEntryHelpers
         if (entry.ReturnValue is not null)
         {
             var rv = entry.ReturnValue.ToString();
-            if (!string.IsNullOrEmpty(rv) && rv.AsSpan().IndexOf(needle, comparison) >= 0)
+            if (!string.IsNullOrEmpty(rv) &&
+                rv.AsSpan().IndexOf(needle, comparison) >= 0)
             {
                 return true;
             }
@@ -80,15 +91,14 @@ public static class LogEntryHelpers
                 return true;
             }
 
-            if (kv.Value is not { } vo)
+            if (kv.Value is not null)
             {
-                continue;
-            }
-
-            var vs = vo.ToString();
-            if (!string.IsNullOrEmpty(vs) && vs.AsSpan().IndexOf(needle, comparison) >= 0)
-            {
-                return true;
+                var vs = kv.Value.ToString();
+                if (!string.IsNullOrEmpty(vs) &&
+                    vs.AsSpan().IndexOf(needle, comparison) >= 0)
+                {
+                    return true;
+                }
             }
         }
 

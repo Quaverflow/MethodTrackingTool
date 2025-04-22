@@ -13,7 +13,7 @@ namespace MethodTracker.MockProject
     public class OrderRequest
     {
         public int UserId { get; set; }
-        public List<int> ProductIds { get; set; } = new();
+        public List<int> ProductIds { get; set; } = [];
         public decimal TotalAmount { get; set; }
         public Func<string> X { get; set; } = () => string.Empty;
     }

@@ -11,7 +11,7 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class HierarchicalView : UserControl
 {
-    private List<LogEntry> _matchedTextEntries = new();
+    private List<LogEntry> _matchedTextEntries = [];
     private int _currentMatchTextEntriesIndex = -1;
     public EntryFile? Selected;
     public string CurrentSearchText
@@ -91,7 +91,7 @@ public partial class HierarchicalView : UserControl
 
     public async void NavigateToEntry(LogEntry target)
     {
-        var path = FindPath(Selected?.Data ?? new List<LogEntry>(), target);
+        var path = FindPath(Selected?.Data ?? [], target);
         if (path == null)
         {
             return;

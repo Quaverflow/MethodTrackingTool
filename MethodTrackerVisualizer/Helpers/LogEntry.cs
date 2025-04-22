@@ -31,7 +31,7 @@ public class LogEntry
     public string ReturnType { get; set; } = string.Empty;
     public object? ReturnValue { get; set; }
     public ExceptionEntry? Exception { get; set; }
-    public List<LogEntry> Children { get; set; } = new();
+    public List<LogEntry> Children { get; set; } = [];
 
     [OnDeserialized]
     internal void OnDeserializedMethod(StreamingContext context)

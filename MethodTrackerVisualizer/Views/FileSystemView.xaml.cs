@@ -8,7 +8,7 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class FileSystemView : UserControl
 {
-    private readonly ObservableCollection<FileItem> _items = new();
+    private readonly ObservableCollection<FileItem> _items = [];
 
     public event EventHandler<EntryFile>? FileSelectionChanged;
     private void OnFileSelectionChanged(EntryFile file)
