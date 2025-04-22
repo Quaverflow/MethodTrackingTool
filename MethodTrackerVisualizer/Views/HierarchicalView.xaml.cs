@@ -53,14 +53,16 @@ public partial class HierarchicalView : UserControl
 
     private void RefreshTree()
     {
-        var fileSelected = Selected != null;
-
-        HierarchicalSearchBar.PreviousButton.IsEnabled = fileSelected;
-        HierarchicalSearchBar.NextButton.IsEnabled = fileSelected;
-        HierarchicalSearchBar.SearchButton.IsEnabled = fileSelected;
-        HierarchicalTreeView.ItemsSource = Selected?.Data ?? [];
-        _matchedTextEntries.Clear();
-        _currentMatchTextEntriesIndex = -1;
+        Dispatcher.BeginInvoke(() =>
+        {
+            var fileSelected = Selected != null;
+            HierarchicalSearchBar.PreviousButton.IsEnabled = fileSelected;
+            HierarchicalSearchBar.NextButton.IsEnabled = fileSelected;
+            HierarchicalSearchBar.SearchButton.IsEnabled = fileSelected;
+            HierarchicalTreeView.ItemsSource = Selected?.Data ?? [];
+            _matchedTextEntries.Clear();
+            _currentMatchTextEntriesIndex = -1;
+        });
     }
 
     private void SearchForText(object _, string searchText)
