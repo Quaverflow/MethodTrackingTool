@@ -1,78 +1,79 @@
 ﻿using System;
 using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
+using System.Collections.ObjectModel;
 using MethodTrackerVisualizer.Helpers;
 
 namespace MethodTrackerVisualizer.Views;
 
-public partial class FileSystemView
+public partial class FileSystemView : UserControl
 {
+    private readonly ObservableCollection<FileItem> _items = new();
+
     public event EventHandler<EntryFile>? FileSelectionChanged;
-    private void OnFileSelectionChanged(EntryFile file) => FileSelectionChanged?.Invoke(this, file);
-    
+    private void OnFileSelectionChanged(EntryFile file)
+        => FileSelectionChanged?.Invoke(this, file);
+
     public FileSystemView()
     {
         InitializeComponent();
-
-        FilesDataGrid.ItemsSource = FileHelper.Data
-            .OfType<EntryFile>()
-            .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
-            .ToList();
-
-        FileHelper.Refresh += (s, e) => Dispatcher.Invoke(() => Refresh(s, e));
-        FileSystemSearchBar.SearchTextChanged += SearchForText;
+        FilesDataGrid.ItemsSource = _items;
+        RebuildList();
+        FileHelper.Refresh += (_, __) => Dispatcher.Invoke(RebuildList);
+        FileSystemSearchBar.SearchTextChanged += (_, text) => Dispatcher.Invoke(() => ApplyFilter(text));
     }
 
-    private void SearchForText(object _, string searchText)
+    private void RebuildList()
     {
-        searchText = searchText.Trim();
-        if (!string.IsNullOrEmpty(searchText))
+        _items.Clear();
+        foreach (var entry in FileHelper.Data.OfType<EntryFile>())
         {
-            FilesDataGrid.ItemsSource = FileHelper.Data
-                .OfType<EntryFile>()
-                .Where(x => x.FileName.IndexOf(searchText, StringComparison.CurrentCultureIgnoreCase) != -1)
-                .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
-                .ToList();
+            _items.Add(new FileItem
+            {
+                FileName = entry.FileName,
+                Updated = entry.Updated,
+                Selected = false
+            });
         }
     }
 
-    private void Refresh(object sender, EventArgs eventArgs) =>
-        FilesDataGrid.ItemsSource = FileHelper.Data
-            .OfType<EntryFile>()
-            .Select(x => new FileItem { FileName = x.FileName, Updated = x.Updated, Selected = false })
-            .ToList();
-
-    private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+    private void ApplyFilter(string raw)
     {
-        if (sender is CheckBox { DataContext: FileItem selectedItem } btn)
+        var filter = raw?.Trim();
+        if (string.IsNullOrEmpty(filter))
         {
-            if (btn.IsChecked == true)
+            RebuildList();
+        }
+        else
+        {
+            var filtered = FileHelper.Data
+                .OfType<EntryFile>()
+                .Where(x => x.FileName.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                .Select(x => new FileItem
+                {
+                    FileName = x.FileName,
+                    Updated = x.Updated,
+                    Selected = false
+                });
+
+            _items.Clear();
+            foreach (var item in filtered)
             {
-                var items = FilesDataGrid.ItemsSource
-                    .Cast<FileItem>().ToList();
-
-                foreach (var item in items)
-                {
-                    if (item != selectedItem)
-                    {
-                        item.Selected = false;
-                    }
-                }
-
-                selectedItem.Selected = true;
-
-                var selectedFile = FileHelper.Data.FirstOrDefault(x => x?.FileName == selectedItem.FileName);
-                if (selectedFile != null)
-                {
-                    OnFileSelectionChanged(selectedFile);
-                }
-
-                FilesDataGrid.ItemsSource = items.OrderByDescending(x => x.Selected);
+                _items.Add(item);
             }
-            else
+        }
+    }
+
+    private void FilesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (FilesDataGrid.SelectedItem is FileItem fi)
+        {
+            var entry = FileHelper.Data
+                .OfType<EntryFile>()
+                .FirstOrDefault(x => x.FileName == fi.FileName);
+            if (entry != null)
             {
-                selectedItem.Selected = false;
+                OnFileSelectionChanged(entry);
             }
         }
     }

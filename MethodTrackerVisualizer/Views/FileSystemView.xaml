@@ -8,19 +8,25 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <views:SimpleSearchBar Grid.Row="0" x:Name="FileSystemSearchBar" Margin="0,0,0,10"/>
+
+        <views:SimpleSearchBar
+            Grid.Row="0"
+            x:Name="FileSystemSearchBar"
+            Margin="0,0,0,10"/>
+
         <DataGrid x:Name="FilesDataGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
-                  CanUserSortColumns="True"
+                  SelectionUnit="FullRow"
                   SelectionMode="Single"
                   Background="Black"
                   Foreground="White"
                   RowHeaderWidth="0"
                   HeadersVisibility="Column"
                   GridLinesVisibility="None"
-                  Margin="0">
+                  SelectionChanged="FilesDataGrid_SelectionChanged">
+
             <DataGrid.Resources>
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Background">
@@ -55,38 +61,43 @@
                     <Setter Property="Foreground" Value="White"/>
                     <Setter Property="BorderThickness" Value="0,0,0,1"/>
                     <Setter Property="BorderBrush" Value="#FF444444"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#FF800080" Offset="0"/>
+                                        <GradientStop Color="#FF000000" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
+
                 <Style TargetType="DataGridCell">
                     <Setter Property="Background" Value="Black"/>
                     <Setter Property="Foreground" Value="White"/>
                     <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </DataGrid.Resources>
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header="File Name" SortMemberPath="FileName" Width="*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <CheckBox Content="{Binding FileName}"
-                                      Background="White"
-                                      BorderThickness="0"
-                                      Foreground="White"
-                                      HorizontalAlignment="Left"
-                                      Padding="5, 0, 0, 0"
-                                      VerticalAlignment="Center"
-                                      Click="ToggleButton_OnChecked"
-                                      IsChecked="{Binding Selected, Mode=TwoWay}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Last Updated" SortMemberPath="Updated" Width="150">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Updated, StringFormat={}{0:G}}"
-                      Padding="10"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
 
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="File Name"
+                                    Binding="{Binding FileName}"
+                                    SortMemberPath="FileName"
+                                    Width="*"/>
+                <DataGridTextColumn Header="Last Updated"
+                                    Binding="{Binding Updated, StringFormat={}{0:G}}"
+                                    SortMemberPath="Updated"
+                                    Width="150"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
