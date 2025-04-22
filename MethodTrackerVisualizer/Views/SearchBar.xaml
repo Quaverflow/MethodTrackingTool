@@ -9,6 +9,7 @@
                  VerticalAlignment="Center" 
                  ToolTip="This will search through Parameters (type and value), Return (type and value), Method Name and Exceptions. To make a complex search matching multiple words, separate each word with &amp; (i.e. User&amp;Account)"
                  Background="White" Foreground="Black" BorderBrush="Gray"/>
+        <Button x:Name="SearchButton" Content="Search" Margin="2" VerticalAlignment="Center"/>
         <Button x:Name="PreviousButton" Content="Previous" Margin="2" VerticalAlignment="Center"/>
         <Button x:Name="NextButton" Content="Next" Margin="2" VerticalAlignment="Center"/>
     </StackPanel>

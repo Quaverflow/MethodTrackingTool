@@ -12,7 +12,7 @@ public partial class HierarchicalView : UserControl
 {
     private List<LogEntry> _matchedTextEntries = new();
     private int _currentMatchTextEntriesIndex = -1;
-
+    public EntryFile? Selected;
     public string CurrentSearchText
     {
         get => (string)GetValue(CurrentSearchTextProperty);
@@ -29,6 +29,11 @@ public partial class HierarchicalView : UserControl
     {
         InitializeComponent();
         Loaded += OnLoaded;
+        FileSystem.FileSelectionChanged += (_, value) =>
+        {
+            Selected = value;
+            RefreshTree();
+        };
         FileHelper.Refresh += (_, __) => RefreshTree();
     }
 
@@ -42,7 +47,7 @@ public partial class HierarchicalView : UserControl
 
     private void RefreshTree()
     {
-        HierarchicalTreeView.ItemsSource = FileHelper.Selected?.Data ?? [];
+        HierarchicalTreeView.ItemsSource = Selected?.Data ?? [];
         _matchedTextEntries.Clear();
         _currentMatchTextEntriesIndex = -1;
     }
@@ -57,7 +62,7 @@ public partial class HierarchicalView : UserControl
             return;
         }
 
-        _matchedTextEntries = FileHelper.Selected?.Data.FindMatchingText(CurrentSearchText) ?? [];
+        _matchedTextEntries = Selected?.Data.FindMatchingText(CurrentSearchText) ?? [];
         if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;
@@ -83,7 +88,7 @@ public partial class HierarchicalView : UserControl
         }
     }
 
-    private void NavigateToEntry(LogEntry dataItem)
+    public void NavigateToEntry(LogEntry dataItem)
     {
         HierarchicalTreeView.ExpandAllParents(dataItem);
         HierarchicalTreeView.UpdateLayout();

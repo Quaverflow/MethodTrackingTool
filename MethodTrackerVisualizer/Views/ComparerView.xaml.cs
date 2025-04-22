@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using MethodTrackerVisualizer.Helpers;
 using static MethodTrackerVisualizer.Helpers.DiffHelper;
 
 namespace MethodTrackerVisualizer.Views;
@@ -18,19 +20,21 @@ public partial class ComparerView
 
     private void ComparerView_Loaded(object sender, RoutedEventArgs e)
     {
-        LeftPanel.FileSelectionChanged += OnFileSelectionChanged;
-        RightPanel.FileSelectionChanged += OnFileSelectionChanged;
+        LeftPanel.FileSystem.FileSelectionChanged += OnFileSelectionChanged;
+        RightPanel.FileSystem.FileSelectionChanged += OnFileSelectionChanged;
         UpdateDiffViewer();
     }
 
-    private void OnFileSelectionChanged(object sender, System.EventArgs e) => UpdateDiffViewer();
+    private void OnFileSelectionChanged(object sender, EntryFile e) => UpdateDiffViewer();
 
     private void UpdateDiffViewer()
     {
-        var leftLog = LeftPanel.Selected?.Data.FirstOrDefault();
-        var rightLog = RightPanel.Selected?.Data.FirstOrDefault();
+
         if (LeftPanel.Selected != null && RightPanel.Selected != null)
         {
+
+            var leftLog = new LogEntry { MethodName = "Root", Children = LeftPanel.Selected?.Data };
+            var rightLog = new LogEntry { MethodName = "Root", Children = RightPanel.Selected?.Data };
             var diffTree = DiffLogEntries(leftLog, rightLog);
             _diffNodes.Clear();
             FlattenDiffTree(diffTree, _diffNodes);
@@ -39,6 +43,7 @@ public partial class ComparerView
             if (_diffNodes.Any())
             {
                 NavigateToDifference(_diffNodes[_currentDiffIndex]);
+
                 DiffViewerControl.UpdateDiffView(leftLog, rightLog);
             }
             else

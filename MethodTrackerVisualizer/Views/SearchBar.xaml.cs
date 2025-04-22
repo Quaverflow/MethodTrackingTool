@@ -11,7 +11,7 @@ public partial class SearchBar
     public SearchBar()
     {
         InitializeComponent();
-        SearchTextBox.TextChanged += (_, _) =>
+        SearchButton.Click += (_, _) =>
         {
             var text = SearchTextBox.Text.Trim();
             SearchTextChanged?.Invoke(this, text);

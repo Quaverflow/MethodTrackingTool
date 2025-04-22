@@ -8,6 +8,9 @@ namespace MethodTrackerVisualizer.Views;
 
 public partial class FileSystemView
 {
+    public event EventHandler<EntryFile>? FileSelectionChanged;
+    private void OnFileSelectionChanged(EntryFile file) => FileSelectionChanged?.Invoke(this, file);
+    
     public FileSystemView()
     {
         InitializeComponent();
@@ -62,7 +65,7 @@ public partial class FileSystemView
                 var selectedFile = FileHelper.Data.FirstOrDefault(x => x?.FileName == selectedItem.FileName);
                 if (selectedFile != null)
                 {
-                    FileHelper.Selected = selectedFile;
+                    OnFileSelectionChanged(selectedFile);
                 }
 
                 FilesDataGrid.ItemsSource = items.OrderByDescending(x => x.Selected);
