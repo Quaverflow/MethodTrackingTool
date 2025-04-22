@@ -13,83 +13,101 @@ namespace MethodTrackerTool;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class MethodPatches
 {
-    public static readonly ConcurrentDictionary<string, TestResults> ResultsByTest = new();
+    public static readonly ConcurrentDictionary<string, TestResults> ResultsByTest
+        = new();
 
     public static readonly AsyncLocal<string?> CurrentTestId = new();
-    private static readonly ConcurrentDictionary<string, Stack<LogEntry>> CallStacks = new();
+    private static readonly AsyncLocal<bool> _accepting = new() { Value = false };
 
-    public static void Teardown()
-    {
-        var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
-        if (!CallStacks.TryGetValue(testId, out var map))
-        {
-            return;
-        }
+    private static readonly ConcurrentDictionary<string, ConcurrentDictionary<int, Stack<LogEntry>>> CallStacks = new();
 
-        while (map.Any())
-        {
-            Thread.Sleep(5);
-        }
-    }
+    private static readonly AsyncLocal<LogEntry?> _spawnParent = new();
 
     public static void Initialize(string testId)
     {
         CurrentTestId.Value = testId;
         ResultsByTest[testId] = new TestResults(testId);
-        CallStacks[testId] = new Stack<LogEntry>();
+        _accepting.Value = true;
+
+        CallStacks[testId] = new ConcurrentDictionary<int, Stack<LogEntry>>();
+
+        _spawnParent.Value = null;
     }
 
-    private static Stack<LogEntry> GetStackForTest(string testId) => CallStacks[testId];
-
-    public static TestResults GetResultsForCurrentTest() =>
-        CurrentTestId.Value is not { } id || !ResultsByTest.TryGetValue(id, out var results)
-            ? throw new InvalidOperationException("TestResults not initialized for current test.")
-            : results;
-
-    public static void Prefix(MethodInfo __originalMethod, object?[]? __args, out LogEntry __state)
+    public static void Teardown()
     {
-        try
-        {
-            var testId = CurrentTestId.Value!;
-            var stack = GetStackForTest(testId);
+        _accepting.Value = false;
+        CurrentTestId.Value = null;
+    }
 
-            var parent = stack.Count > 0 ? stack.Peek() : null;
-            var parameters = __originalMethod.GetParameters();
-            var argsDictionary = __args?
-                                     .Select((arg, i) => new
-                                     {
-                                         Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
-                                         Value = arg
-                                     })
-                                     .ToDictionary(x => x.Key, x => x.Value)
-                                 ?? [];
+    private static bool IsActive =>
+        _accepting.Value
+        && CurrentTestId.Value is { } tid
+        && CallStacks.ContainsKey(tid);
 
-            var entry = new LogEntry
-            {
-                MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
-                Parameters = argsDictionary,
-                Parent = parent
-            };
+    private static Stack<LogEntry> GetThreadStack()
+    {
+        var testId = CurrentTestId.Value
+                     ?? throw new InvalidOperationException("Initialize was not called.");
+        var map = CallStacks[testId];
+        var tid = Thread.CurrentThread.ManagedThreadId;
+        return map.GetOrAdd(tid, _ => new Stack<LogEntry>());
+    }
 
-            stack.Push(entry);
-            __state = entry;
-        }
-        catch (Exception e)
+    public static void Prefix(
+        MethodInfo __originalMethod,
+        object?[]? __args,
+        out LogEntry __state)
+    {
+        if (!IsActive)
         {
             __state = new LogEntry { MethodName = __originalMethod.Name };
-            GetResultsForCurrentTest().UnexpectedIssues.Add(e);
+            return;
         }
+
+        var stack = GetThreadStack();
+        var parent = stack.Count > 0
+            ? stack.Peek()
+            : _spawnParent.Value;
+
+        var parameters = __originalMethod.GetParameters();
+        var argsDict = __args?
+                           .Select((arg, i) => new {
+                               Key = $"{parameters[i].ParameterType.FullName} {parameters[i].Name}",
+                               Value = arg
+                           })
+                           .ToDictionary(x => x.Key, x => x.Value)
+                       ?? [];
+
+        __state = new LogEntry
+        {
+            MethodName = $"{__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}",
+            Parameters = argsDict,
+            Parent = parent
+        };
+
+        stack.Push(__state);
+
+        _spawnParent.Value = __state;
     }
 
-    public static void Postfix(MethodInfo __originalMethod, object? __result, LogEntry __state)
+    public static void Postfix(
+        MethodInfo __originalMethod,
+        object? __result,
+        LogEntry __state)
         => FinishInternal(__originalMethod, __result, __state);
 
-    public static void VoidPostfix(MethodInfo __originalMethod, LogEntry __state)
+    public static void VoidPostfix(
+        MethodInfo __originalMethod,
+        LogEntry __state)
         => FinishInternal(__originalMethod, "void", __state);
 
-    public static void Finalizer(MethodInfo __originalMethod, Exception? __exception, LogEntry __state)
+    public static void Finalizer(
+        MethodInfo __originalMethod,
+        Exception? __exception,
+        LogEntry __state)
     {
-        if (__exception == null)
+        if (!IsActive || __exception == null)
         {
             return;
         }
@@ -97,23 +115,25 @@ internal static class MethodPatches
         FinishWithException(__originalMethod, __exception, __state);
     }
 
-    private static void FinishInternal(MethodInfo __originalMethod, object? __result, LogEntry __state)
+    private static void FinishInternal(
+        MethodInfo __originalMethod,
+        object? __result,
+        LogEntry __state)
     {
-        try
+        if (!IsActive)
         {
-            var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
-            var results = ResultsByTest[testId];
-            var stack = GetStackForTest(testId);
+            return;
+        }
 
-            __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
+        var stack = GetThreadStack();
+        var results = GetResultsForCurrentTest();
 
-            __state.ReturnValue = CommonHelpers.UnwrapTaskResult(__result);
+        __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
+        __state.ReturnValue = CommonHelpers.UnwrapTaskResult(__result);
 
-            var popped = stack.Pop();
-            if (popped != __state)
-            {
-                throw new InvalidOperationException("Call stack mismatch in FinishInternal");
-            }
+        if (stack.Count > 0 && stack.Peek() == __state)
+        {
+            stack.Pop();
 
             if (__state.Parent != null)
             {
@@ -124,27 +144,40 @@ internal static class MethodPatches
                 results.TopLevelCalls.Add(__state);
             }
         }
-        catch (Exception e)
-        {
-            GetResultsForCurrentTest().UnexpectedIssues.Add(e);
-        }
     }
 
-    private static void FinishWithException(MethodInfo __originalMethod, Exception exception, LogEntry __state)
+    private static void FinishWithException(
+        MethodInfo __originalMethod,
+        Exception exception,
+        LogEntry __state)
     {
-        try
+        if (!IsActive)
         {
-            var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
-            var results = ResultsByTest[testId];
-            var stack = GetStackForTest(testId);
+            return;
+        }
 
-            __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
-            __state.Exception = MapException(exception);
+        var stack = GetThreadStack();
+        var results = GetResultsForCurrentTest();
 
-            if (stack.Pop() != __state)
-            {
-                throw new InvalidOperationException("Call stack mismatch in FinishWithException");
-            }
+        __state.ReturnType = TypeHelpers.BuildTypeName(__originalMethod.ReturnType);
+        __state.Exception = new ExceptionEntry(
+            exception.Message,
+            exception.StackTrace?
+                .Split(["\r\n", "\n"], StringSplitOptions.None)
+                .ToArray() ?? [],
+            exception.InnerException is { } ie
+                ? new ExceptionEntry(
+                    ie.Message,
+                    ie.StackTrace?
+                        .Split(["\r\n", "\n"], StringSplitOptions.None)
+                        .ToArray() ?? [],
+                    null)
+                : null
+        );
+
+        if (stack.Count > 0 && stack.Peek() == __state)
+        {
+            stack.Pop();
 
             if (__state.Parent != null)
             {
@@ -155,22 +188,11 @@ internal static class MethodPatches
                 results.TopLevelCalls.Add(__state);
             }
         }
-        catch (Exception e)
-        {
-            GetResultsForCurrentTest().UnexpectedIssues.Add(e);
-        }
     }
 
-    private static ExceptionEntry? MapException(Exception? ex)
-    {
-        if (ex == null)
-        {
-            return null;
-        }
-        var message = ex.Message;
-        var stackTrace = ex.StackTrace.Split(["\r\n", "\n"], StringSplitOptions.None).ToArray();
-        var innerExceptions = MapException(ex.InnerException);
-
-        return new ExceptionEntry(message, stackTrace, innerExceptions);
-    }
+    private static TestResults GetResultsForCurrentTest() =>
+        CurrentTestId.Value is { } id
+        && ResultsByTest.TryGetValue(id, out var r)
+            ? r
+            : throw new InvalidOperationException("TestResults not initialized");
 }

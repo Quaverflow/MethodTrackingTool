@@ -1,65 +1,5 @@
 [
   {
-    "MethodName": "InventoryValidator.Check",
-    "Parameters": {
-      "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] products": [
-        1,
-        4,
-        55,
-        342,
-        33,
-        334,
-        864,
-        268,
-        1042
-      ]
-    },
-    "ReturnValue": "void",
-    "ReturnType": "System.Void",
-    "Exception": null,
-    "Children": []
-  },
-  {
-    "MethodName": "InventoryValidator.Check",
-    "Parameters": {
-      "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] products": [
-        1,
-        4,
-        55,
-        342,
-        33,
-        334,
-        864,
-        268,
-        1042
-      ]
-    },
-    "ReturnValue": "void",
-    "ReturnType": "System.Void",
-    "Exception": null,
-    "Children": []
-  },
-  {
-    "MethodName": "InventoryValidator.Check",
-    "Parameters": {
-      "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] products": [
-        1,
-        4,
-        55,
-        342,
-        33,
-        334,
-        864,
-        268,
-        1042
-      ]
-    },
-    "ReturnValue": "void",
-    "ReturnType": "System.Void",
-    "Exception": null,
-    "Children": []
-  },
-  {
     "MethodName": "OrderService.ProcessOrderAsync",
     "Parameters": {
       "MethodTracker.MockProject.OrderRequest req": {
@@ -574,7 +514,70 @@
         "ReturnValue": null,
         "ReturnType": "System.Threading.Tasks.Task<System.Boolean>",
         "Exception": null,
-        "Children": []
+        "Children": [
+          {
+            "MethodName": "InventoryValidator.Check",
+            "Parameters": {
+              "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] products": [
+                1,
+                4,
+                55,
+                342,
+                33,
+                334,
+                864,
+                268,
+                1042
+              ]
+            },
+            "ReturnValue": "void",
+            "ReturnType": "System.Void",
+            "Exception": null,
+            "Children": [
+              {
+                "MethodName": "InventoryValidator.Check",
+                "Parameters": {
+                  "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] products": [
+                    1,
+                    4,
+                    55,
+                    342,
+                    33,
+                    334,
+                    864,
+                    268,
+                    1042
+                  ]
+                },
+                "ReturnValue": "void",
+                "ReturnType": "System.Void",
+                "Exception": null,
+                "Children": [
+                  {
+                    "MethodName": "InventoryValidator.Check",
+                    "Parameters": {
+                      "System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]] products": [
+                        1,
+                        4,
+                        55,
+                        342,
+                        33,
+                        334,
+                        864,
+                        268,
+                        1042
+                      ]
+                    },
+                    "ReturnValue": "void",
+                    "ReturnType": "System.Void",
+                    "Exception": null,
+                    "Children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       {
         "MethodName": "PaymentService.ChargeAsync",
