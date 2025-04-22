@@ -20,7 +20,7 @@ namespace MethodTracker.MockProject
 
     public class Order
     {
-        public string publicField = "hello";
+        public string PublicField = "hello";
         private string PrivateField = "hello";
         private string PrivateProperty { get; set; } = "hello";
         public string OrderId { get; set; }

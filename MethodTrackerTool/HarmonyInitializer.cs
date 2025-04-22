@@ -14,7 +14,7 @@ internal static class HarmonyInitializer
 
     public static void Init()
     {
-        SerializerHelpers.CustomContractResolver.UserDefinedPrivateMembers = FindPrivatePropertyMarkers();
+        SerializerHelpers.CustomContractResolver.OptInMembers = FindPrivatePropertyMarkers();
 
         var assemblies = FindAssemblyMarkers();
         foreach (var assembly in assemblies)
@@ -29,11 +29,11 @@ internal static class HarmonyInitializer
                 .Cast<AssemblyMarkerAttribute>()
                 .Select(x => x.Assembly));
     
-    private static Dictionary<string, string[]> FindPrivatePropertyMarkers() =>
+    private static Dictionary<string, HashSet<string>> FindPrivatePropertyMarkers() =>
         AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.GetCustomAttributes(typeof(PrivatePropertyMarkerAttribute), inherit: false)
                 .Cast<PrivatePropertyMarkerAttribute>())
-                .ToDictionary(x => x.Type.FullName, x => x.PropertyNames)
+                .ToDictionary(x => x.Type.FullName, x => new HashSet<string>(x.PropertyNames))
         ;
 
     private static void PatchAssemblyMethods(Assembly targetAssembly)
