@@ -12,18 +12,29 @@ public static class JsonPrinter
     {
         var timestamp = DateTime.Now.ToString("_yyyyMMdd_HHmmss");
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
+        var tempFolder = Path.Combine(folder, "Temp");
         if (!Directory.Exists(folder))
         {
             Directory.CreateDirectory(folder);
+        }     
+        if (!Directory.Exists(tempFolder))
+        {
+            Directory.CreateDirectory(tempFolder);
         }
-        var path = Path.Combine(folder, $"{testName}_{timestamp}.json");
+
+        var combinedName = $"{testName}_{timestamp}.json";
+        var tempPath = Path.Combine(tempFolder, combinedName);
         using var fs = new FileStream(
-            path,
+            tempPath,
             FileMode.Create,
             FileAccess.Write,
             FileShare.Read);
 
         SerializerHelpers.StreamSerialize(entries, fs);
         fs.Flush(true);
+        fs.Close();
+
+        var path = Path.Combine(folder, combinedName);
+        File.Move(tempPath, path);
     }
 }
