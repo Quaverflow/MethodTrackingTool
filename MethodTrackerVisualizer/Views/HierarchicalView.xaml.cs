@@ -42,8 +42,7 @@ public partial class HierarchicalView : UserControl
 
     private void RefreshTree()
     {
-        HierarchicalTreeView.ItemsSource =
-            FileHelper.Selected?.Data ?? new List<LogEntry>();
+        HierarchicalTreeView.ItemsSource = FileHelper.Selected?.Data ?? [];
         _matchedTextEntries.Clear();
         _currentMatchTextEntriesIndex = -1;
     }

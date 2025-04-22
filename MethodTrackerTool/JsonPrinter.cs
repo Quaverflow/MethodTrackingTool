@@ -8,7 +8,7 @@ namespace MethodTrackerTool;
 
 public static class JsonPrinter
 {
-    public static void WriteLogFile(List<LogEntry> output, string testName)
+    public static void WriteLogFile(List<LogEntry> entries, string testName)
     {
         var timestamp = DateTime.Now.ToString("_yyyyMMdd_HHmmss");
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MethodLogger");
@@ -16,7 +16,14 @@ public static class JsonPrinter
         {
             Directory.CreateDirectory(folder);
         }
-        using var fs = File.Create(Path.Combine(folder, $"{testName}_{timestamp}.json"));
-        SerializerHelpers.StreamSerialize(output, fs);
+        var path = Path.Combine(folder, $"{testName}_{timestamp}.json");
+        using var fs = new FileStream(
+            path,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.Read);
+
+        SerializerHelpers.StreamSerialize(entries, fs);
+        fs.Flush(true);
     }
 }
