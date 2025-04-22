@@ -5,18 +5,14 @@ namespace MethodTrackerVisualizer.Views;
 public partial class SearchBar
 {
     public event EventHandler<string>? SearchTextChanged;
-    public event EventHandler? PreviousClicked;
-    public event EventHandler? NextClicked;
+    public event EventHandler<string>? PreviousClicked;
+    public event EventHandler<string>? NextClicked;
 
     public SearchBar()
     {
         InitializeComponent();
-        SearchButton.Click += (_, _) =>
-        {
-            var text = SearchTextBox.Text.Trim();
-            SearchTextChanged?.Invoke(this, text);
-        };
-        PreviousButton.Click += (_, _) => PreviousClicked?.Invoke(this, EventArgs.Empty);
-        NextButton.Click += (_, _) => NextClicked?.Invoke(this, EventArgs.Empty);
+        SearchButton.Click += (_, _) => SearchTextChanged?.Invoke(this, SearchTextBox.Text.Trim());
+        PreviousButton.Click += (_, _) => PreviousClicked?.Invoke(this, SearchTextBox.Text.Trim());
+        NextButton.Click += (_, _) => NextClicked?.Invoke(this, SearchTextBox.Text.Trim());
     }
 }

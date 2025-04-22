@@ -73,8 +73,14 @@ public partial class HierarchicalView : UserControl
         }
     }
 
-    private void PreviousText(object sender, EventArgs _)
+    private void PreviousText(object sender, string searchText)
     {
+        if (CurrentSearchText != searchText)
+        {
+            SearchForText(sender, searchText);
+            return;
+        }
+
         if (_currentMatchTextEntriesIndex > 0)
         {
             _currentMatchTextEntriesIndex--;
@@ -83,8 +89,14 @@ public partial class HierarchicalView : UserControl
         UpdateNavButtons();
     }
 
-    private void NextText(object sender, EventArgs _)
+    private void NextText(object sender, string searchText)
     {
+        if (CurrentSearchText != searchText)
+        {
+            SearchForText(sender, searchText);
+            return;
+        }
+
         if (_currentMatchTextEntriesIndex < _matchedTextEntries.Count - 1)
         {
             _currentMatchTextEntriesIndex++;
@@ -92,6 +104,7 @@ public partial class HierarchicalView : UserControl
         }
         UpdateNavButtons();
     }
+
     private void UpdateNavButtons()
     {
         var hasAny = _matchedTextEntries.Count > 0;
