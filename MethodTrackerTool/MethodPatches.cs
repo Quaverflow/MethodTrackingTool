@@ -16,24 +16,17 @@ internal static class MethodPatches
     public static readonly ConcurrentDictionary<string, TestResults> ResultsByTest = new();
 
     public static readonly AsyncLocal<string?> CurrentTestId = new();
-    private static readonly ConcurrentDictionary<string, ConcurrentDictionary<int, Stack<LogEntry>>> CallStacks = new();
+    private static readonly ConcurrentDictionary<string, Stack<LogEntry>> CallStacks = new();
 
     public static void Teardown()
     {
         var testId = CurrentTestId.Value ?? throw new InvalidOperationException("Initialize was not called.");
-        if (CallStacks.TryGetValue(testId, out var threadStacks))
-        {
-            foreach (var kv in threadStacks)
-            {
-                kv.Value.Clear();
-            }
-        }
         if (!CallStacks.TryGetValue(testId, out var map))
         {
             return;
         }
 
-        while (map.Values.Any(st => st.Count > 0))
+        while (map.Any())
         {
             Thread.Sleep(5);
         }
@@ -43,15 +36,10 @@ internal static class MethodPatches
     {
         CurrentTestId.Value = testId;
         ResultsByTest[testId] = new TestResults(testId);
-        CallStacks[testId] = new ConcurrentDictionary<int, Stack<LogEntry>>();
+        CallStacks[testId] = new Stack<LogEntry>();
     }
 
-    private static Stack<LogEntry> GetStackForTest(string testId)
-    {
-        var map = CallStacks[testId];
-        var tid = Thread.CurrentThread.ManagedThreadId;
-        return map.GetOrAdd(tid, _ => new Stack<LogEntry>());
-    }
+    private static Stack<LogEntry> GetStackForTest(string testId) => CallStacks[testId];
 
     public static TestResults GetResultsForCurrentTest() =>
         CurrentTestId.Value is not { } id || !ResultsByTest.TryGetValue(id, out var results)
