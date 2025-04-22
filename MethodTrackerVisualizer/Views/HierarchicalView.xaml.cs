@@ -48,6 +48,11 @@ public partial class HierarchicalView : UserControl
 
     private void RefreshTree()
     {
+        var fileSelected = Selected != null;
+
+        HierarchicalSearchBar.PreviousButton.IsEnabled = fileSelected;
+        HierarchicalSearchBar.NextButton.IsEnabled = fileSelected;
+        HierarchicalSearchBar.SearchButton.IsEnabled = fileSelected;
         HierarchicalTreeView.ItemsSource = Selected?.Data ?? [];
         _matchedTextEntries.Clear();
         _currentMatchTextEntriesIndex = -1;
@@ -64,12 +69,16 @@ public partial class HierarchicalView : UserControl
         }
 
         _matchedTextEntries = Selected?.Data.FindMatchingText(CurrentSearchText) ?? [];
-       
+
         UpdateNavButtons();
         if (_matchedTextEntries.Any())
         {
             _currentMatchTextEntriesIndex = 0;
             NavigateToEntry(_matchedTextEntries[_currentMatchTextEntriesIndex]);
+        }
+        else
+        {
+            MessageBox.Show($"No matches for the term(s): {string.Join(", ", searchText.Split('&'))}.", "Load Error", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
