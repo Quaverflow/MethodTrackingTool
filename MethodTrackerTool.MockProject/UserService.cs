@@ -159,7 +159,7 @@ namespace MethodTracker.MockProject
     {
         public async Task<bool> ReserveAsync(List<int> products)
         {
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 await Task.Delay(10);
                 new InventoryValidator().Check(products);
@@ -183,7 +183,7 @@ namespace MethodTracker.MockProject
         public List<string> GetRecommendations(int userId)
         {
             var recs = new List<string>();
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 recs.Add($"Rec-{userId}-{i}");
             }
@@ -195,7 +195,7 @@ namespace MethodTracker.MockProject
     {
         public void TrackOrder(Order o, PaymentResult p, bool s, List<string> r) => new AnalyticsDetail().Log(o, p, s, r);
     }
-    internal class AnalyticsDetail { public void Log(Order o, PaymentResult p, bool s, List<string> r) { int count = r.Count; } }
+    internal class AnalyticsDetail { public void Log(Order o, PaymentResult p, bool s, List<string> r) { var count = r.Count; } }
     internal class AuditService : IAuditService
     {
         public void Record(Order o, User u, PaymentResult pr, bool s) => new AuditDetailService().Log(o, u, pr, s);
@@ -225,7 +225,7 @@ namespace MethodTracker.MockProject
 
         private void Level2(int item)
         {
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 Level3(item, i);
             }
@@ -246,7 +246,7 @@ namespace MethodTracker.MockProject
 
         private void Level6(int item, int i)
         {
-            for (int j = 0; j < 10; j++)
+            for (var j = 0; j < 10; j++)
             {
                 Level7(item, i, j);
             }

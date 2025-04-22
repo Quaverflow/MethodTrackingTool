@@ -94,19 +94,4 @@ public static class LogEntryHelpers
 
         return false;
     }
-    private static bool ContainsExceptionDeep(LogEntry entry)
-        => entry.Exception != null || entry.Children.Any(ContainsExceptionDeep);
-
-    public static List<LogEntry> FilterByDeepExceptions(this IEnumerable<LogEntry> data) =>
-        data
-            .Where(ContainsExceptionDeep)
-            .Select(entry =>
-            {
-                var newEntry = Clone(entry);
-                newEntry.Children = newEntry.Children.FilterByDeepExceptions();
-                return newEntry;
-            })
-            .ToList();
-
-    public static LogEntry Clone(LogEntry entry) => JsonConvert.DeserializeObject<LogEntry>(JsonConvert.SerializeObject(entry))!;
 }

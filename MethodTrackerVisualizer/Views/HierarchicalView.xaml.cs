@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using MethodTrackerVisualizer.Helpers;
 
@@ -88,20 +89,126 @@ public partial class HierarchicalView : UserControl
         }
     }
 
-    public void NavigateToEntry(LogEntry dataItem)
+    public async void NavigateToEntry(LogEntry target)
     {
-        HierarchicalTreeView.ExpandAllParents(dataItem);
-        HierarchicalTreeView.UpdateLayout();
-        Dispatcher.Invoke(() => { }, DispatcherPriority.Background);
-        var tvi = HierarchicalTreeView.GetTreeViewItem(dataItem);
-        if (tvi == null)
+        var path = FindPath(Selected?.Data ?? new List<LogEntry>(), target);
+        if (path == null)
         {
             return;
         }
 
-        tvi.IsSelected = true;
-        tvi.ExpandExpanderForEntry();
-        tvi.BringIntoView();
-        tvi.Focus();
+        foreach (var node in path)
+        {
+            HierarchicalTreeView.ExpandAllParents(node);
+        }
+
+        HierarchicalTreeView.UpdateLayout();
+        await Dispatcher.Yield(DispatcherPriority.Background);
+        var sv = FindVisualChild<ScrollViewer>(HierarchicalTreeView);
+        if (sv == null)
+        {
+            BringTargetIntoView(target);
+            return;
+        }
+
+        TreeViewItem? tvi = null;
+        double lastOffset = -1;
+        while (true)
+        {
+            tvi = HierarchicalTreeView.GetTreeViewItem(target);
+            if (tvi != null)
+            {
+                break;
+            }
+
+            if (Math.Abs(sv.VerticalOffset - lastOffset) < 0.1)
+            {
+                break;
+            }
+
+            lastOffset = sv.VerticalOffset;
+            sv.PageDown();
+            await Dispatcher.Yield(DispatcherPriority.Background);
+        }
+
+        if (tvi != null)
+        {
+            tvi.IsSelected = true;
+            tvi.ExpandExpanderForEntry();
+            tvi.BringIntoView();
+            tvi.Focus();
+        }
+        else
+        {
+            BringTargetIntoView(target);
+        }
+    }
+
+    private void BringTargetIntoView(LogEntry target)
+    {
+        var tvi = HierarchicalTreeView.GetTreeViewItem(target);
+        if (tvi != null)
+        {
+            tvi.IsSelected = true;
+            tvi.ExpandExpanderForEntry();
+            tvi.BringIntoView();
+            tvi.Focus();
+        }
+    }
+
+    private List<LogEntry>? FindPath(
+        IList<LogEntry> roots,
+        LogEntry target)
+    {
+        var stack = new List<LogEntry>();
+        if (Recurse(roots, target, stack))
+        {
+            return stack;
+        }
+
+        return null;
+    }
+
+    private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+
+            if (child is T typed)
+            {
+                return typed;
+            }
+
+            var desc = FindVisualChild<T>(child);
+            if (desc != null)
+            {
+                return desc;
+            }
+        }
+        return null;
+    }
+
+    private bool Recurse(
+        IList<LogEntry> nodes,
+        LogEntry target,
+        List<LogEntry> path)
+    {
+        foreach (var node in nodes)
+        {
+            path.Add(node);
+            if (ReferenceEquals(node, target))
+            {
+                return true;
+            }
+
+            if (Recurse(node.Children, target, path))
+            {
+                return true;
+            }
+
+            path.RemoveAt(path.Count - 1);
+        }
+        return false;
     }
 }
