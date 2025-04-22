@@ -54,9 +54,12 @@ namespace MethodTrackerTool.Helpers
             {
                 // Start with default (public + [JsonProperty] private)
                 var members = base.GetSerializableMembers(objectType);
+                var lookupType = objectType.IsGenericType
+                    ? objectType.GetGenericTypeDefinition()
+                    : objectType;
 
                 // Add any configured opt-in members (private props/fields)
-                if (OptInMembers.TryGetValue(objectType.FullName, out var names))
+                if (OptInMembers.TryGetValue(lookupType.FullName, out var names))
                 {
                     foreach (var name in names)
                     {
