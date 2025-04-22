@@ -12,8 +12,10 @@ internal static class HarmonyInitializer
 {
     public static readonly Harmony HarmonyInstance = new("com.method.logger");
 
-    public static void PatchAssemblies()
+    public static void Init()
     {
+        SerializerHelpers.CustomContractResolver.UserDefinedPrivateMembers = FindPrivatePropertyMarkers();
+
         var assemblies = FindAssemblyMarkers();
         foreach (var assembly in assemblies)
         {
@@ -25,8 +27,14 @@ internal static class HarmonyInitializer
         AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.GetCustomAttributes(typeof(AssemblyMarkerAttribute), inherit: false)
                 .Cast<AssemblyMarkerAttribute>()
-                .Select(x => x.Assembly)
-                .ToArray());
+                .Select(x => x.Assembly));
+    
+    private static Dictionary<string, string[]> FindPrivatePropertyMarkers() =>
+        AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetCustomAttributes(typeof(PrivatePropertyMarkerAttribute), inherit: false)
+                .Cast<PrivatePropertyMarkerAttribute>())
+                .ToDictionary(x => x.Type.FullName, x => x.PropertyNames)
+        ;
 
     private static void PatchAssemblyMethods(Assembly targetAssembly)
     {

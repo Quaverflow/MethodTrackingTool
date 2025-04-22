@@ -9,7 +9,7 @@ namespace MethodTrackerTool;
 // ReSharper disable InconsistentNaming
 public class MethodLogger
 {
-    static MethodLogger() => HarmonyInitializer.PatchAssemblies();
+    static MethodLogger() => HarmonyInitializer.Init();
     private readonly string _name;
 
     private MethodLogger(string name)

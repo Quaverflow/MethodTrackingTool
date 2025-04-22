@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 using MethodTrackerTool.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -41,7 +42,7 @@ internal static class SerializerHelpers
         jw.Flush();
     }
 
-    private class CustomContractResolver : DefaultContractResolver
+    internal class CustomContractResolver : DefaultContractResolver
     {
         private static readonly Type[] ExcludeList =
         [
@@ -51,17 +52,25 @@ internal static class SerializerHelpers
             typeof(PropertyInfo)
         ];
 
+        public static Dictionary<string, string[]> UserDefinedPrivateMembers = [];
+
         protected override List<MemberInfo> GetSerializableMembers(Type objectType)
         {
             const BindingFlags flags = CommonHelpers.CommonBindingFlags;
             var props = objectType
                 .GetProperties(flags)
+                .Where(x => x.GetMethod.IsPublic || IsFromIncludeList(objectType, x.Name))
                 .Cast<MemberInfo>();
-            var fields = objectType
-                .GetFields(flags)
-                .Where(f => !f.Name.Contains("BackingField"))
-                .Cast<MemberInfo>();
-            return props.Concat(fields).ToList();
+
+            return props.ToList();
+        }
+
+        private static bool IsFromIncludeList(Type type, string name)
+        {
+            var result = UserDefinedPrivateMembers.TryGetValue(type.FullName ?? "", out var includeList) &&
+                   includeList.Contains(name);
+
+            return result;
         }
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
@@ -95,8 +104,8 @@ internal static class SerializerHelpers
             {
                 prop.Readable = prop.Writable = true;
 
-                if (ExcludeList.Any(t => t.IsAssignableFrom(prop.PropertyType))
-                    || (prop.PropertyType?.Namespace?.StartsWith("System.Reflection") ?? false))
+                if (ExcludeList.Any(t => t.IsAssignableFrom(prop.PropertyType)) || 
+                    (prop.PropertyType?.Namespace?.StartsWith("System.Reflection") ?? false))
                 {
                     prop.Ignored = true;
                     continue;
@@ -124,14 +133,41 @@ internal static class SerializerHelpers
                 {
                     prop.ValueProvider = new ReflectionFilteringValueProvider(prop.ValueProvider);
                 }
+
+
+                if (IsFromIncludeList(type, prop.PropertyName))
+                {
+                    continue;
+                }
             }
 
             return props;
         }
 
-        private static MemberInfo? GetProperty(Type type, string n) =>
-            type.GetProperty(n, CommonHelpers.CommonBindingFlags) as MemberInfo ??
-            type.GetField(n, CommonHelpers.CommonBindingFlags);
+        private static MemberInfo? GetProperty(Type type, string name)
+        {
+            var value = type.GetProperty(name, CommonHelpers.CommonBindingFlags);
+            if (value != null)
+            {
+                if (value.GetMethod.IsPublic)
+                {
+                    return value;
+                }
+
+                if (IsFromIncludeList(type, name))
+                {
+                    return value;
+                }
+
+                var field = type.GetField(name, CommonHelpers.CommonBindingFlags);
+                if (field?.IsPublic is true || IsFromIncludeList(type, name))
+                {
+                    return field;
+                }
+            }
+
+            return null;
+        }
 
         private class ConstantValueProvider(object constant) : IValueProvider
         {
