@@ -1,1 +1,0 @@
-﻿<Assembly: AssemblyMarker(GetType(OrderService))>
